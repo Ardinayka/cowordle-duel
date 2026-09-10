@@ -1,0 +1,1 @@
+CREATE INDEX `idx_rooms_expires` ON `rooms` (`expires`);

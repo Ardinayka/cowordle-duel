@@ -1,0 +1,98 @@
+[
+  {
+    "name": "american-words.10",
+    "sha256": "7139b57e82d4ca6fa387f989199286c94edae295ece85c10bf3624e91bd80255"
+  },
+  {
+    "name": "american-words.20",
+    "sha256": "ee14ce81fb2a9eae89443239a64c75f2b80266a79d87ae1aadb7fd04fe018346"
+  },
+  {
+    "name": "american-words.35",
+    "sha256": "43309d9977cd49bd412cc959feca28376bddab80603838698a2c8b0f9f3092b3"
+  },
+  {
+    "name": "american-words.40",
+    "sha256": "6b0cdf46ba32d77ad8194a9f350ab467b21d481557d55f21a7043c80ea868416"
+  },
+  {
+    "name": "american-words.50",
+    "sha256": "63664e0728f698856daa449b8eac5da9eb5ecb81ceef3846be4f8379b1cafd97"
+  },
+  {
+    "name": "american-words.55",
+    "sha256": "1c5efbf25588c1c8b26dca7e5844b275c7294e40e385fce6ead84dc7899a3583"
+  },
+  {
+    "name": "american-words.60",
+    "sha256": "187f62ea5a97424810cf9d9d5385e2b918cf5c1c60c530aa985dba704875cb89"
+  },
+  {
+    "name": "american-words.70",
+    "sha256": "d6aa97b8395f56739349fcf297873ce19e54a76eeb41f20470bed8187b265e85"
+  },
+  {
+    "name": "british-words.10",
+    "sha256": "8493991705033c841b2d9f3b832c127ffbb43d56832bb394d84e605af2742f7f"
+  },
+  {
+    "name": "british-words.20",
+    "sha256": "81b2c96d37252d684e8aeb0bcfd9ec6bfae6b61bae7093710882d1c5f8833fb0"
+  },
+  {
+    "name": "british-words.35",
+    "sha256": "9583ad39cceaa6ed281d334951168e3e10676f9d8a6f505c3f235f22d683e262"
+  },
+  {
+    "name": "british-words.40",
+    "sha256": "86ba90c7205de6d4c30fc6076e0949455bcc98b68c3d735b5ae54fa1e187cae0"
+  },
+  {
+    "name": "british-words.50",
+    "sha256": "0062e6b43c0d9a5e2820d2071194f34693a94939c819e139bcf879135c819f60"
+  },
+  {
+    "name": "british-words.55",
+    "sha256": "060015236bf3ec7cfc6c7af56b749c992736139d69e6ca94f27159c9b20e9bdd"
+  },
+  {
+    "name": "british-words.60",
+    "sha256": "70b9f49233128ccaa5d05b004574f93ae3be8162d14cc73857195fd5ff01854b"
+  },
+  {
+    "name": "british-words.70",
+    "sha256": "e7dde3af007e51b72e601dc08ff935fc83ee07614bd97a1f994a34e5dfab3bc2"
+  },
+  {
+    "name": "english-words.10",
+    "sha256": "b4cb7c969b160e5f2a6644dd645265f2eeb29725fa63b0688311e3b5473fcb47"
+  },
+  {
+    "name": "english-words.20",
+    "sha256": "7d7412cc2216668e7f81fbde1aaf8d01ef460b44248c4dbf3e99b053a27835a2"
+  },
+  {
+    "name": "english-words.35",
+    "sha256": "24551fbfc65bcf8549d12744f56502a9e3a6584c027024f2844ef08722aa5f81"
+  },
+  {
+    "name": "english-words.40",
+    "sha256": "4e0ef02c8755d47ce89cfd67e199b26a6cbe7d61d79af422535fa4392dd9b55e"
+  },
+  {
+    "name": "english-words.50",
+    "sha256": "11ffb2bac7d72ad2d11ed3ab01d2af9463a34c93e0000728be96523eb2d53ea8"
+  },
+  {
+    "name": "english-words.55",
+    "sha256": "573bf050fb0cdddd20367e41a1a490739bc4cd2164517b57067389e311fdcc32"
+  },
+  {
+    "name": "english-words.60",
+    "sha256": "3886f71530d0dfa6ba891659cc1e49dbecc84a54a9e4701729bee7ca35169b9d"
+  },
+  {
+    "name": "english-words.70",
+    "sha256": "e924e913117675bc135a0d26848376ed7b9599c64c734779e3b2ae06a94f5993"
+  }
+]

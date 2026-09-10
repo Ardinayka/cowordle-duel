@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789044876922,
+      "tag": "0000_tidy_mathemanic",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789045748888,
+      "tag": "0001_nostalgic_warbird",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789047842405,
+      "tag": "0002_lowly_fabian_cortez",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1789050377523,
+      "tag": "0003_graceful_triathlon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789050763937,
+      "tag": "0004_brainy_smiling_tiger",
+      "breakpoints": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+export function setupAccount({language,onName,onChange=()=>{}}){
+  const $=id=>document.getElementById(id),tr=(en,pt)=>language()==='pt'?pt:en;
+  let account={googleEnabled:false,user:null},loaded=false,working=false,loadPromise;
+  const error=(en,pt)=>$('account-error').textContent=tr(en,pt);
+  function render(){
+    onChange(account.user);
+    $('account-label').textContent=account.user?tr('Signed in as ','Sessão iniciada como ')+account.user.name:tr('Playing as a guest','A jogar como convidado');
+    $('account-detail').textContent=account.user?tr('Your Google profile is connected. Rooms stay in this tab.','O teu perfil Google está ligado. As salas ficam neste separador.'):!loaded?tr('No account needed to play.','Não precisas de conta para jogar.'):account.googleEnabled?tr('No account needed. Google sign-in is optional.','Não precisas de conta. Iniciar sessão com Google é opcional.'):tr('No account needed. Google sign-in is awaiting setup.','Não precisas de conta. O início de sessão com Google aguarda configuração.');
+    $('google-start').hidden=!!account.user||!account.googleEnabled||$('google-button').children.length>0;$('google-start').disabled=working;
+    $('google-start').textContent=working?tr('Loading Google…','A carregar Google…'):tr('Sign in with Google','Iniciar sessão com Google');
+    $('sign-out').hidden=!account.user;$('delete-account').hidden=!account.user;
+    $('sign-out').disabled=working;$('delete-account').disabled=working;
+    $('sign-out').textContent=tr('Sign out','Terminar sessão');$('delete-account').textContent=tr('Delete account','Apagar conta');
+  }
+  async function api(action,body){const r=await fetch('/api/auth/'+action,{method:body?'POST':'GET',headers:body?{'content-type':'application/json'}:{},credentials:'same-origin',...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok)throw Error(data.error);return data;}
+  function googleScript(){if(window.google?.accounts?.id)return Promise.resolve();if(loadPromise)return loadPromise;loadPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://accounts.google.com/gsi/client';script.async=true;const timeout=setTimeout(()=>{script.remove();loadPromise=null;reject(Error('google_load_failed'));},15000);script.onload=()=>{clearTimeout(timeout);resolve();};script.onerror=()=>{clearTimeout(timeout);script.remove();loadPromise=null;reject(Error('google_load_failed'));};document.head.append(script);});return loadPromise;}
+  $('google-start').onclick=async()=>{if(working)return;working=true;error('','');$('google-button').replaceChildren();render();try{const challenge=await api('challenge',{});await googleScript();window.google.accounts.id.initialize({client_id:challenge.clientId,nonce:challenge.nonce,auto_select:false,callback:async response=>{working=true;render();try{account=await api('google',{credential:response.credential,csrf:challenge.csrf});onName(account.user.name);$('google-button').replaceChildren();error('','');}catch{error('Sign-in could not be verified or expired. Select Sign in with Google to try again.','Não foi possível verificar a sessão ou o prazo terminou. Seleciona Iniciar sessão com Google para tentar novamente.');$('google-button').replaceChildren();}finally{working=false;render();}}});window.google.accounts.id.renderButton($('google-button'),{type:'standard',theme:'outline',size:'large',text:'continue_with',locale:language()==='pt'?'pt-PT':'en',width:260});}catch{error('Google could not load. Try again, or keep playing as a guest.','Não foi possível carregar Google. Tenta novamente ou continua como convidado.');}finally{working=false;render();}};
+  async function end(action){if(working)return;working=true;render();try{await api(action,{csrf:account.csrf});window.google?.accounts?.id?.disableAutoSelect();account={...account,user:null,csrf:null};error('','');$('delete-dialog').close();$('google-button').replaceChildren();}catch{error('Account action failed. Refresh and try again. Your game is unaffected.','A ação falhou. Atualiza a página e tenta novamente. O jogo não foi afetado.');}finally{working=false;render();}}
+  $('sign-out').onclick=()=>end('logout');$('delete-account').onclick=()=>$('delete-dialog').showModal();$('cancel-delete').onclick=()=>$('delete-dialog').close();$('confirm-delete').onclick=()=>end('delete');
+  $('delete-dialog').addEventListener('close',()=>$('account-label').focus());
+  api('me').then(data=>{account=data;loaded=true;if(account.user)onName(account.user.name);render();}).catch(()=>{error('Account service is unavailable. Guest practice still works.','O serviço de contas está indisponível. Podes continuar a treinar como convidado.');render();});
+  render();return render;
+}
