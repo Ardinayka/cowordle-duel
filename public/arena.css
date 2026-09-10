@@ -43,6 +43,14 @@ body.playing .keyboard{margin-top:4px}
    scrolling and pinch zoom, including when a tap lands between keys. */
 #keyboard,#keyboard .key{touch-action:manipulation}
 #keyboard{-webkit-user-select:none;user-select:none}
+#board-scroll:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.guide-links{display:flex;flex-wrap:wrap;gap:16px;width:100%;justify-content:center;padding:12px}
+.guide-links a{color:var(--muted);text-underline-offset:4px}
+body.playing #view-result{flex-shrink:0;min-height:44px}
+/* Small or zoomed screens retain all controls: scrolling is an explicit
+   accessibility fallback instead of collapsing the word history. */
+@media(max-height:600px) and (max-width:599px){body.playing{height:auto;min-height:100dvh;overflow-y:auto}body.playing #game-layout{flex:none}body.playing .arena{height:auto;min-height:0}body.playing #play-area{flex:none}body.playing #board-scroll{flex:none;height:220px;min-height:220px}body.playing #board{width:min(100%,240px)}}
+@media(max-height:480px) and (min-width:600px){body.playing #play-area{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}body.playing #play-area>*{min-width:0}}
 
 /* A result belongs above the board, never below the keyboard. */
 dialog.result{position:fixed;inset:0;margin:auto;width:min(400px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box}

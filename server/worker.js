@@ -3,15 +3,18 @@ import en from '../public/words-en.json' with {type:'json'};
 import pt from '../public/words-pt.json' with {type:'json'};
 import assets from './assets.js';
 import {authRoute} from './auth.js';
+import {protect,maintain} from './protection.js';
 import {matchmaking} from './matchmaking.js';
 const dictionaries={en,pt};const allowed={en:new Set(en.allowed),pt:new Set(pt.allowed)};
-const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'}});
+const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'}});
 function answer(lang,previous){const words=dictionaries[lang].answers.filter(w=>w!==previous);const n=crypto.getRandomValues(new Uint32Array(1))[0];return words[n%words.length];}
 async function hash(s){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,'0')).join('');}
 function db(env){if(!env.DB)throw Error('storage_unavailable');return env.DB.withSession?env.DB.withSession('first-primary'):env.DB;}
-export default {async fetch(request,env){try{const url=new URL(request.url);if(!url.pathname.startsWith('/api/')){const path=url.pathname==='/'?'/index.html':url.pathname;const asset=assets[path];if(!asset)return new Response('Not found',{status:404});return new Response(asset.body,{headers:{'content-type':asset.type,'cache-control':'no-cache','x-content-type-options':'nosniff','referrer-policy':'strict-origin-when-cross-origin','content-security-policy':"default-src 'self'; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; script-src 'self' https://accounts.google.com/gsi/client; connect-src 'self' https://accounts.google.com; frame-src https://accounts.google.com;  img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://chatgpt.com https://*.chatgpt.com"}});}
+export default {async fetch(request,env){try{const url=new URL(request.url);if(!url.pathname.startsWith('/api/')){const path=url.pathname==='/'?'/index.html':url.pathname;const asset=assets[path];if(!asset)return new Response('Not found',{status:404});return new Response(asset.body,{headers:{'content-type':asset.type,'cache-control':'no-cache','x-content-type-options':'nosniff','referrer-policy':'strict-origin-when-cross-origin','x-robots-tag':url.searchParams.has('room')?'noindex, nofollow':asset.type.startsWith('text/html')?'index, follow':'noindex','content-security-policy':"default-src 'self'; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; script-src 'self' https://accounts.google.com/gsi/client; connect-src 'self' https://accounts.google.com; frame-src https://accounts.google.com;  font-src 'self' data:; img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://chatgpt.com https://*.chatgpt.com"}});}
 if(!['GET','POST'].includes(request.method))return json({error:'method'},405);
 if(request.method==='POST'&&request.headers.get('origin')&&request.headers.get('origin')!==url.origin)return json({error:'origin'},403);
+const storageForProtection=db(env);try{await maintain(storageForProtection);}catch(e){console.error('Cleanup failed',String(e));}
+if(!await protect(request,storageForProtection))return new Response(JSON.stringify({error:'rate_limited'}),{status:429,headers:{'content-type':'application/json','cache-control':'no-store','retry-after':'60','x-robots-tag':'noindex, nofollow'}});
 if(url.pathname.startsWith('/api/auth/'))return await authRoute(request,env,db(env));
 const token=(request.headers.get('authorization')||'').replace(/^Bearer /,'');if(!/^[a-f0-9]{64}$/.test(token))return json({error:'session'},401);const auth=await hash(token);const storage=db(env);
 let body={};if(request.method==='POST'){const raw=await request.text();if(raw.length>2048)return json({error:'too_large'},413);try{body=JSON.parse(raw);}catch{return json({error:'invalid_request'},400);}}

@@ -1,5 +1,5 @@
 import {makeRoom,view,expire,leave,onlineSettings} from '../public/game.js';
-const json=(data,status=200)=>Response.json(data,{status,headers:{'cache-control':'no-store'}});
+const json=(data,status=200)=>Response.json(data,{status,headers:{'cache-control':'no-store','x-robots-tag':'noindex, nofollow'}});
 export async function matchmaking(storage,auth,body,action,chooseAnswer){
   if(!/^[a-f0-9]{32}$/.test(body.searchId||''))return json({error:'invalid_request'},400);
   const id=body.searchId,now=Date.now();

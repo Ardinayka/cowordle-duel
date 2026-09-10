@@ -4,7 +4,7 @@ export const randomToken=()=>Array.from(crypto.getRandomValues(new Uint8Array(32
 export const hash=async value=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',encoder.encode(value)))).map(x=>x.toString(16).padStart(2,'0')).join('');
 const cookie=(name,value,seconds)=>`${name}=${value}; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=${seconds}`;
 function readCookie(request,name){const value=(request.headers.get('cookie')||'').split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'='))?.slice(name.length+1);return /^[a-f0-9]{64}$/.test(value||'')?value:null;}
-const json=(body,status=200,cookies=[])=>{const headers=new Headers({'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff'});cookies.forEach(x=>headers.append('set-cookie',x));return new Response(JSON.stringify(body),{status,headers});};
+const json=(body,status=200,cookies=[])=>{const headers=new Headers({'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'});cookies.forEach(x=>headers.append('set-cookie',x));return new Response(JSON.stringify(body),{status,headers});};
 let keyCache={keys:[],expires:0},lastKeyRefresh=0;
 async function googleKey(kid){
   const now=Date.now();let key=keyCache.keys.find(k=>k.kid===kid);

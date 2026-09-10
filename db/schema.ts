@@ -8,3 +8,5 @@ export const authChallenges=sqliteTable('auth_challenges',{hash:text('hash').pri
 export const matchQueue=sqliteTable('match_queue',{auth:text('auth').primaryKey(),searchId:text('search_id').notNull(),bucket:text('bucket').notNull(),name:text('name').notNull(),status:text('status').notNull().default('waiting'),created:integer('created').notNull(),leaseUntil:integer('lease_until').notNull(),roomCode:text('room_code')},t=>[index('idx_match_queue_waiting').on(t.bucket,t.status,t.leaseUntil,t.created)]);
 
 export const retiredSearches=sqliteTable('retired_searches',{id:text('id').primaryKey(),expires:integer('expires').notNull()},t=>[index('idx_retired_searches_expires').on(t.expires)]);
+
+export const requestLimits=sqliteTable('request_limits',{id:text('id').primaryKey(),count:integer('count').notNull(),expires:integer('expires').notNull()},t=>[index('idx_request_limits_expires').on(t.expires)]);
