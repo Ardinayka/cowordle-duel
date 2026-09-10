@@ -1,1 +1,33 @@
-{"mode":"operate","surface":"duel","colors":{"background":"#f4f5f8","surface":"#ffffff","text":"#172036","secondary":"#626c80","line":"#dfe3eb","primary":"#3358cf","exact":"#267651","present":"#9c6919","absent":"#586477"},"radii":{"tile":6,"control":8,"arena":16},"typography":{"body":"Arial, sans-serif","display":"Georgia, serif","baseSize":16},"responsive":{"compact":700,"hideSecondary":1100},"motion":{"revealMs":350,"staggerMs":65,"respectsReducedMotion":true}}
+{
+  "mode": "operate",
+  "surface": "word-game",
+  "colors": {
+    "background": "#080e20",
+    "surface": "#111c32",
+    "text": "#f3f7ff",
+    "secondary": "#a8b8d0",
+    "line": "#29415d",
+    "primary": "#51d4ff",
+    "exact": "#51d4ff",
+    "present": "#f5b84c",
+    "absent": "#33445e"
+  },
+  "radii": {
+    "tile": 8,
+    "control": 12,
+    "arena": 18
+  },
+  "typography": {
+    "body": "Inter, Arial, sans-serif",
+    "display": "Inter, Arial, sans-serif",
+    "baseSize": 16
+  },
+  "responsive": {
+    "compact": 700,
+    "hideSecondary": 1100
+  },
+  "motion": {
+    "respectsReducedMotion": true
+  },
+  "reference": "https://www.figma.com/design/ELQ2KEDLoXXbtwPNNwNUb1"
+}
