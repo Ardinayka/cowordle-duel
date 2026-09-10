@@ -15,11 +15,10 @@ button.primary,#search-bot{box-shadow:var(--glow),inset 0 1px 0 rgb(255 255 255 
 .big-list>button.mode-launch>strong,.big-list>button.mode-launch>span{grid-column:2;min-width:0;overflow-wrap:anywhere}
 @media(max-width:700px){.big-list>button.mode-launch,.big-list>button.mode-launch:first-child,.big-list>button.mode-launch:hover{grid-template-columns:36px minmax(0,1fr);column-gap:16px;padding:18px 20px}.big-list>button.mode-launch>.mode-glyph{width:36px;height:36px}}
 
-/* Keep readable word rows ahead of decorative chrome. Short viewports scroll
-   the page instead of allowing flexbox to collapse the board to a sliver. */
-body.playing{height:auto;min-height:100dvh;overflow:auto}
-body.playing #game-layout{flex:1 0 auto;min-height:calc(100dvh - 68px);padding-top:8px;padding-bottom:8px}
-body.playing .arena{height:auto;min-height:0;padding-top:10px}
+/* Fit the active arena to the viewport; only earlier guesses scroll. */
+body.playing{height:100dvh;min-height:0;overflow:hidden}
+body.playing #game-layout{flex:1;min-height:0;padding-top:8px;padding-bottom:8px}
+body.playing .arena{height:100%;min-height:0;padding-top:10px}
 body.playing .arena-heading{margin-bottom:6px}
 body.playing .players{padding:6px 8px;box-shadow:none}
 body.playing .player .avatar{display:none}
@@ -30,17 +29,29 @@ body.playing .turn-line{min-height:36px;padding:6px 8px;margin:6px 0;gap:8px}
 body.playing .turn-line #turn-label{font-size:.8125rem;line-height:1.35}
 body.playing .timer{flex-shrink:0;font-size:.75rem}
 body.playing .timer.counting{font-size:1.4rem}
-body.playing #play-area{flex:1 0 auto;min-height:0}
+body.playing #play-area{flex:1;min-height:0}
 body.playing #history-hint{flex-shrink:0;margin:4px 0;font-size:.6875rem}
-body.playing #board-scroll{flex:1 0 240px;min-height:240px;max-height:440px;max-height:clamp(240px,calc(100dvh - 380px),440px);padding:4px 20px 8px;overflow:auto;scroll-snap-type:y proximity;scroll-padding:4px}
-body.playing #board{width:min(100%,280px);margin:0 auto;gap:6px}
+body.playing #board-scroll{flex:1;min-height:0;max-height:none;container-type:size;padding:4px 20px 8px;overflow:auto;scroll-snap-type:y proximity;scroll-padding:4px}
+body.playing #board{width:min(100%,280px);width:min(100%,max(200px,calc((100cqh - 42px)*5/6)),280px);margin:0 auto;gap:6px}
 body.playing #board .guess-row{scroll-snap-align:start}
 body.playing #draft-row{width:min(100%,280px);margin:8px auto}
 body.playing .tile{font-size:1.5rem;line-height:1}
 body.playing .keyboard{margin-top:4px}
-@media(max-width:700px){body.playing #game-layout{min-height:calc(100dvh - 56px);padding:6px}body.playing .arena{padding-left:8px;padding-right:8px}body.playing #board,body.playing #draft-row{width:min(100%,260px)}}
+@media(max-width:700px){body.playing #game-layout{min-height:0;padding:6px}body.playing .arena{padding-left:8px;padding-right:8px}body.playing #board,body.playing #draft-row{width:min(100%,260px)}}
 
 /* Rapid letter taps are input, not a double-tap zoom gesture. Keep native
    scrolling and pinch zoom, including when a tap lands between keys. */
 #keyboard,#keyboard .key{touch-action:manipulation}
 #keyboard{-webkit-user-select:none;user-select:none}
+
+/* A result belongs above the board, never below the keyboard. */
+dialog.result{position:fixed;inset:0;margin:auto;width:min(400px,calc(100vw - 32px));max-height:calc(100dvh - 32px);overflow:auto;box-sizing:border-box}
+dialog.result::backdrop{background:rgb(2 6 15 / .8)}
+body.playing #board{width:min(100%,max(200px,calc((100cqh - 42px)*5/6)),280px)}
+@media(max-height:720px){body.playing .topbar{min-height:48px;padding-top:2px;padding-bottom:2px}body.playing .arena-heading{margin-bottom:4px;font-size:.6875rem}body.playing .players{padding:3px 6px}body.playing .turn-line{margin:4px 0;padding:4px 6px;min-height:28px}body.playing #draft-row{width:220px;margin:4px auto}body.playing .bottom-actions{margin-top:2px}body.playing .key{height:44px;min-height:44px}body.playing #history-hint{margin:2px 0}}
+@media(max-height:480px) and (min-width:600px){body.playing #game-layout{padding:4px}body.playing .left-panel,body.playing .right-panel{display:none}body.playing #game-layout{display:flex;justify-content:center}body.playing .arena{width:100%;max-width:850px}body.playing #play-area{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 4px minmax(0,1fr) auto;column-gap:16px}body.playing .turn-line{grid-column:1 / -1}body.playing .time-track{grid-column:1 / -1}body.playing #board-scroll{grid-column:1;grid-row:3 / 5}body.playing #draft-row{grid-column:2;grid-row:3;align-self:end}body.playing #keyboard{grid-column:2;grid-row:4}body.playing #history-hint,body.playing #race-progress{display:none}}
+
+body.playing #game-layout{grid-template-rows:minmax(0,1fr)}
+body.playing .left-panel,body.playing .right-panel{min-height:0;overflow:auto}
+#result-error:empty{display:none}
+@media(max-height:720px){body.playing .left-panel,body.playing .right-panel{display:none}body.playing #game-layout{grid-template-columns:minmax(0,520px);justify-content:center}}
