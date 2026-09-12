@@ -7,3 +7,7 @@ Cleanup is attempted once per minute during API traffic, up to 500 records per t
 Remaining launch gates: physical iOS/Android QA, scheduled cleanup support, production capacity/load checks, confirmed backup export and restore workflow, cost monitoring, verified data residency, complete controller/contact/privacy and terms details, brand clearance, permanent domain and Search Console verification. No payment destination, paid features, domain purchase or migration is included.
 
 Source tests use SQLite and a simulated DOM. Browser security policy prevented visual testing in this session. Public guide canonicals and sitemap currently use https://lexivanto-beta.garrettardi.chatgpt.site and must change together when the permanent domain is approved.
+
+## Multiplayer responsiveness update
+
+Added revision-aware room synchronization, an 800 ms matchmaking retry cadence, persistent signed-in usernames/player tags, friend requests, five-minute direct game challenges, and one-action challenge acceptance. Added complete Word Swap selection and solving phases with hidden opponent words. Automated coverage now includes room sync, Word Swap privacy/scoring/rematch behaviour, and the friend-to-challenge-to-room path.

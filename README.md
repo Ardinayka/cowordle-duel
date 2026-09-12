@@ -1,6 +1,6 @@
 # Lexivanto
 
-Modes: locked-round Duel, Race, and alternating Co-op. Each supports a bot or a two-player friend room, configurable clocks, EN/PT-PT, keyboard/touch input, and rematches. A 12-character room code or invitation link joins a friend room; site access is a separate prerequisite.
+Modes: locked-round Duel, Race, alternating Co-op, and friend-only Word Swap. Duel, Race and Co-op support a bot or a two-player friend room; all modes support configurable clocks, EN/PT-PT, keyboard/touch input, and rematches. A 12-character room code or invitation link joins a friend room; site access is a separate prerequisite.
 
 ## Implementation
 
@@ -10,7 +10,7 @@ Drizzle owns schema migrations under `drizzle/`. `.openai/hosting.json` declares
 
 ## Validation and limitations
 
-41 automated tests cover scoring and mode transitions, sudden death, invalid guesses, hidden state, two concurrent player submissions, competing joins, restoration, expiry, touch-control startup, stable keyboard nodes, saved settings, bot deduction levels, signed Google-token verification, CSRF, challenge replay, session revocation, and account deletion. Independent source reviews checked server concurrency and client lifecycle. Tests use the compiled Worker with a SQLite-backed D1 adapter and a simulated DOM; they do not establish live two-device or browser compatibility. No browser/device QA has been performed.
+57 automated tests cover scoring and mode transitions, sudden death, invalid guesses, hidden state, two concurrent player submissions, competing joins, restoration, expiry, touch-control startup, stable keyboard nodes, saved settings, bot deduction levels, signed Google-token verification, CSRF, challenge replay, session revocation, account deletion, Word Swap, room synchronization and the friend-invitation path. Independent source reviews checked server concurrency and client lifecycle. Tests use the compiled Worker with a SQLite-backed D1 adapter and a simulated DOM; they do not establish live two-device or browser compatibility. No browser/device QA has been performed.
 
 Dictionaries remain preview-sized. No ranked matchmaking, payments, native app package, or account match-history sync. The Site is public; random online matchmaking is unrated.
 
@@ -48,3 +48,11 @@ Tests additionally cover three-way pairing, duplicate self-search, mode/language
 Duel supports explicit clockMode response alongside legacy round timing. New UI rooms and online queues use response timing, while saved rooms without the flag remain unchanged. Online accepts whitelisted timing values and separates queues by clockMode + seconds in rules version2. Bots force seconds0. Engine and Worker checks cover hidden first lock, first-lock-only deadline, invalid/repeated attempts, exact-boundary timeout, refresh and next-round reset.
 
 English dictionary source/selection hashes: data/english-wordlist-provenance.md and data/english-wordlist-checksums.json. The user-facing licence includes the complete upstream notices. Accepted words are broader than secret answers and bot vocabulary. No browser or physical-device visual QA was performed; CSS viewport behaviour needs a real phone check, especially unusual zoom, browser chrome and landscape.
+
+## Live rooms, friends and Word Swap
+
+Room clients now use revision-aware long polling instead of a fixed 1.5-second refresh. The Worker holds a sync request for up to 12 seconds and checks for a newer room revision every 200 ms, so joins, readiness, guesses and results normally appear without a visible multi-second mismatch. Matchmaking retry cadence is 800 ms. This improves perceived responsiveness but is not a claim of zero network latency; live two-device measurements are still required.
+
+Signed-in players receive a permanent player tag, may choose a unique username, exchange friend requests and send five-minute game challenges. An incoming challenge exposes Accept & play and Decline actions; acceptance returns the private room and the client joins and readies in one action. Guest invitation links remain available.
+
+Word Swap is a friend mode with two server-controlled phases. Each player first locks a private valid word for the other. Only after both choices exist does solving begin, with separate hidden boards and the opponent's word assigned as the target. The first solve wins; players may give up. Private choices and answers are excluded from projections until the match finishes.

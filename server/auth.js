@@ -28,10 +28,13 @@ export async function verifyGoogleToken(token,clientId,nonce,{now=Date.now(),res
   if(!['accounts.google.com','https://accounts.google.com'].includes(claims.iss)||claims.aud!==clientId||claims.azp&&claims.azp!==clientId||!Number.isFinite(claims.exp)||claims.exp<=seconds||!Number.isFinite(claims.iat)||claims.iat>seconds+60||claims.exp<=claims.iat||typeof claims.sub!=='string'||!claims.sub||claims.sub.length>255||claims.nonce!==nonce)throw Error('invalid_token');
   return {sub:claims.sub,name:typeof claims.name==='string'?claims.name.trim().slice(0,24)||'Player':'Player'};
 }
+export async function sessionForRequest(request,storage){
+  const sessionToken=readCookie(request,SESSION);if(!sessionToken)return null;
+  return storage.prepare('SELECT s.hash,s.csrf,s.user_id,p.display_name FROM auth_sessions s JOIN auth_profiles p ON p.id=s.user_id WHERE s.hash=? AND s.expires>?').bind(await hash(sessionToken),Date.now()).first();
+}
 export async function authRoute(request,env,storage){
   const path=new URL(request.url).pathname.slice('/api/auth/'.length),clientId=env.GOOGLE_CLIENT_ID||'';
-  let session=null;const sessionToken=readCookie(request,SESSION);
-  if(sessionToken)session=await storage.prepare('SELECT s.hash,s.csrf,s.user_id,p.display_name FROM auth_sessions s JOIN auth_profiles p ON p.id=s.user_id WHERE s.hash=? AND s.expires>?').bind(await hash(sessionToken),Date.now()).first();
+  const sessionToken=readCookie(request,SESSION),session=await sessionForRequest(request,storage);
   const identity=()=>({googleEnabled:!!clientId,clientId,user:session?{name:session.display_name}:null,csrf:session?.csrf||null});
   if(path==='me'&&request.method==='GET')return json(identity());
   if(request.method!=='POST')return json({error:'method'},405);
@@ -39,7 +42,7 @@ export async function authRoute(request,env,storage){
   const raw=await request.text();if(raw.length>14000)return json({error:'too_large'},413);let body;try{body=JSON.parse(raw);}catch{return json({error:'invalid_request'},400);}if(!body||typeof body!=='object')return json({error:'invalid_request'},400);
   if(path==='logout'||path==='delete'){
     if(!session||body.csrf!==session.csrf)return json({error:'session_expired'},401);
-    if(path==='delete'){await storage.prepare('DELETE FROM auth_sessions WHERE user_id=?').bind(session.user_id).run();await storage.prepare('DELETE FROM auth_profiles WHERE id=?').bind(session.user_id).run();}
+    if(path==='delete'){await storage.prepare('DELETE FROM game_challenges WHERE sender_id=? OR recipient_id=?').bind(session.user_id,session.user_id).run();await storage.prepare('DELETE FROM friend_requests WHERE sender_id=? OR recipient_id=?').bind(session.user_id,session.user_id).run();await storage.prepare('DELETE FROM friendships WHERE user_a=? OR user_b=?').bind(session.user_id,session.user_id).run();await storage.prepare('DELETE FROM player_profiles WHERE user_id=?').bind(session.user_id).run();await storage.prepare('DELETE FROM auth_sessions WHERE user_id=?').bind(session.user_id).run();await storage.prepare('DELETE FROM auth_profiles WHERE id=?').bind(session.user_id).run();}
     else await storage.prepare('DELETE FROM auth_sessions WHERE hash=?').bind(session.hash).run();
     return json({ok:true},200,[cookie(SESSION,'',0)]);
   }

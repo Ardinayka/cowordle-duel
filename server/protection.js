@@ -20,7 +20,7 @@ export async function protect(request,storage,now=Date.now()) {
 }
 
 export async function cleanupExpired(storage,now=Date.now()) {
-  const targets=[['rooms','code','expires',now],['auth_sessions','hash','expires',now],['auth_challenges','hash','expires',now],['retired_searches','id','expires',now],['match_queue','auth','lease_until',now-300000],['request_limits','id','expires',now]];
+  const targets=[['rooms','code','expires',now],['auth_sessions','hash','expires',now],['auth_challenges','hash','expires',now],['friend_requests','id','expires',now],['game_challenges','id','expires',now],['retired_searches','id','expires',now],['match_queue','auth','lease_until',now-300000],['request_limits','id','expires',now]];
   for(const [table,id,column,before] of targets)await storage.prepare(`DELETE FROM ${table} WHERE ${id} IN (SELECT ${id} FROM ${table} WHERE ${column} < ? LIMIT 500)`).bind(before).run();
 }
 export async function maintain(storage,now=Date.now()) {

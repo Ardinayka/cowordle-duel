@@ -3,7 +3,7 @@ export function setupAccount({language,onName,onChange=()=>{}}){
   let account={googleEnabled:false,user:null},loaded=false,working=false,loadPromise;
   const error=(en,pt)=>$('account-error').textContent=tr(en,pt);
   function render(){
-    onChange(account.user);
+    onChange(account.user?{...account.user,csrf:account.csrf}:null);
     $('account-label').textContent=account.user?tr('Signed in as ','Sessão iniciada como ')+account.user.name:tr('Playing as a guest','A jogar como convidado');
     $('account-detail').textContent=account.user?tr('Your Google profile is connected. Rooms stay in this tab.','O teu perfil Google está ligado. As salas ficam neste separador.'):!loaded?tr('No account needed to play.','Não precisas de conta para jogar.'):account.googleEnabled?tr('No account needed. Google sign-in is optional.','Não precisas de conta. Iniciar sessão com Google é opcional.'):tr('No account needed. Google sign-in is awaiting setup.','Não precisas de conta. O início de sessão com Google aguarda configuração.');
     $('google-start').hidden=!!account.user||!account.googleEnabled||$('google-button').children.length>0;$('google-start').disabled=working;
