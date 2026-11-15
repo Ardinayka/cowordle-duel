@@ -1,33 +1,805 @@
 {
-  "mode": "operate",
-  "surface": "word-game",
-  "colors": {
-    "background": "#080e20",
-    "surface": "#111c32",
-    "text": "#f3f7ff",
-    "secondary": "#a8b8d0",
-    "line": "#29415d",
-    "primary": "#51d4ff",
-    "exact": "#51d4ff",
-    "present": "#f5b84c",
-    "absent": "#33445e"
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-15T23:50:05+00:00",
+  "title": "Design System: Lexivanto",
+  "extensions": {
+    "colorMeta": {
+      "night-bg": {
+        "role": "neutral",
+        "displayName": "Night Navy",
+        "canonical": "#07101f",
+        "tonalRamp": [
+          "#121b2b",
+          "#1e3153",
+          "#26477d",
+          "#2d5fb3",
+          "#4c7ed2",
+          "#82a3d9",
+          "#b4c6e4",
+          "#e3e9f3"
+        ]
+      },
+      "night-surface": {
+        "role": "neutral",
+        "displayName": "Night Surface",
+        "canonical": "#0f1e36",
+        "tonalRamp": [
+          "#131c2a",
+          "#203350",
+          "#2b4978",
+          "#3462ac",
+          "#5381cb",
+          "#87a4d4",
+          "#b7c7e1",
+          "#e3e9f2"
+        ]
+      },
+      "night-raised": {
+        "role": "neutral",
+        "displayName": "Night Raised",
+        "canonical": "#172b4a",
+        "tonalRamp": [
+          "#141c29",
+          "#22334e",
+          "#2e4a76",
+          "#3864a8",
+          "#5783c7",
+          "#89a6d1",
+          "#b8c8e0",
+          "#e4e9f1"
+        ]
+      },
+      "night-sunken": {
+        "role": "neutral",
+        "displayName": "Night Sunken",
+        "canonical": "#050b16",
+        "tonalRamp": [
+          "#121b2b",
+          "#1e3053",
+          "#27457d",
+          "#2d5db3",
+          "#4c7bd2",
+          "#82a1d8",
+          "#b5c5e3",
+          "#e3e8f3"
+        ]
+      },
+      "night-ink": {
+        "role": "neutral",
+        "displayName": "Starlight Ink",
+        "canonical": "#f4f8ff",
+        "tonalRamp": [
+          "#0a1933",
+          "#0e2d62",
+          "#0d3f96",
+          "#0653da",
+          "#2572f9",
+          "#699bf2",
+          "#a7c2f1",
+          "#dee7f7"
+        ]
+      },
+      "night-muted": {
+        "role": "neutral",
+        "displayName": "Night Muted",
+        "canonical": "#c2d3ea",
+        "tonalRamp": [
+          "#151d28",
+          "#24354d",
+          "#304d73",
+          "#3c68a4",
+          "#5b87c3",
+          "#8ca8cf",
+          "#bac9de",
+          "#e4eaf1"
+        ]
+      },
+      "night-faint": {
+        "role": "neutral",
+        "displayName": "Night Faint",
+        "canonical": "#93aacb",
+        "tonalRamp": [
+          "#181d26",
+          "#293547",
+          "#3a4d6a",
+          "#4b6a95",
+          "#6a88b4",
+          "#95a9c5",
+          "#bfcad9",
+          "#e6eaef"
+        ]
+      },
+      "night-line": {
+        "role": "neutral",
+        "displayName": "Night Line",
+        "canonical": "#2b4668",
+        "tonalRamp": [
+          "#161e27",
+          "#27364a",
+          "#354e6e",
+          "#446b9c",
+          "#638abb",
+          "#91aaca",
+          "#bdcadb",
+          "#e5eaf0"
+        ]
+      },
+      "night-line-strong": {
+        "role": "neutral",
+        "displayName": "Night Line Strong",
+        "canonical": "#6485b0",
+        "tonalRamp": [
+          "#181e25",
+          "#2a3646",
+          "#3b4f68",
+          "#4e6c93",
+          "#6c8ab1",
+          "#97aac4",
+          "#c0cad8",
+          "#e6eaef"
+        ]
+      },
+      "night-focus": {
+        "role": "neutral",
+        "displayName": "Night Focus",
+        "canonical": "#51d4ff",
+        "tonalRamp": [
+          "#0a2933",
+          "#0e4d62",
+          "#0d7496",
+          "#06a6da",
+          "#25c4f9",
+          "#69d0f2",
+          "#a7dff1",
+          "#def1f7"
+        ]
+      },
+      "night-key": {
+        "role": "neutral",
+        "displayName": "Night Key",
+        "canonical": "#22395c",
+        "tonalRamp": [
+          "#151d28",
+          "#25344b",
+          "#324b71",
+          "#3f66a1",
+          "#5e85c0",
+          "#8ea7cd",
+          "#bbc8dd",
+          "#e5e9f0"
+        ]
+      },
+      "day-bg": {
+        "role": "neutral",
+        "displayName": "Day Mist",
+        "canonical": "#eef3f9",
+        "tonalRamp": [
+          "#151e28",
+          "#24364c",
+          "#314f72",
+          "#3d6ca3",
+          "#5c8ac2",
+          "#8daace",
+          "#bacade",
+          "#e5eaf1"
+        ]
+      },
+      "day-surface": {
+        "role": "neutral",
+        "displayName": "Day Surface",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#1f1f1f",
+          "#383838",
+          "#525252",
+          "#707070",
+          "#8f8f8f",
+          "#adadad",
+          "#cccccc",
+          "#ebebeb"
+        ]
+      },
+      "day-sunken": {
+        "role": "neutral",
+        "displayName": "Day Sunken",
+        "canonical": "#e1e9f3",
+        "tonalRamp": [
+          "#161e27",
+          "#26364a",
+          "#344e6f",
+          "#436b9e",
+          "#618abc",
+          "#90aacb",
+          "#bccadc",
+          "#e5eaf0"
+        ]
+      },
+      "day-ink": {
+        "role": "neutral",
+        "displayName": "Day Ink",
+        "canonical": "#0a1830",
+        "tonalRamp": [
+          "#111b2c",
+          "#1d3154",
+          "#25467e",
+          "#2b5eb6",
+          "#497cd4",
+          "#81a2da",
+          "#b4c6e4",
+          "#e2e8f3"
+        ]
+      },
+      "day-muted": {
+        "role": "neutral",
+        "displayName": "Day Muted",
+        "canonical": "#35486a",
+        "tonalRamp": [
+          "#181d25",
+          "#2a3446",
+          "#3b4b68",
+          "#4d6694",
+          "#6b85b2",
+          "#97a7c4",
+          "#c0c8d8",
+          "#e6e9ef"
+        ]
+      },
+      "day-faint": {
+        "role": "neutral",
+        "displayName": "Day Faint",
+        "canonical": "#52678a",
+        "tonalRamp": [
+          "#191d24",
+          "#2d3543",
+          "#404d63",
+          "#55698b",
+          "#7488aa",
+          "#9ca9bf",
+          "#c3cad5",
+          "#e7eaee"
+        ]
+      },
+      "day-line": {
+        "role": "neutral",
+        "displayName": "Day Line",
+        "canonical": "#c3d0e2",
+        "tonalRamp": [
+          "#181d26",
+          "#293647",
+          "#3a4e69",
+          "#4b6a95",
+          "#6a89b4",
+          "#96aac5",
+          "#bfcad9",
+          "#e6eaef"
+        ]
+      },
+      "day-line-strong": {
+        "role": "neutral",
+        "displayName": "Day Line Strong",
+        "canonical": "#5e7391",
+        "tonalRamp": [
+          "#1a1e23",
+          "#2f3741",
+          "#434f60",
+          "#5a6c87",
+          "#788ba5",
+          "#9fabbc",
+          "#c4cbd4",
+          "#e8eaed"
+        ]
+      },
+      "day-focus": {
+        "role": "neutral",
+        "displayName": "Day Focus",
+        "canonical": "#075a75",
+        "tonalRamp": [
+          "#0d2830",
+          "#134b5d",
+          "#15708e",
+          "#12a0ce",
+          "#31bfed",
+          "#71ccea",
+          "#abdded",
+          "#dff0f6"
+        ]
+      },
+      "day-key": {
+        "role": "neutral",
+        "displayName": "Day Key",
+        "canonical": "#d5dfec",
+        "tonalRamp": [
+          "#171e26",
+          "#283648",
+          "#384e6b",
+          "#486b98",
+          "#678ab7",
+          "#94aac7",
+          "#becada",
+          "#e6eaef"
+        ]
+      },
+      "exact-night": {
+        "role": "primary",
+        "displayName": "Scoreboard Cyan (dark)",
+        "canonical": "#3ccbfa",
+        "tonalRamp": [
+          "#0b2832",
+          "#104c60",
+          "#117293",
+          "#0ba3d5",
+          "#2ac2f4",
+          "#6cceee",
+          "#a9deef",
+          "#dff1f7"
+        ]
+      },
+      "on-exact-night": {
+        "role": "primary",
+        "displayName": "On Exact Night",
+        "canonical": "#021019",
+        "tonalRamp": [
+          "#0d2230",
+          "#14405c",
+          "#175e8c",
+          "#1684cb",
+          "#34a2e9",
+          "#73bae8",
+          "#acd3ec",
+          "#e0edf5"
+        ]
+      },
+      "exact-day": {
+        "role": "primary",
+        "displayName": "Scoreboard Cyan (light)",
+        "canonical": "#075a75",
+        "tonalRamp": [
+          "#0d2830",
+          "#134b5d",
+          "#15708e",
+          "#12a0ce",
+          "#31bfed",
+          "#71ccea",
+          "#abdded",
+          "#dff0f6"
+        ]
+      },
+      "on-exact-day": {
+        "role": "primary",
+        "displayName": "On Exact Day",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#1f1f1f",
+          "#383838",
+          "#525252",
+          "#707070",
+          "#8f8f8f",
+          "#adadad",
+          "#cccccc",
+          "#ebebeb"
+        ]
+      },
+      "present-night": {
+        "role": "primary",
+        "displayName": "Lamp Amber (dark)",
+        "canonical": "#f7b84a",
+        "tonalRamp": [
+          "#31240c",
+          "#5f4312",
+          "#906313",
+          "#d18b0f",
+          "#f0a92e",
+          "#ecbe6f",
+          "#eed5aa",
+          "#f6eedf"
+        ]
+      },
+      "present-day": {
+        "role": "primary",
+        "displayName": "Lamp Amber (light)",
+        "canonical": "#f2ae30",
+        "tonalRamp": [
+          "#30240d",
+          "#5d4313",
+          "#8e6415",
+          "#ce8c13",
+          "#ecab31",
+          "#eabf71",
+          "#edd6ab",
+          "#f6eedf"
+        ]
+      },
+      "on-present": {
+        "role": "primary",
+        "displayName": "On Present",
+        "canonical": "#1a1000",
+        "tonalRamp": [
+          "#33230a",
+          "#62420e",
+          "#96610d",
+          "#da8906",
+          "#f9a725",
+          "#f2bd69",
+          "#f1d5a7",
+          "#f7eede"
+        ]
+      },
+      "competitive-night": {
+        "role": "secondary",
+        "displayName": "Competitive Night",
+        "canonical": "#b9a0ff",
+        "tonalRamp": [
+          "#150a33",
+          "#240e62",
+          "#310d96",
+          "#3e06da",
+          "#5d25f9",
+          "#8d69f2",
+          "#baa7f1",
+          "#e5def7"
+        ]
+      },
+      "competitive-day": {
+        "role": "secondary",
+        "displayName": "Competitive Day",
+        "canonical": "#5b36c9",
+        "tonalRamp": [
+          "#19132a",
+          "#2c2050",
+          "#3e2a79",
+          "#5233ad",
+          "#7052cc",
+          "#9a86d5",
+          "#c1b7e1",
+          "#e7e3f2"
+        ]
+      },
+      "normal-night": {
+        "role": "secondary",
+        "displayName": "Normal Night",
+        "canonical": "#51d4ff",
+        "tonalRamp": [
+          "#0a2933",
+          "#0e4d62",
+          "#0d7496",
+          "#06a6da",
+          "#25c4f9",
+          "#69d0f2",
+          "#a7dff1",
+          "#def1f7"
+        ]
+      },
+      "normal-day": {
+        "role": "secondary",
+        "displayName": "Normal Day",
+        "canonical": "#075a75",
+        "tonalRamp": [
+          "#0d2830",
+          "#134b5d",
+          "#15708e",
+          "#12a0ce",
+          "#31bfed",
+          "#71ccea",
+          "#abdded",
+          "#dff0f6"
+        ]
+      },
+      "friend-night": {
+        "role": "secondary",
+        "displayName": "Friend Night",
+        "canonical": "#5fe3b3",
+        "tonalRamp": [
+          "#102d22",
+          "#1b5640",
+          "#22825f",
+          "#26bb85",
+          "#44d9a3",
+          "#7dddba",
+          "#b2e6d3",
+          "#e2f4ed"
+        ]
+      },
+      "friend-day": {
+        "role": "secondary",
+        "displayName": "Friend Day",
+        "canonical": "#0b6b4b",
+        "tonalRamp": [
+          "#0e2f24",
+          "#165a43",
+          "#1a8964",
+          "#1ac78d",
+          "#38e5ac",
+          "#76e5c0",
+          "#aeead6",
+          "#e0f5ee"
+        ]
+      },
+      "bot-night": {
+        "role": "secondary",
+        "displayName": "Bot Night",
+        "canonical": "#9db8dd",
+        "tonalRamp": [
+          "#151d28",
+          "#24354c",
+          "#304c73",
+          "#3d68a4",
+          "#5b87c2",
+          "#8ca8cf",
+          "#bac9de",
+          "#e4eaf1"
+        ]
+      },
+      "bot-day": {
+        "role": "secondary",
+        "displayName": "Bot Day",
+        "canonical": "#44546e",
+        "tonalRamp": [
+          "#1a1d23",
+          "#2e3642",
+          "#414e62",
+          "#576a89",
+          "#7689a8",
+          "#9daabe",
+          "#c3cad5",
+          "#e8eaee"
+        ]
+      },
+      "danger-night": {
+        "role": "neutral",
+        "displayName": "Danger Night",
+        "canonical": "#ff8a80",
+        "tonalRamp": [
+          "#330e0a",
+          "#62150e",
+          "#96180d",
+          "#da1706",
+          "#f93525",
+          "#f27469",
+          "#f1ada7",
+          "#f7e0de"
+        ]
+      },
+      "danger-day": {
+        "role": "neutral",
+        "displayName": "Danger Day",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "#2d1210",
+          "#561d1a",
+          "#822621",
+          "#bc2d25",
+          "#da4b43",
+          "#de827d",
+          "#e7b4b1",
+          "#f4e3e2"
+        ]
+      },
+      "warning-night": {
+        "role": "neutral",
+        "displayName": "Warning Night",
+        "canonical": "#f7b84a",
+        "tonalRamp": [
+          "#31240c",
+          "#5f4312",
+          "#906313",
+          "#d18b0f",
+          "#f0a92e",
+          "#ecbe6f",
+          "#eed5aa",
+          "#f6eedf"
+        ]
+      },
+      "warning-day": {
+        "role": "neutral",
+        "displayName": "Warning Day",
+        "canonical": "#8a5a00",
+        "tonalRamp": [
+          "#33250a",
+          "#62450e",
+          "#96660d",
+          "#da9106",
+          "#f9af25",
+          "#f2c269",
+          "#f1d7a7",
+          "#f7eede"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Screen titles."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Dialog and section titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card titles and sub-sections."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "All UI text; rem-based."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Match label chips and badges."
+      },
+      "tile": {
+        "displayName": "Tile",
+        "purpose": "Letters on tiles, 46% of tile size."
+      }
+    },
+    "shadows": [
+      {
+        "name": "shadow-1",
+        "value": "0 2px 6px rgb(0 0 0 / .25)",
+        "purpose": "Resting cards (dark; light uses rgb(10 24 48 / .08))."
+      },
+      {
+        "name": "shadow-2",
+        "value": "0 8px 24px rgb(0 0 0 / .35)",
+        "purpose": "Defined for floating menus; not yet used."
+      },
+      {
+        "name": "shadow-3",
+        "value": "0 16px 40px rgb(0 0 0 / .5)",
+        "purpose": "Dialogs, sheets and the invitation banner."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "All state transitions, 150–420 ms."
+      },
+      {
+        "name": "reveal-stagger",
+        "value": "90ms",
+        "purpose": "Tile flip delay between letters."
+      },
+      {
+        "name": "press",
+        "value": "80ms scale(.97)",
+        "purpose": "Button press."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "360px"
+      },
+      {
+        "name": "phone",
+        "value": "599px"
+      },
+      {
+        "name": "rail",
+        "value": "768px"
+      },
+      {
+        "name": "wide",
+        "value": "1100px"
+      },
+      {
+        "name": "short-700",
+        "value": "max-height 700px"
+      },
+      {
+        "name": "short-600",
+        "value": "max-height 600px"
+      },
+      {
+        "name": "short-450",
+        "value": "max-height 450px"
+      }
+    ]
   },
-  "radii": {
-    "tile": 8,
-    "control": 12,
-    "arena": 18
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action on a screen; neutral ink, never a tile colour.",
+      "html": "<button class=\"ds-btn-primary\">Find a match</button>",
+      "css": ".ds-btn-primary{font:700 .9375rem/1.2 var(--font-ui,Inter,sans-serif);background:var(--primary,#f4f8ff);color:var(--on-primary,#07101f);border:1.5px solid var(--primary,#f4f8ff);border-radius:12px;min-height:52px;padding:10px 18px;cursor:pointer;transition:transform 80ms cubic-bezier(.16,1,.3,1),background-color 120ms}.ds-btn-primary:hover{background:var(--primary-pressed,#c2d3ea)}.ds-btn-primary:focus-visible{outline:3px solid var(--focus,#51d4ff);outline-offset:2px}.ds-btn-primary:active{transform:scale(.97)}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quiet secondary actions.",
+      "html": "<button class=\"ds-btn-secondary\">Invite a friend</button>",
+      "css": ".ds-btn-secondary{font:600 .9375rem/1.2 var(--font-ui,Inter,sans-serif);background:var(--secondary,#22395c);color:var(--ink,#f4f8ff);border:1.5px solid var(--line-strong,#6485b0);border-radius:12px;min-height:48px;padding:10px 18px;cursor:pointer}.ds-btn-secondary:hover{background:var(--secondary-pressed,#2b4668)}.ds-btn-secondary:focus-visible{outline:3px solid var(--focus,#51d4ff);outline-offset:2px}.ds-btn-secondary:active{transform:scale(.97)}"
+    },
+    {
+      "name": "Clue Tiles",
+      "kind": "custom",
+      "refersTo": "tile-exact",
+      "description": "Shape-coded clues: exact square with a tick, present disc in a slot, absent flat.",
+      "html": "<div class=\"ds-row\"><span class=\"ds-tile ds-exact\">C</span><span class=\"ds-tile ds-present\">R</span><span class=\"ds-tile ds-absent\">A</span><span class=\"ds-tile\">N</span><span class=\"ds-tile\">E</span></div>",
+      "css": ".ds-row{display:flex;gap:6px}.ds-tile{position:relative;width:52px;height:52px;display:grid;place-items:center;border-radius:8px;border:2px solid var(--tile-border,#5e7391);background:var(--tile-empty,#0f1e36);color:var(--ink,#f4f8ff);font:800 24px/1 Lexend,Inter,sans-serif}.ds-exact{background:var(--exact,#3ccbfa);border-color:var(--exact,#3ccbfa);color:var(--on-exact,#021019)}.ds-exact::after{content:\"\";position:absolute;top:2px;right:2px;width:11px;height:11px;background:var(--on-exact,#021019);-webkit-mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5 9.5 18 20 6'/%3E%3C/svg%3E\") center/contain no-repeat;mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5 9.5 18 20 6'/%3E%3C/svg%3E\") center/contain no-repeat}.ds-present{border-color:var(--slot,#050b16);background:radial-gradient(circle closest-side,var(--present,#f7b84a) 92%,var(--slot,#050b16) 95%);color:var(--on-present,#1a1000)}.ds-absent{border-color:transparent;background:var(--absent,#0f1e36);color:var(--on-absent,#93aacb)}"
+    },
+    {
+      "name": "Keyboard Key",
+      "kind": "button",
+      "refersTo": "key",
+      "description": "On-screen letter key, at least 44 px tall.",
+      "html": "<button class=\"ds-key\">Q</button><button class=\"ds-key ds-key-wide\">Enter</button>",
+      "css": ".ds-key{min-width:36px;height:54px;padding:0 8px;border:0;border-radius:8px;background:var(--key,#22395c);color:var(--on-key,#f4f8ff);font:600 1.1875rem/1 Lexend,Inter,sans-serif;text-transform:uppercase;cursor:pointer;margin:2px}.ds-key-wide{font-size:.8rem;padding:0 14px}.ds-key:focus-visible{outline:3px solid var(--focus,#51d4ff);outline-offset:2px}.ds-key:active{transform:scale(.95)}"
+    },
+    {
+      "name": "Way Card",
+      "kind": "card",
+      "refersTo": "way-card",
+      "description": "One of the four ways to play on the Play home.",
+      "html": "<button class=\"ds-way\"><span class=\"ds-way-icon\"></span><span><strong>Competitive</strong><small>Rated · sign-in required</small></span></button>",
+      "css": ".ds-way{display:grid;grid-template-columns:52px minmax(0,1fr) 18px;align-items:center;gap:14px;width:100%;min-height:88px;padding:16px;text-align:left;border-radius:16px;background:var(--surface,#0f1e36);color:var(--ink,#f4f8ff);border:1.5px solid var(--competitive,#b9a0ff);box-shadow:var(--shadow-1,0 2px 6px rgb(0 0 0/.25));cursor:pointer;font:400 1rem/1.4 Inter,sans-serif}.ds-way strong{display:block;font:800 1.0625rem/1.2 Lexend,Inter,sans-serif}.ds-way small{color:var(--muted,#c2d3ea)}.ds-way-icon{width:52px;height:52px;border-radius:14px;background:var(--competitive-soft,#211a45)}.ds-way:hover{background:var(--raised,#172b4a)}.ds-way:focus-visible{outline:3px solid var(--focus,#51d4ff);outline-offset:2px}"
+    },
+    {
+      "name": "Match Label Chip",
+      "kind": "chip",
+      "refersTo": "match-chip",
+      "description": "States whether the current match is rated.",
+      "html": "<span class=\"ds-chip\">COMPETITIVE · RATED</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;min-height:26px;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font:700 .75rem/1.2 Inter,sans-serif;letter-spacing:.04em;color:var(--competitive,#b9a0ff)}"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "",
+      "description": "Bottom navigation on phones; a left rail from 768 px.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab\" aria-current=\"page\"><span class=\"ds-tab-ic\"></span>Play</a><a class=\"ds-tab\"><span class=\"ds-tab-ic\"></span>Friends</a><a class=\"ds-tab\"><span class=\"ds-tab-ic\"></span>Inbox</a><a class=\"ds-tab\"><span class=\"ds-tab-ic\"></span>Ranks</a><a class=\"ds-tab\"><span class=\"ds-tab-ic\"></span>Me</a></nav>",
+      "css": ".ds-tabs{display:grid;grid-template-columns:repeat(5,1fr);height:64px;background:var(--surface,#0f1e36);border-top:1px solid var(--line,#2b4668)}.ds-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted,#c2d3ea);font:600 .75rem/1.2 Inter,sans-serif;cursor:pointer}.ds-tab-ic{width:56px;height:32px;border-radius:999px}.ds-tab[aria-current] {color:var(--ink,#f4f8ff)}.ds-tab[aria-current] .ds-tab-ic{background:var(--normal-soft,#0b2a3d)}.ds-tab:hover{color:var(--ink,#f4f8ff)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "",
+      "description": "Name, username and search fields.",
+      "html": "<input class=\"ds-input\" placeholder=\"Player name\">",
+      "css": ".ds-input{font:400 1.0625rem/1.4 Inter,sans-serif;color:var(--ink,#f4f8ff);background:var(--sunken,#050b16);border:1.5px solid var(--line-strong,#6485b0);border-radius:12px;min-height:52px;padding:12px 14px;width:100%}.ds-input::placeholder{color:var(--faint,#93aacb)}.ds-input:focus-visible{outline:3px solid var(--focus,#51d4ff);outline-offset:0}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Scoreboard",
+    "overview": "Dark, calm surfaces with the clues lit up like a scoreboard. The board and keyboard are the stars; everything else steps back. This is Operate mode: a competitive word game used on a phone, often outdoors and in short, interrupted sessions, so precision and restraint matter more than decoration.\n\nClues are read by shape first and colour second, so they survive colour blindness, greyscale and glare. The primary action is neutral (the ink colour), never a tile colour, so a button can never be mistaken for a clue. Each way to play has its own accent (Competitive violet, Normal cyan, Friend green, Bot slate), used for edges and labels, not for fills behind text.",
+    "keyCharacteristics": [
+      "Board and keyboard first; the keyboard stays fully on screen down to 320×568 and 683×384.",
+      "Shape-coded clues on tiles and keys.",
+      "Neutral primary action; accents name the way to play.",
+      "Every match shows a label chip saying whether it is rated.",
+      "Short, stateful motion that reduced-motion removes entirely."
+    ],
+    "rules": [
+      {
+        "name": "The Neutral Action Rule",
+        "body": "The primary button uses the ink colour, never a tile or accent colour.",
+        "section": "colors"
+      },
+      {
+        "name": "The Seven-to-One Rule",
+        "body": "Every tile and key letter is at least 7:1 against its fill in both themes; body text at least 4.5:1; control borders at least 3:1.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Glyph Rule",
+        "body": "No Unicode glyphs for icons or clues. Icons are drawn SVG (24 px, 2 px stroke, round caps).",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do keep motion short and stateful (150–420 ms, exponential ease-out): tile flip on reveal (90 ms stagger), invalid-word shake, invitation banner slide, result medal spring on a win, urgent-timer pulse, search radar.",
+      "Do remove all of that motion under `prefers-reduced-motion`.",
+      "Do check every visual change at 320, 390, 768 and 1366 px, at 683×384 (200% desktop zoom) and at 200% text, in both themes (see AGENTS.md)."
+    ],
+    "donts": [
+      "Don't use a tile colour or accent as the primary button fill.",
+      "Don't convey a clue by colour alone.",
+      "Don't put anything over the board or keyboard during play.",
+      "Don't use Unicode glyphs as icons."
+    ]
   },
-  "typography": {
-    "body": "Inter, Arial, sans-serif",
-    "display": "Inter, Arial, sans-serif",
-    "baseSize": 16
-  },
-  "responsive": {
-    "compact": 700,
-    "hideSecondary": 1100
-  },
-  "motion": {
-    "respectsReducedMotion": true
-  },
-  "reference": "https://www.figma.com/design/ELQ2KEDLoXXbtwPNNwNUb1"
+  "reference": "https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido"
 }

@@ -1,10 +1,28 @@
 # Lexivanto — current product contract
 
+<!-- impeccable:product-schema 1 -->
+
 Maintained by bully. Public browser beta at https://lexivanto.com. English only. This document supersedes historical design notes; it describes the implemented release, not future promises.
+
+## Platform
+
+web
+
+## Users
+
+Adults who already play daily word puzzles. They play on a phone, in a few spare minutes, often outdoors or one-handed. Some come to play a specific friend; others want a ranked opponent or a quick practice game.
+
+## Positioning
+
+Lexivanto turns the daily five-letter word puzzle into a live, fair two-player match. Duel (simultaneous hidden guesses, revealed together), Race and Co-op can be played against friends, in rated Competitive or unrated Normal queues, or against a bot. There are no ads and no paid advantages.
+
+## Operating Context
+
+A mobile browser is the main surface; desktop browsers are supported. Sessions are short and interrupted: an invitation can arrive mid-match, the phone can lose connection, and the player may switch apps. Phone apps are planned in REDESIGN-PLAN.md (installable web app, then a Google Play listing, then an App Store shell) but not built.
 
 ## Play
 
-Home (the Play tab) offers four ways to play: Competitive (rated online Duel, sign-in required), Normal (online Duel, never rated, open to guests), Play a friend and Practise vs bot (both pick a game first; Word Swap is friends only). Bottom tabs: Play, Friends, Inbox, Ranks, Me. Guest names are editable; Google accounts can claim a unique username. Back returns to the previous setup step and confirms leaving an active match. Profile and Friends stay separate from game setup. No dropdowns, automatic bot substitution, paid advantages or advertising. Competitive and Normal are separate queues and never pair with each other. Only Competitive Duels are rated (Elo); every match shows whether it is rated (Rated Duel, Online · not rated, Friend game · not rated, Practice · not rated). Guests who leave the name empty get an automatic name. The phone or browser Back button follows the in-game Back, including the leave confirmation in a match.
+Home (the Play tab) offers four ways to play: Competitive (rated online Duel, sign-in required), Normal (online Duel, never rated, open to guests), Play a friend and Practise vs bot (both pick a game first; Word Swap is friends only). Bottom tabs: Play, Friends, Inbox, Ranks, Me. Guest names are editable; Google accounts can claim a unique username. Back returns to the previous setup step and confirms leaving an active match. Profile and Friends stay separate from game setup. No dropdowns, automatic bot substitution, paid advantages or advertising. Competitive and Normal are separate queues and never pair with each other. Only Competitive Duels are rated (Elo); every match shows whether it is rated (COMPETITIVE · RATED, NORMAL · NOT RATED, FRIEND GAME · NOT RATED, PRACTICE · NOT RATED). Guests who leave the name empty get an automatic name. The phone or browser Back button follows the in-game Back, including the leave confirmation in a match.
 
 - Duel: both players lock a guess; neither can see the other's pending word. Both guesses reveal together. Online uses a 30-second reply clock starting only after the first valid lock. Private Duel defaults untimed, with an optional response timer.
 - Race: separate boards, unlimited guesses, no timer. The first correct server-accepted guess wins. Attempt count does not rank players.
@@ -17,7 +35,7 @@ English has 6,508 allowed guesses, 500 curated secret answers and 2,254 bot word
 
 Server-owned D1 room state, revision checks and match generations protect concurrent actions and rematches. Rooms expire after 24 hours. Both players acknowledge online lobbies within 45 seconds; queue leases last 20 seconds. Separate retirement records fence old searches. Only players who polled the queue within the last 6 s are offered as opponents, so a closed tab stops being matchable almost at once. One verified account cannot pair against itself or maintain duplicate live waiting searches. An older match does not lock the account out of a new-device search.
 
-Private hosts can change mode/timer in the same waiting or finished room. Both players must ready again. Invitation links remain for guests. A link does not reserve the free seat. Accepted friends can receive direct challenges lasting five minutes. A challenge appears as a banner above every screen and dialog with a live countdown, a short chime and vibration (when the player has turned those on) and one-tap Accept or Decline; Accept joins the room in place and marks the player ready. In a match the banner shrinks to a strip above the current word and cannot accept until the match ends. Hiding the banner keeps the challenge in the inbox; Decline answers it. The Friends dialog opens with an inbox: live invitations, friend requests, invitations missed in the last 7 days (with Challenge back) and the status of invitations you sent (sent, seen, accepted, declined, no answer). Any friend can be invited whether online, in a game or offline; it waits in their inbox. The lobby shows the sender what happened to the invitation. Signed-in clients sync friends and presence in one request every 6 s on menus and every 20 s during a match, paused while the tab is hidden. Incoming friend requests also show a banner, are listed first in Friends, and are counted on the Friends button.
+Private hosts can change mode/timer in the same waiting or finished room. Both players must ready again. Invitation links remain for guests. A link does not reserve the free seat. Accepted friends can receive direct challenges lasting five minutes. A challenge appears as a banner above every screen and dialog with a live countdown, a short chime and vibration (when the player has turned those on) and one-tap Accept or Decline; Accept joins the room in place and marks the player ready. In a match the banner shrinks to a strip above the current word and cannot accept until the match ends. Hiding the banner keeps the challenge in the inbox; Decline answers it. The Inbox tab (and the top of Friends) lists: live invitations, friend requests, invitations missed in the last 7 days (with Challenge back) and the status of invitations you sent (sent, seen, accepted, declined, no answer). Any friend can be invited whether online, in a game or offline; it waits in their inbox. The lobby shows the sender what happened to the invitation. Signed-in clients sync friends and presence in one request every 6 s on menus and every 20 s during a match, paused while the tab is hidden. Incoming friend requests also show a banner, are listed first in Friends, and are counted on the Friends button.
 
 Google sign-in gives a seven-day opaque account session, unique player tag, optional username, avatar and colour. Guests keep their preferences on the device. Signed-in appearance is saved when Done succeeds and appears to friends and future opponents. Friends search uses an exact username/tag, never a bulk directory. Requests require recipient consent. Accepted friends see recent availability.
 
@@ -36,3 +54,19 @@ Help & feedback accepts bugs, ideas, player reports and privacy requests. Messag
 ## Measurement
 
 Aggregate daily counters and a one-way hashed device code (kept 60 days) measure return rates and invitation use. No third-party analytics, names, accounts or IP addresses. Queries are in OPERATIONS.md.
+
+## Evidence on Hand
+
+Real assets: the word lists and their licence notices, the avatar and logo WebP files, the redesign Figma file (https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido) and REDESIGN-PLAN.md (critique and roadmap). Usage figures exist only as the aggregate counters described in Measurement. There are no testimonials, reviews, press, player counts or win-rate claims; do not invent them.
+
+## Product Principles
+
+1. Fair first: every match says whether it is rated, and nothing can be bought that helps a player win.
+2. The board and keyboard come first during play; nothing may cover or crowd them.
+3. An invitation is never silently lost: it is visible wherever the player is, and missed ones stay in the inbox.
+4. Expect interruptions: a guess typed offline is kept and sent on reconnect, and online matches resume after a reload.
+5. Describe only what is built and measured; promises belong in the roadmap, not the product.
+
+## Accessibility & Inclusion
+
+WCAG 2.2 AA throughout; tile and key letters meet AAA contrast (7:1). Clues are shape-coded so they do not depend on colour. New controls are at least 48×48 CSS px (keyboard keys at least 44 px tall). Light and dark themes, 200% text size and reduced motion are supported. AGENTS.md lists the release checks.
