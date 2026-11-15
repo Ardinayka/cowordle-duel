@@ -14,7 +14,7 @@ async function current(storage,userId){
 export async function settleMatch(storage,g,code){
  if(!g?.online||g.status!=='finished'||g.reason==='cancelled'||g.settings?.mode!=='duel'||!Number.isInteger(g.match))return;
  const id=code+':'+g.match,accounts=await Promise.all(g.players.map(p=>accountFor(storage,p?.tag)));
- const users=accounts.map(x=>x?.user_id||null),rated=users.every(Boolean)&&users[0]!==users[1]&&['timeout','solved','left'].includes(g.reason);
+ const users=accounts.map(x=>x?.user_id||null),rated=g.queue!=='normal'&&users.every(Boolean)&&users[0]!==users[1]&&['timeout','solved','left'].includes(g.reason);
  const before=await Promise.all(users.map(x=>x?current(storage,x):null));
  let deltas=[0,0];if(rated){const raw=Math.round(32*(outcome(g.winner,0)-expected(before[0].rating,before[1].rating)));deltas=[raw,-raw];}
  const statements=[storage.prepare("INSERT OR IGNORE INTO match_results (id,room_code,match,mode,player_a,player_b,winner,reason,rated,settled,created) VALUES (?,?,?,?,?,?,?,?,?,0,?)").bind(id,code,g.match,'duel',users[0],users[1],g.winner===null?null:users[g.winner]||null,String(g.reason||'finished'),rated?1:0,Date.now())];
