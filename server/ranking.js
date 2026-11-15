@@ -12,7 +12,7 @@ async function current(storage,userId){
  return row||{rating:1000,rated_games:0,wins:0,draws:0,losses:0,xp:0};
 }
 export async function settleMatch(storage,g,code){
- if(!g?.online||g.status!=='finished'||g.settings?.mode!=='duel'||!Number.isInteger(g.match))return;
+ if(!g?.online||g.status!=='finished'||g.reason==='cancelled'||g.settings?.mode!=='duel'||!Number.isInteger(g.match))return;
  const id=code+':'+g.match,accounts=await Promise.all(g.players.map(p=>accountFor(storage,p?.tag)));
  const users=accounts.map(x=>x?.user_id||null),rated=users.every(Boolean)&&users[0]!==users[1]&&['timeout','solved','left'].includes(g.reason);
  const before=await Promise.all(users.map(x=>x?current(storage,x):null));

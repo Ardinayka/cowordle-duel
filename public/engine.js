@@ -12,4 +12,4 @@ export function pickBot(words,rows,random=Math.random,difficulty='normal'){
   const pool=careful&&complete.length?complete:partial.length?partial:unused;
   return pool[Math.floor(random()*pool.length)];
 }
-export function botDelay(difficulty,random=Math.random){const range={easy:[18000,10000],normal:[12000,8000],expert:[6000,4000]}[difficulty]||[12000,8000];return range[0]+random()*range[1];}
+export function botDelay(difficulty,random=Math.random){const range={easy:[5000,4000],normal:[3500,3000],expert:[2000,2000]}[difficulty]||[3500,3000];return range[0]+random()*range[1];}

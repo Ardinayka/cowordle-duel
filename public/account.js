@@ -10,7 +10,7 @@ export function setupAccount({language,onName,onChange=()=>{}}){
     $('google-start').textContent=working?tr('Loading Google…','A carregar Google…'):tr('Retry Google sign-in','Tentar Google novamente');
     $('sign-out').hidden=!account.user;$('delete-account').hidden=!account.user;
     $('sign-out').disabled=working;$('delete-account').disabled=working;
-    $('google-loading').hidden=!working||!!account.user;$('profile-caption').textContent=account.user?'Profile':'Sign in';
+    $('google-loading').hidden=!working||!!account.user;$('profile-caption').textContent=account.user?'Profile':'Sign in';$('profile-button').classList?.toggle('signed-in',!!account.user);
     $('sign-out').textContent=tr('Sign out','Terminar sessão');$('delete-account').textContent=tr('Delete account','Apagar conta');
   }
   async function api(action,body){const r=await fetch('/api/auth/'+action,{method:body?'POST':'GET',headers:body?{'content-type':'application/json'}:{},credentials:'same-origin',...(body?{body:JSON.stringify(body)}:{})});const data=await r.json();if(!r.ok)throw Error(data.error);return data;}

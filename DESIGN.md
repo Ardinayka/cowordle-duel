@@ -36,3 +36,11 @@ Validation: 73 automated tests passed. Browser inspected desktop and 390x700 men
 - Duel displays safe covered slots from submitted booleans, revealing only when existing engine state reveals both words. No gameplay rules changed.
 - Compact avatar/status strip on phones; player panels outside the board on wide desktop. Local selected character appears for self; opponent uses initial because remote character sync is not implemented.
 - Browser checked 390x700 empty/covered/revealed states and desktop layout. Final existing suite: 73 passing. Physical Safari scrolling still needs device feedback.
+
+## Phase 0 of the 2027 redesign (November 2026)
+Reference for the redesign: https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido (plan in REDESIGN-PLAN.md). Phase 0 changes only what the current interface can carry:
+- Border colour `--line` raised to 3:1 against surfaces in both themes (light #7a8ca5, dark #5c7aa0). The Duel badge text uses the button ink colour; the light-theme trophy uses a dark amber icon (leaderboard-cup-light.svg); notification counts use the danger colour with button ink.
+- The board heading states whether the match is rated; Rated Duel uses the violet accent.
+- Invitation banner: 48px buttons, live countdown bar, placed below the header, at the bottom of an open dialog, or as a strip above the current word during a match.
+- Motion: newly revealed rows flip tile by tile (420 ms, 90 ms stagger); an invalid word shakes the current row (240 ms). Both are removed by the existing reduced-motion rule.
+- In-play header controls are 44px (logo and buttons were 40px). On phones the signed-in Profile control shows the avatar without the word "Profile"; its accessible name is unchanged.

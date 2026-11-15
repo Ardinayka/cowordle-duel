@@ -21,3 +21,10 @@ These requirements apply to every change in this repository. Do not remove or we
 - Prefer editing the owning CSS rule and removing conflicts over adding increasingly specific overrides. Preserve accessible names when visible text becomes an icon.
 
 These instructions reduce regressions but cannot guarantee that all future changes will comply. Keep release evidence honest and reviewable.
+
+## Approved changes (November 2026)
+The owner approved the 14 rule changes listed on the "Rule changes to approve" page of the redesign file (https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido) and in REDESIGN-PLAN.md. They take effect phase by phase:
+- Now: every new or changed control is at least 48×48 CSS px. The one written exception is the on-screen letter keyboard (10 keys per row), which keeps at least 44px height. Existing controls stay at least 44px until they are rebuilt.
+- Now: release evidence also covers both themes at each required width, and 200% text size.
+- Phase 2 (new interface): the header gives way to a bottom navigation bar (Play, Friends, Inbox, Ranks, Me), and the stacked mode cards become the four ways to play (Competitive, Normal, Play a friend, Practise vs bot). Until Phase 2 ships, the header and mode-card rules above remain in force.
+- Phase 3: ranked Duel becomes best of 3 words with a 45-second clock, no ready check, and sign-in required.

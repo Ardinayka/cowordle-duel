@@ -4,12 +4,12 @@ Maintained by bully. Public browser beta at https://lexivanto.com. English only.
 
 ## Play
 
-Home presents three large mode buttons. Choose a mode, then Online, Friend or Bot. Guest names are editable; Google accounts can claim a unique username. Back returns to the previous setup step and confirms leaving an active match. Profile and Friends stay separate from game setup. No dropdowns, automatic bot substitution, rankings, paid advantages or advertising.
+Home presents four large mode buttons. Choose a mode, then Online, Friend or Bot. Guest names are editable; Google accounts can claim a unique username. Back returns to the previous setup step and confirms leaving an active match. Profile and Friends stay separate from game setup. No dropdowns, automatic bot substitution, paid advantages or advertising. Online Duels between two signed-in players are rated (Elo); every match shows whether it is rated (Rated Duel, Online · not rated, Friend game · not rated, Practice · not rated). Guests who leave the name empty get an automatic name. The phone or browser Back button follows the in-game Back, including the leave confirmation in a match.
 
 - Duel: both players lock a guess; neither can see the other's pending word. Both guesses reveal together. Online uses a 30-second reply clock starting only after the first valid lock. Private Duel defaults untimed, with an optional response timer.
 - Race: separate boards, unlimited guesses, no timer. The first correct server-accepted guess wins. Attempt count does not rank players.
 - Co-op: alternate guesses on one board. Online has a 30-second turn clock and six shared attempts. Private games default untimed, with optional timer and attempt settings.
-- Bots: Easy / Medium / Hard. Always untimed. Bots use public clues and their own guess vocabulary, not the secret answer pool. No promised win rate.
+- Bots: Easy / Medium / Hard. Always untimed. Bots reply within a few seconds (Easy 5–9 s, Medium 3.5–6.5 s, Hard 2–4 s). Bots use public clues and their own guess vocabulary, not the secret answer pool. No promised win rate.
 
 English has 6,508 allowed guesses, 500 curated secret answers and 2,254 bot words. Existing licence notices remain published. Portuguese source data and legacy room support are archived; the public client does not offer Portuguese or join Portuguese rooms.
 
@@ -17,7 +17,7 @@ English has 6,508 allowed guesses, 500 curated secret answers and 2,254 bot word
 
 Server-owned D1 room state, revision checks and match generations protect concurrent actions and rematches. Rooms expire after 24 hours. Both players acknowledge online lobbies within 45 seconds; queue leases last 20 seconds. Separate retirement records fence old searches. One verified account cannot pair against itself or maintain duplicate live waiting searches. An older match does not lock the account out of a new-device search.
 
-Private hosts can change mode/timer in the same waiting or finished room. Both players must ready again. Invitation links remain for guests. A link does not reserve the free seat. Accepted friends can receive direct challenges lasting five minutes, shown in a dismissible banner and Friends.
+Private hosts can change mode/timer in the same waiting or finished room. Both players must ready again. Invitation links remain for guests. A link does not reserve the free seat. Accepted friends can receive direct challenges lasting five minutes. A challenge appears as a banner above every screen and dialog with a live countdown, a short chime and vibration (when the player has turned those on) and one-tap Accept or Decline; Accept joins the room in place and marks the player ready. In a match the banner shrinks to a strip above the current word and cannot accept until the match ends. Hiding the banner keeps the challenge in Friends; only Decline removes it. Incoming friend requests also show a banner, are listed first in Friends, and are counted on the Friends button.
 
 Google sign-in gives a seven-day opaque account session, unique player tag, optional username, avatar and colour. Guests keep their preferences on the device. Signed-in appearance is saved when Done succeeds and appears to friends and future opponents. Friends search uses an exact username/tag, never a bulk directory. Requests require recipient consent. Accepted friends see recent availability.
 

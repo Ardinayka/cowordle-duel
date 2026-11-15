@@ -111,7 +111,7 @@ body.playing .bottom-actions{font-size:.6875rem;margin-top:4px}
 :root[data-theme=dark] body.playing .arena{background:linear-gradient(150deg,#11253e,#0b1b30 65%);box-shadow:inset 0 1px 0 #8bdbff18}
 :root[data-theme=dark] .big-list>button.mode-launch{background:linear-gradient(135deg,#142d4b,#0d203a);box-shadow:inset 0 1px 0 #b8e4ff20,0 6px 16px #020a1830}
 @media(min-width:1000px) and (min-height:601px){body.playing .players{position:absolute;right:calc(100% + 24px);top:24px;width:180px;display:flex;flex-direction:column;align-items:stretch;gap:16px}body.playing .player{justify-content:flex-start;text-align:left}body.playing .player small{display:block;font-size:.75rem;margin-top:4px}body.playing .players .versus{display:none}body.playing .player strong{white-space:normal}body.playing .player.bot{flex-direction:row-reverse}}
-@media(max-width:700px){body.playing .arena{--word-width:300px}body.playing .player strong{font-size:.8125rem}body.playing #board-scroll{padding:8px 16px}body.playing #draft-row{width:min(calc(100% - 32px),var(--word-width))}body.playing .topbar{min-height:52px}body.playing .topbar .game-logo{width:40px;height:40px}body.playing .topbar .brand{min-width:40px;min-height:44px}}
+@media(max-width:700px){body.playing .arena{--word-width:300px}body.playing .player strong{font-size:.8125rem}body.playing #board-scroll{padding:8px 16px}body.playing #draft-row{width:min(calc(100% - 32px),var(--word-width))}body.playing .topbar{min-height:52px}body.playing .topbar .game-logo{width:40px;height:40px}body.playing .topbar .brand{min-width:44px;min-height:44px}}
 @media(max-height:600px){body.playing .arena{--word-width:260px}}
 
 body.playing .player .avatar{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;flex-shrink:0}
@@ -222,7 +222,7 @@ body.playing #board-scroll{overflow-anchor:none}
 @media(min-width:701px) and (min-height:481px){
  body.playing .topbar{height:56px;min-height:56px;padding:4px 18px}
  body.playing .topbar .game-logo{height:40px;width:40px}
- body.playing .topbar button{min-height:40px;padding:6px 12px}
+ body.playing .topbar button{min-height:44px;padding:6px 12px}
  body.playing #game-layout{padding-top:6px;padding-bottom:6px}
  body.playing .arena{--word-width:clamp(190px,calc((100dvh - 310px)*5/7),300px);padding:10px 20px 8px;max-height:720px;align-self:start}
  body.playing #board{margin:0 auto;gap:5px}
@@ -297,3 +297,45 @@ body.playing .row-owner.owner-peer{background:#392c57;color:#ddc5ff}
 .leaderboard-list li>strong{min-width:0;overflow-wrap:anywhere}.leaderboard-list li>span{white-space:nowrap;font-variant-numeric:tabular-nums}
 
 @media(max-width:400px){.leaderboard-list li{grid-template-columns:minmax(0,1fr);gap:4px}.leaderboard-list li>span{color:var(--muted)}}
+
+/* Phase 0 redesign, November 2026: contrast, invitations, match labels, motion */
+:root{--line:#7a8ca5}
+:root[data-theme=dark]{--line:#5c7aa0}
+#step-modes .mode-launch>.mode-badge.online{color:var(--button-ink)}
+:root:not([data-theme=dark]) .topbar .top-actions #leaderboard-button{background-image:url('leaderboard-cup-light.svg')}
+.friend-alert{background:var(--danger);color:var(--button-ink);font-weight:800}
+.header-friends .friend-alert{margin-left:6px}
+#board-title[data-kind=rated]{color:var(--violet)}
+#board-title[data-kind]:not([data-kind=rated]){color:var(--muted)}
+.friend-row-urgent{border:2px solid var(--blue);border-radius:var(--radius-panel);background:var(--tint);padding:8px}
+#notice-host{position:static}
+#invitation-banner{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;right:12px;margin:0 auto;z-index:60;width:auto;max-width:420px;box-sizing:border-box;padding:16px;background:var(--surface);color:var(--ink);border:2px solid var(--blue);border-radius:20px;box-shadow:0 16px 40px rgb(0 0 0 / .45)}
+#invitation-banner[hidden]{display:none}
+#invitation-banner.arrive{animation:invite-in .26s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes invite-in{from{transform:translateY(-24px);opacity:0}to{transform:none;opacity:1}}
+.invite-head{display:flex;align-items:flex-start;gap:8px}
+.invite-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+#invitation-banner-title{font-size:1.125rem;line-height:1.3}
+#invitation-banner-time{font-weight:700;color:var(--amber);font-variant-numeric:tabular-nums}
+#invitation-banner-later{flex:0 0 48px;width:48px;height:48px;min-width:48px;margin:-8px -8px 0 0;font-size:1.5rem}
+#invitation-banner p{margin:6px 0 12px;color:var(--muted);font-size:.9375rem;line-height:1.45}
+.invite-track{height:6px;margin-bottom:12px;border-radius:999px;background:color-mix(in srgb,var(--muted) 22%,transparent);overflow:hidden}
+.invite-track[hidden]{display:none}
+#invitation-banner-fill{display:block;height:100%;width:100%;background:var(--amber);border-radius:inherit;transition:width 1s linear}
+.invite-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.invite-actions button{width:100%;min-height:48px;margin:0}
+#notice-host.in-match .invite-actions button{width:auto}
+#notice-host.in-match #invitation-banner{position:static;display:flex;align-items:center;gap:8px;margin:6px 0;padding:8px 8px 8px 14px;max-width:none;border-radius:16px;box-shadow:none}
+#notice-host.in-match #invitation-banner[hidden]{display:none}
+#notice-host.in-match .invite-head{flex:1;align-items:center}
+#notice-host.in-match #invitation-banner-title{font-size:.9375rem}
+#notice-host.in-match #invitation-banner p,#notice-host.in-match .invite-track,#notice-host.in-match #invitation-banner-open{display:none}
+#notice-host.in-match .invite-actions{display:flex}
+#notice-host.in-match #invitation-banner-later{margin:0}
+#draft-row.shake{animation:draft-shake .24s ease-in-out}
+@keyframes draft-shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.reveal .tile{animation:tile-flip .42s ease-out both;animation-delay:calc(var(--i,0) * 90ms)}
+@keyframes tile-flip{from{transform:rotateX(90deg);filter:brightness(1.3)}to{transform:rotateX(0);filter:none}}
+#notice-host.in-dialog #invitation-banner{top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
+@media(max-width:360px){#notice-host.in-match #invitation-banner-dismiss{display:none}#notice-host.in-match .invite-text{flex-direction:row;gap:8px;align-items:baseline}#notice-host.in-match #invitation-banner-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}#notice-host.in-match #invitation-banner{padding:4px 4px 4px 12px}#notice-host.in-match #invitation-banner-time{white-space:nowrap}}
+@media(max-width:420px){#profile-button.signed-in .profile-caption{display:none}}
