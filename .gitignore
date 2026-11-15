@@ -6,3 +6,7 @@ server/assets.js
 .wrangler/
 .dev.vars*
 .env*
+
+# Impeccable engine binary (downloaded on first use)
+.claude/skills/impeccable/scripts/bin/
+.claude/settings.local.json
