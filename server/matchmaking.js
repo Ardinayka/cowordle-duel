@@ -1,5 +1,9 @@
+import {count} from './stats.js';
 import {makeRoom,view,expire,leave,onlineSettings,normalizeRace} from '../public/game.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'cache-control':'no-store','x-robots-tag':'noindex, nofollow'}});
+// A waiting player holds a 20 s lease that each poll (every 2.5 s) renews. Only players who polled
+// within the last 6 s are offered as opponents, so a closed tab stops being matchable almost at once.
+const FRESH=14000;
 export async function matchmaking(storage,auth,body,action,chooseAnswer,verifiedTag=null,verifiedProfile=null){
   if(!/^[a-f0-9]{32}$/.test(body.searchId||''))return json({error:'invalid_request'},400);
   const id=body.searchId,now=Date.now();
@@ -43,7 +47,7 @@ export async function matchmaking(storage,auth,body,action,chooseAnswer,verified
     ticket=await get();if(ticket?.status==='matched')return json(await result(ticket));
     if(!ticket&&verifiedTag)return json({error:'account_active'},409);
     if(!ticket||ticket.search_id!==id||ticket.status!=='waiting')return json({status:'cancelled'});
-    const peer=await storage.prepare("SELECT * FROM match_queue WHERE bucket=? AND status='waiting' AND lease_until>? AND auth!=? AND (player_tag IS NULL OR ? IS NULL OR player_tag!=?) AND NOT EXISTS(SELECT 1 FROM player_blocks bl JOIN friend_profiles a ON a.user_id=bl.owner JOIN friend_profiles b ON b.user_id=bl.blocked WHERE (a.tag=? AND b.tag=match_queue.player_tag) OR (b.tag=? AND a.tag=match_queue.player_tag)) ORDER BY created LIMIT 1").bind(ticket.bucket,Date.now(),auth,verifiedTag,verifiedTag,verifiedTag,verifiedTag).first();if(!peer)return json({status:'searching',searchId:id});
+    const peer=await storage.prepare("SELECT * FROM match_queue WHERE bucket=? AND status='waiting' AND lease_until>? AND auth!=? AND (player_tag IS NULL OR ? IS NULL OR player_tag!=?) AND NOT EXISTS(SELECT 1 FROM player_blocks bl JOIN friend_profiles a ON a.user_id=bl.owner JOIN friend_profiles b ON b.user_id=bl.blocked WHERE (a.tag=? AND b.tag=match_queue.player_tag) OR (b.tag=? AND a.tag=match_queue.player_tag)) ORDER BY created LIMIT 1").bind(ticket.bucket,Date.now()+FRESH,auth,verifiedTag,verifiedTag,verifiedTag,verifiedTag).first();if(!peer)return json({status:'searching',searchId:id});
     const roomCode=Array.from(crypto.getRandomValues(new Uint8Array(6))).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();
     const g=makeRoom(config,ticket.name,auth,chooseAnswer(config.lang),Date.now());g.online=true;g.players[0].tag=ticket.player_tag||null;g.players[0].ready=false;g.players[1]={name:peer.name,auth:peer.auth,tag:peer.player_tag||null,ready:false};g.readyUntil=Date.now()+45000;
     const avatars=await storage.prepare("SELECT COALESCE(json_group_array(json_object('tag',tag,'avatar',avatar,'colour',colour)),'[]') AS data FROM friend_profiles WHERE tag=? OR tag=?").bind(ticket.player_tag,peer.player_tag).first();
@@ -53,7 +57,7 @@ export async function matchmaking(storage,auth,body,action,chooseAnswer,verified
       storage.prepare("INSERT INTO rooms (code,data,revision,expires) SELECT ?,?,0,? WHERE EXISTS (SELECT 1 FROM match_queue WHERE auth=? AND search_id=? AND bucket=? AND status='waiting' AND lease_until>? AND NOT EXISTS (SELECT 1 FROM retired_searches WHERE id=match_queue.auth||':'||match_queue.search_id)) AND EXISTS (SELECT 1 FROM match_queue WHERE auth=? AND search_id=? AND bucket=? AND status='waiting' AND lease_until>? AND (player_tag IS NULL OR ? IS NULL OR player_tag!=?) AND NOT EXISTS (SELECT 1 FROM retired_searches WHERE id=match_queue.auth||':'||match_queue.search_id)) AND NOT EXISTS(SELECT 1 FROM player_blocks bl JOIN friend_profiles a ON a.user_id=bl.owner JOIN friend_profiles b ON b.user_id=bl.blocked WHERE (a.tag=? AND b.tag=?) OR (a.tag=? AND b.tag=?))").bind(roomCode,JSON.stringify(g),g.expires,auth,id,bucket,stamp,peer.auth,peer.search_id,bucket,stamp,verifiedTag,verifiedTag,verifiedTag,peer.player_tag,peer.player_tag,verifiedTag),
       storage.prepare("UPDATE match_queue SET status='matched',room_code=?,lease_until=? WHERE ((auth=? AND search_id=?) OR (auth=? AND search_id=?)) AND EXISTS (SELECT 1 FROM rooms WHERE code=?)").bind(roomCode,g.expires,auth,id,peer.auth,peer.search_id,roomCode)
     ]);
-    if(batch[0].meta.changes===1)return json(await result(await get()));
+    if(batch[0].meta.changes===1){await count(storage,'online_matched');return json(await result(await get()));}
   }
   return json(await result(await get()));
 }

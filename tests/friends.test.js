@@ -114,7 +114,7 @@ test('accepted friend limit is enforced when pending requests are accepted',asyn
 test('blocking removes friendship and challenges, persists after refresh, and cannot be undone by the blocked account',async t=>{
  const e=await setup();t.after(()=>e.sql.close());const a=await e.call('a'),b=await e.call('b');
  await e.call('a','request',{tag:b.tag});await e.call('b','accept',{tag:a.tag});
- e.sql.prepare('INSERT INTO friend_challenges VALUES (?,?,?,?,?)').run('a:b','a','b','ABCDEF123456',Date.now()+60000);
+ e.sql.prepare('INSERT INTO friend_challenges (id,sender,recipient,code,expires) VALUES (?,?,?,?,?)').run('a:b','a','b','ABCDEF123456',Date.now()+60000);
  assert.equal((await e.call('b','block',{tag:a.tag})).status,200);
  assert.equal((await e.call('b')).blocked[0].tag,a.tag);assert.deepEqual((await e.call('a')).friends,[]);
  assert.equal(e.sql.prepare('SELECT count(*) AS n FROM friend_challenges').get().n,0);
@@ -153,3 +153,16 @@ test('a private join cannot commit if the host blocks the account after its firs
  assert.equal((await send('b','/api/rooms/'+created.code+'/join',{name:'Two'})).status,403);assert.equal(blocked,true);
  const game=JSON.parse(e.sql.prepare('SELECT data FROM rooms WHERE code=?').get(created.code).data);assert.equal(game.players[1],null);assert.equal(game.players[0].tag,a.tag);
 });
+test('inbox keeps declined and missed invitations, marks them seen, and tells the sender what happened',async()=>{const e=await setup(),a=await e.call('a'),b=await e.call('b');const code='ABCDEF654321';e.sql.prepare('INSERT INTO rooms VALUES (?,?,0,?)').run(code,JSON.stringify({status:'waiting',players:[{auth:await hash('d'.repeat(64))},null],settings:{mode:'race',seconds:0}}),Date.now()+60000);await e.call('a','request',{tag:b.tag});await e.call('b','accept',{tag:a.tag});
+ assert.equal((await e.call('a','challenge',{tag:b.tag,code})).ok,true);
+ const synced=await e.call('b','sync',{available:true});assert.equal(synced.challenges.length,1);assert.equal(synced.challenges[0].mode,'race');
+ let sent=(await e.call('a')).sent;assert.equal(sent.length,1);assert.equal(sent[0].status,'pending');assert.equal(sent[0].seen,1);assert.equal(sent[0].mode,'race');
+ assert.equal((await e.call('b','dismiss-challenge',{id:synced.challenges[0].id})).ok,true);
+ assert.equal((await e.call('b')).challenges.length,0);assert.equal((await e.call('a')).sent[0].status,'declined');assert.equal(e.sql.prepare('SELECT COUNT(*) n FROM friend_challenges').get().n,1);
+ e.sql.prepare("UPDATE friend_challenges SET status='pending',expires=?").run(Date.now()-1000);
+ const missed=(await e.call('b')).missed;assert.equal(missed.length,1);assert.equal(missed[0].tag,a.tag);assert.equal(missed[0].mode,'race');assert(((await e.call('a')).sent[0].remaining)<=0);
+ assert.equal((await e.call('b','clear-challenge',{id:missed[0].id})).ok,true);assert.equal((await e.call('b')).missed.length,0);
+ e.sql.prepare("UPDATE friend_challenges SET status='pending',expires=?").run(Date.now()+60000);assert.equal((await e.call('b')).challenges.length,1);
+ assert.equal((await e.call('a','cancel-challenge',{tag:b.tag})).ok,true);assert.equal((await e.call('b')).challenges.length,0);assert.equal((await e.call('a')).sent.length,0);
+ const stats=Object.fromEntries(e.sql.prepare('SELECT metric,value FROM daily_stats').all().map(r=>[r.metric,r.value]));assert.equal(stats.invitations_sent,1);assert.equal(stats.invitations_declined,1);assert.equal(stats.friend_requests_sent,1);assert.equal(stats.friend_requests_accepted,1);
+ e.sql.close();});

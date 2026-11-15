@@ -339,3 +339,13 @@ body.playing .row-owner.owner-peer{background:#392c57;color:#ddc5ff}
 #notice-host.in-dialog #invitation-banner{top:auto;bottom:calc(12px + env(safe-area-inset-bottom,0px))}
 @media(max-width:360px){#notice-host.in-match #invitation-banner-dismiss{display:none}#notice-host.in-match .invite-text{flex-direction:row;gap:8px;align-items:baseline}#notice-host.in-match #invitation-banner-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}#notice-host.in-match #invitation-banner{padding:4px 4px 4px 12px}#notice-host.in-match #invitation-banner-time{white-space:nowrap}}
 @media(max-width:420px){#profile-button.signed-in .profile-caption{display:none}}
+/* Phase 1: inbox */
+.inbox-section{margin:0 0 20px;padding:12px;border:2px solid var(--line);border-radius:var(--radius-panel)}
+.inbox-section h3{margin:0 0 8px}
+#inbox-list{display:grid;gap:8px;color:var(--muted)}
+#inbox-list .friend-row button{min-height:48px}
+#invite-sent[data-state=seen],#invite-sent[data-state=accepted]{color:var(--green)}
+#invite-sent[data-state=missed],#invite-sent[data-state=declined]{color:var(--amber)}
+#invite-sent:not(:empty){display:block;width:fit-content;max-width:100%;box-sizing:border-box;margin:8px auto 4px;padding:10px 14px;border:2px solid var(--line);border-radius:999px;background:var(--surface);font-weight:700;text-align:center}
+#invite-sent[data-state=seen],#invite-sent[data-state=accepted]{border-color:var(--green)}
+#invite-sent[data-state=missed],#invite-sent[data-state=declined]{border-color:var(--amber)}

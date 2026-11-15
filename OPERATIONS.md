@@ -34,3 +34,29 @@ Migrations 0010 and 0011 add tables, profile appearance columns and a queue
 index. They do not rewrite existing rooms. Roll back code using the
 production Worker's deployment history. Keep compatible schema changes in
 place and validate database recovery separately.
+
+## Invitations inbox and play statistics (Phase 1, November 2026)
+
+Invitations are no longer deleted when declined or when they expire. `friend_challenges.status` is `pending`, `accepted`, `declined`, `cancelled` or `cleared`; expired pending invitations are shown to the recipient as missed for 7 days, then the regular cleanup deletes them.
+
+Statistics live in two tables and never contain names, account ids or IP addresses:
+- `daily_stats(day, metric, value)` — one counter per UTC day: `active_devices`, `practice_started`, `practice_finished`, `friend_room_finished`, `online_finished`, `online_matched`, `friend_rooms_created`, `invitations_sent`, `invitations_accepted`, `invitations_declined`, `friend_requests_sent`, `friend_requests_accepted`.
+- `player_days(day, player)` — a one-way hash of a device's seat token, once per day, kept 60 days. Used only to measure return rates.
+
+Useful queries (run in the Cloudflare dashboard → D1 → lexivanto-production → Console):
+
+```sql
+-- Last 14 days, one row per day and metric
+SELECT day, metric, value FROM daily_stats WHERE day >= date('now','-14 day') ORDER BY day DESC, metric;
+
+-- Day-1 and day-7 return rate for devices first seen on a given day
+WITH first AS (SELECT player, MIN(day) AS d0 FROM player_days GROUP BY player)
+SELECT d0 AS cohort, COUNT(*) AS devices,
+  ROUND(100.0*SUM(EXISTS(SELECT 1 FROM player_days p WHERE p.player=first.player AND p.day=date(d0,'+1 day')))/COUNT(*),1) AS d1_pct,
+  ROUND(100.0*SUM(EXISTS(SELECT 1 FROM player_days p WHERE p.player=first.player AND p.day=date(d0,'+7 day')))/COUNT(*),1) AS d7_pct
+FROM first GROUP BY d0 ORDER BY d0 DESC LIMIT 30;
+
+-- Invitation acceptance rate
+SELECT day, SUM(CASE WHEN metric='invitations_accepted' THEN value END)*100.0/NULLIF(SUM(CASE WHEN metric='invitations_sent' THEN value END),0) AS accept_pct
+FROM daily_stats GROUP BY day ORDER BY day DESC LIMIT 14;
+```
