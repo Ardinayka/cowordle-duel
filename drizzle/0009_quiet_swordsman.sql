@@ -1,0 +1,1 @@
+ALTER TABLE `match_queue` ADD `player_tag` text;

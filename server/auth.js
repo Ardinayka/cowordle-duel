@@ -28,13 +28,11 @@ export async function verifyGoogleToken(token,clientId,nonce,{now=Date.now(),res
   if(!['accounts.google.com','https://accounts.google.com'].includes(claims.iss)||claims.aud!==clientId||claims.azp&&claims.azp!==clientId||!Number.isFinite(claims.exp)||claims.exp<=seconds||!Number.isFinite(claims.iat)||claims.iat>seconds+60||claims.exp<=claims.iat||typeof claims.sub!=='string'||!claims.sub||claims.sub.length>255||claims.nonce!==nonce)throw Error('invalid_token');
   return {sub:claims.sub,name:typeof claims.name==='string'?claims.name.trim().slice(0,24)||'Player':'Player'};
 }
-export async function sessionForRequest(request,storage){
-  const sessionToken=readCookie(request,SESSION);if(!sessionToken)return null;
-  return storage.prepare('SELECT s.hash,s.csrf,s.user_id,p.display_name FROM auth_sessions s JOIN auth_profiles p ON p.id=s.user_id WHERE s.hash=? AND s.expires>?').bind(await hash(sessionToken),Date.now()).first();
-}
+export async function getSession(request,storage){const token=readCookie(request,SESSION);if(!token)return null;return storage.prepare('SELECT s.hash,s.csrf,s.user_id,COALESCE(f.username,p.display_name) AS display_name FROM auth_sessions s JOIN auth_profiles p ON p.id=s.user_id LEFT JOIN friend_profiles f ON f.user_id=p.id WHERE s.hash=? AND s.expires>?').bind(await hash(token),Date.now()).first();}
 export async function authRoute(request,env,storage){
   const path=new URL(request.url).pathname.slice('/api/auth/'.length),clientId=env.GOOGLE_CLIENT_ID||'';
-  const sessionToken=readCookie(request,SESSION),session=await sessionForRequest(request,storage);
+  let session=null;const sessionToken=readCookie(request,SESSION);
+  if(sessionToken)session=await storage.prepare('SELECT s.hash,s.csrf,s.user_id,COALESCE(f.username,p.display_name) AS display_name FROM auth_sessions s JOIN auth_profiles p ON p.id=s.user_id LEFT JOIN friend_profiles f ON f.user_id=p.id WHERE s.hash=? AND s.expires>?').bind(await hash(sessionToken),Date.now()).first();
   const identity=()=>({googleEnabled:!!clientId,clientId,user:session?{name:session.display_name}:null,csrf:session?.csrf||null});
   if(path==='me'&&request.method==='GET')return json(identity());
   if(request.method!=='POST')return json({error:'method'},405);
@@ -42,7 +40,7 @@ export async function authRoute(request,env,storage){
   const raw=await request.text();if(raw.length>14000)return json({error:'too_large'},413);let body;try{body=JSON.parse(raw);}catch{return json({error:'invalid_request'},400);}if(!body||typeof body!=='object')return json({error:'invalid_request'},400);
   if(path==='logout'||path==='delete'){
     if(!session||body.csrf!==session.csrf)return json({error:'session_expired'},401);
-    if(path==='delete'){await storage.prepare('DELETE FROM game_challenges WHERE sender_id=? OR recipient_id=?').bind(session.user_id,session.user_id).run();await storage.prepare('DELETE FROM friend_requests WHERE sender_id=? OR recipient_id=?').bind(session.user_id,session.user_id).run();await storage.prepare('DELETE FROM friendships WHERE user_a=? OR user_b=?').bind(session.user_id,session.user_id).run();await storage.prepare('DELETE FROM player_profiles WHERE user_id=?').bind(session.user_id).run();await storage.prepare('DELETE FROM auth_sessions WHERE user_id=?').bind(session.user_id).run();await storage.prepare('DELETE FROM auth_profiles WHERE id=?').bind(session.user_id).run();}
+    if(path==='delete'){await storage.batch([storage.prepare('DELETE FROM friend_challenges WHERE sender=? OR recipient=?').bind(session.user_id,session.user_id),storage.prepare('DELETE FROM friendships WHERE a=? OR b=?').bind(session.user_id,session.user_id),storage.prepare('DELETE FROM player_blocks WHERE owner=? OR blocked=?').bind(session.user_id,session.user_id),storage.prepare('UPDATE support_reports SET reporter=NULL WHERE reporter=?').bind(session.user_id),storage.prepare('DELETE FROM rating_events WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM player_ratings WHERE user_id=?').bind(session.user_id),storage.prepare('UPDATE match_results SET player_a=NULL WHERE player_a=?').bind(session.user_id),storage.prepare('UPDATE match_results SET player_b=NULL WHERE player_b=?').bind(session.user_id),storage.prepare('UPDATE match_results SET winner=NULL WHERE winner=?').bind(session.user_id),storage.prepare('DELETE FROM friend_profiles WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM auth_sessions WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM auth_profiles WHERE id=?').bind(session.user_id)]);}
     else await storage.prepare('DELETE FROM auth_sessions WHERE hash=?').bind(session.hash).run();
     return json({ok:true},200,[cookie(SESSION,'',0)]);
   }
@@ -62,10 +60,10 @@ export async function authRoute(request,env,storage){
     let claims;try{claims=await verifyGoogleToken(body.credential,clientId,challenge.nonce);}catch{return json({error:'google_verification_failed'},401);}
     const used=await storage.prepare('DELETE FROM auth_challenges WHERE hash=? AND expires>?').bind(challengeHash,Date.now()).run();if(used.meta.changes!==1)return json({error:'sign_in_expired'},401);
     await storage.prepare('INSERT INTO auth_profiles (id,google_sub,display_name,created) VALUES (?,?,?,?) ON CONFLICT(google_sub) DO UPDATE SET display_name=excluded.display_name').bind(randomToken(),claims.sub,claims.name,Date.now()).run();
-    const profile=await storage.prepare('SELECT id FROM auth_profiles WHERE google_sub=?').bind(claims.sub).first();
+    const profile=await storage.prepare('SELECT p.id,COALESCE(f.username,p.display_name) AS name FROM auth_profiles p LEFT JOIN friend_profiles f ON f.user_id=p.id WHERE google_sub=?').bind(claims.sub).first();
     if(sessionToken)await storage.prepare('DELETE FROM auth_sessions WHERE hash=?').bind(await hash(sessionToken)).run();
     const fresh=randomToken(),csrf=randomToken();await storage.prepare('INSERT INTO auth_sessions (hash,user_id,csrf,expires) VALUES (?,?,?,?)').bind(await hash(fresh),profile.id,csrf,Date.now()+604800000).run();
-    return json({googleEnabled:true,clientId,user:{name:claims.name},csrf},200,[cookie(SESSION,fresh,604800),cookie(CHALLENGE,'',0)]);
+    return json({googleEnabled:true,clientId,user:{name:profile.name},csrf},200,[cookie(SESSION,fresh,604800),cookie(CHALLENGE,'',0)]);
   }
   return json({error:'not_found'},404);
 }

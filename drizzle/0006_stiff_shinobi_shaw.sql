@@ -1,0 +1,1 @@
+ALTER TABLE `match_queue` ADD `seen_at` integer DEFAULT 0 NOT NULL;

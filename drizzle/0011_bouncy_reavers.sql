@@ -1,0 +1,1 @@
+CREATE INDEX `idx_match_queue_player` ON `match_queue` (`player_tag`,`status`,`lease_until`);

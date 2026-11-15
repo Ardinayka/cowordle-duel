@@ -1,4 +1,15 @@
 import {defineConfig} from 'vite';
+import {layoutPreview} from './scripts/layout-preview.js';
+import {headerPreview} from './scripts/header-preview.js';
 import worker from './dist/server/index.js';
 import {testEnv} from './tests/d1.js';
-export default defineConfig({root:'public',server:{allowedHosts:['terminal.local']},plugins:[{name:'local-worker',configureServer(server){const env=testEnv();server.httpServer?.on('close',()=>env.sql.close());server.middlewares.use(async(req,res,next)=>{if(req.url==='/__qa/phone'){res.setHeader('content-type','text/html');res.end('<!doctype html><html><head><title>Phone layout QA</title></head><body><h1>390 x 700 phone viewport</h1><iframe title="Phone game" src="/" style="width:390px;height:700px;border:1px solid #777"></iframe></body></html>');return;}if(!req.url.startsWith('/api/'))return next();try{const chunks=[];for await(const chunk of req)chunks.push(chunk);const body=Buffer.concat(chunks);const response=await worker.fetch(new Request('http://'+req.headers.host+req.url,{method:req.method,headers:req.headers,...(body.length?{body}: {})}),env);res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));}catch(error){res.writeHead(500);res.end('Local preview request failed');}});}}]});
+const localPreviewConfig = {root:'public',server:{allowedHosts:['terminal.local']},plugins:[{name:'local-worker',configureServer(server){const env=testEnv();server.httpServer?.on('close',()=>env.sql.close());server.middlewares.use(async(req,res,next)=>{if(req.url.startsWith('/__qa/layout')){const q=new URL(req.url,'http://local').searchParams;res.setHeader('content-type','text/html');res.end(layoutPreview(Number(q.get('width')),q.get('state')||'menu'));return;}if(req.url.startsWith('/__qa/header')){res.setHeader('content-type','text/html');res.end(headerPreview(Number(new URL(req.url,'http://local').searchParams.get('width'))));return;}if(req.url==='/__qa/phone'){res.setHeader('content-type','text/html');res.end('<!doctype html><html><head><title>Phone layout QA</title></head><body><h1>390 x 700 phone viewport</h1><iframe title="Phone game" src="/" style="width:390px;height:700px;border:1px solid #777"></iframe></body></html>');return;}if(!req.url.startsWith('/api/'))return next();try{const chunks=[];for await(const chunk of req)chunks.push(chunk);const body=Buffer.concat(chunks);const response=await worker.fetch(new Request('http://'+req.headers.host+req.url,{method:req.method,headers:req.headers,...(body.length?{body}: {})}),env);res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));}catch(error){res.writeHead(500);res.end('Local preview request failed');}});}}]};
+
+export default defineConfig(async ({ mode }) => {
+  if (mode === "cloudflare-preview" || mode === "cloudflare-production") {
+    const { cloudflare } = await import("@cloudflare/vite-plugin");
+    return { publicDir: false, plugins: [cloudflare()] };
+  }
+
+  return localPreviewConfig;
+});

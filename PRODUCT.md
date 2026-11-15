@@ -1,43 +1,34 @@
-# Lexivanto · working beta brand
+# Lexivanto — current product contract
 
-Playable bilingual word-game app for Gonçalo Garrett. Mode menu: locked-round Duel, Race, Co-op. Each runs against a practice bot or in a two-person friend room. Custom clocks (off/15/30/60/120 seconds per round or turn; off/1/5/10 minutes per race). Duel defaults to 30-second sudden death from round 7, unlimited rounds. Race: fewer guesses wins, solving time tiebreak. Co-op: alternate, 6/10/unlimited shared attempts, timeout ends team game.
+Maintained by bully. Public browser beta at https://lexivanto.com. English only. This document supersedes historical design notes; it describes the implemented release, not future promises.
 
-Friend rooms are server-authoritative in D1, expire after 24 hours, require bearer player-seat credentials and site access. Created room settings freeze; both players ready before start/rematch. No spectator mode, ranked matchmaking, or global stats. Practice wins/played last for this visit. Current hosting audience remains owner-only until the user changes site access.
+## Play
 
-English and PT-PT dictionaries remain curated previews. Portuguese input strips accents and normalizes Ç to C. Five-letter words only. Other game concepts remain outside this release.
+Home presents three large mode buttons. Choose a mode, then Online, Friend or Bot. Guest names are editable; Google accounts can claim a unique username. Back returns to the previous setup step and confirms leaving an active match. Profile and Friends stay separate from game setup. No dropdowns, automatic bot substitution, rankings, paid advantages or advertising.
 
+- Duel: both players lock a guess; neither can see the other's pending word. Both guesses reveal together. Online uses a 30-second reply clock starting only after the first valid lock. Private Duel defaults untimed, with an optional response timer.
+- Race: separate boards, unlimited guesses, no timer. The first correct server-accepted guess wins. Attempt count does not rank players.
+- Co-op: alternate guesses on one board. Online has a 30-second turn clock and six shared attempts. Private games default untimed, with optional timer and attempt settings.
+- Bots: Easy / Medium / Hard. Always untimed. Bots use public clues and their own guess vocabulary, not the secret answer pool. No promised win rate.
 
-Beta release: guest play is primary. Optional Google ID-token sign-in provides an account display name, seven-day opaque sessions, logout, and profile deletion. It does not migrate guest rooms or practice results into account history. GOOGLE_CLIENT_ID must be configured before the provider control is enabled. Google is independent of the outer hosting audience.
+English has 6,508 allowed guesses, 500 curated secret answers and 2,254 bot words. Existing licence notices remain published. Portuguese source data and legacy room support are archived; the public client does not offer Portuguese or join Portuguese rooms.
 
-Bots default to Easy. Easy/Normal can overlook deductions; Expert filters every public clue. All draw from the valid-guess list, never the restricted answer list. Thinking time differs by difficulty. No win-rate guarantee; friend-beta feedback should calibrate these levels.
+## Multiplayer and identity
 
-Language, nickname, opponent, and per-mode clock/difficulty settings persist in localStorage. Match seat credentials remain scoped to the tab. Do not automatically change a nickname while the user is typing.
+Server-owned D1 room state, revision checks and match generations protect concurrent actions and rematches. Rooms expire after 24 hours. Both players acknowledge online lobbies within 45 seconds; queue leases last 20 seconds. Separate retirement records fence old searches. One verified account cannot pair against itself or maintain duplicate live waiting searches. An older match does not lock the account out of a new-device search.
 
+Private hosts can change mode/timer in the same waiting or finished room. Both players must ready again. Invitation links remain for guests. A link does not reserve the free seat. Accepted friends can receive direct challenges lasting five minutes, shown in a dismissible banner and Friends.
 
-## Focused play flow (current)
+Google sign-in gives a seven-day opaque account session, unique player tag, optional username, avatar and colour. Guests keep their preferences on the device. Signed-in appearance is saved when Done succeeds and appears to friends and future opponents. Friends search uses an exact username/tag, never a bulk directory. Requests require recipient consent. Accepted friends see recent availability.
 
-Home shows three large stacked buttons: Duel, Race, Co-op. Mode selection opens guest nickname plus Online / Friend / Bot. Signed-in users use their Google display name. No dropdowns. Profile lives in a header dialog, separate from choosing a game. Back preserves setup values; Menu returns to the three-mode list and confirms leaving active games.
+Blocking is persistent, removes the friendship and outstanding invitations, and prevents future signed-in social contact, private joins and online matching between those accounts. It does not change the result of a current match. A guest/new account is a separate identity. Players can manage their blocks in Friends and report an opponent from the avatar card.
 
-Bot: Easy / Medium / Hard buttons start practice directly. All bot modes are untimed, irrespective of saved friend clocks. Internal keys remain easy/normal/expert.
+## Reliability and presentation
 
-Friend: create an invitation link or join by code. Timing and Co-op attempts are optional expanded chip controls. No saved friends/address book is claimed. Incoming invitations bypass the mode flow, preview fixed room rules, and join after entering a name. Active rooms must be left before joining another invitation.
+The word history scrolls independently of the current word and keyboard on normal-height phones. Tiles use a consistent grid before and after reveal. Very short or zoomed windows retain scrolling so controls remain reachable. Avatars and the logo use compact individual WebP files. Cache versioning applies only to matching asset versions. Light/dark themes, clue symbols and touch feedback remain; sound and vibration default off.
 
-Online: immediate real matchmaking by mode and language, no automated opponent substitution. Fixed presets: Duel 30-second sudden death after round 6, Race five minutes, Co-op 60 seconds/turn and six attempts. Both clients acknowledge a match before starting; unacknowledged lobbies end after 45 seconds. Waiting queue leases last 20 seconds and refresh on polling. Per-search retirement records stop stale cancelled/completed requests from restarting a queue.
+Room connection heartbeats write at most about once per 15 seconds per seat. After 35 seconds without a peer heartbeat the UI says reconnecting; after 90 seconds it says offline. This never extends deadlines or changes results. A player's own connection failure preserves the draft. Rate-limited polling pauses until retry time; cancellation/leaving has a separate server budget.
 
-The Site is now public and GOOGLE_CLIENT_ID is configured. Google console settings still belong to the owner. No domain migration is included.
+## Contact and scope
 
-
-## Response Duel and readability update
-
-New timed Duel games use a response clock: first valid lock starts the other player's selected response duration (default30 seconds). No clock runs while both are still choosing; both-wrong reveal resets it. Missing the response deadline loses the match. Existing stored round-clock rooms keep their old rules. Bots remain untimed. Online timing is selectable before search and forms part of the matching bucket together with mode/language; Race retains overall time and Co-op per-turn time.
-
-English allowed guesses expand from2,254 to6,508 using licensed SCOWL generic/US/UK words, filtered to lowercase five letters. Answers remain50 curated words. Bot guess vocabulary remains the previous curated set so expansion does not introduce obscure bot guesses. Full licence and modified-subset notice are served at wordlist-license.html. PT-PT remains unchanged.
-
-Light/dark theme control persists on the device. Exact teal, present amber and absent slate use independent symbols and contrast-checked text. On normal-height phone screens, the play surface uses dynamic viewport height: history has one scroll region, current word and keyboard remain outside it. Very short/zoomed windows deliberately retain page scrolling rather than clip controls. Physical outdoor readability still needs user-device validation.
-
-## Navigation and QA release — September 10, 2026
-- Online matchmaking uses fixed 30-second timing; users choose timing only in private friend rooms. Duel starts the reply countdown on first lock; Race uses match time and Co-op turn time. Practice remains untimed.
-- Navigation names destinations: Game modes / Change opponent. Playing shows Leave match or End practice, including on phones, with a contextual confirmation.
-- Search shows elapsed time, mode/language/rules, cancellation feedback and an explicit switch to bot practice.
-- Room mutations require the expected match generation. Departure is recorded even after a result, prevents rematch, and a new search declines an unaccepted old rematch.
-- QA: 720 engine simulations by a review agent; automated suite expanded to 46 checks; browser guest matching, first-lock feedback, cancellation-to-practice, submission and exit reviewed. Phone layout checked in a 390 x 700 embedded viewport, not on physical hardware. Google interactive sign-in was not exercised in this local preview.
+Help & feedback accepts bugs, ideas, player reports and privacy requests. Messages enter a private database queue, expire after 90 days, and are not automatically emailed. Operator review is manual; see OPERATIONS.md. Public privacy information describes actual storage and limitations. Full operator legal identity, trademark clearance, provider-region assurances and restore testing are not established by this release.

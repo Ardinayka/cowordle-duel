@@ -1,0 +1,9 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';
+import {makeRoom,begin,chooseWord,guess,giveUp,view,rematch,ready} from '../public/game.js';
+const words=new Set(['apple','crane','slate']);
+function game(){const g=makeRoom({mode:'swap'},'Alex','a','slate',0);g.players[1]={name:'Sam',auth:'b',ready:true};begin(g,100);return g;}
+function chosen(){const g=game();chooseWord(g,0,'apple',words,200);chooseWord(g,1,'crane',words,1000);return g;}
+test('words stay secret, must be valid and cannot be changed after lock',()=>{const g=game();assert.throws(()=>chooseWord(g,0,'zzzzz',words,200),/unknown_word/);chooseWord(g,0,'apple',words,200);assert.equal(view(g,1).chosenWord,'');assert.equal(view(g,1).answers,null);assert.equal(g.started,0);assert.throws(()=>chooseWord(g,0,'crane',words,250),/locked/);assert.throws(()=>guess(g,1,'apple',words,300),/choose_words_first/);chooseWord(g,1,'crane',words,1000);assert.equal(g.started,1000);});
+test('both finish; fewer guesses beats faster time and boards stay private',()=>{const g=chosen();guess(g,1,'slate',words,1200);guess(g,1,'apple',words,2000);assert.equal(g.status,'playing');assert.equal(view(g,0).boards[1].length,0);guess(g,0,'crane',words,9000);assert.equal(g.winner,0);assert.equal(g.solved[0].at,8000);assert.deepEqual(view(g,0).answers,['crane','apple']);});
+test('time breaks equal guesses, equal time draws',()=>{for(const [time,winner] of [[2500,0],[2000,null]]){const g=chosen();guess(g,0,'crane',words,2000);guess(g,1,'apple',words,time);assert.equal(g.winner,winner);}});
+test('give up waits for peer, prevents further guesses and rematch resets secrets',()=>{const g=chosen();giveUp(g,0);assert.equal(g.status,'playing');assert.throws(()=>guess(g,0,'crane',words,2000),/locked/);guess(g,1,'apple',words,2500);assert.equal(g.winner,1);rematch(g,0,'slate');ready(g,1,3000);assert.equal(g.started,0);assert.deepEqual(g.secrets,[null,null]);assert.deepEqual(g.gaveUp,[false,false]);});

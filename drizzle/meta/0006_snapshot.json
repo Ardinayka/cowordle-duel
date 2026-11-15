@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b388c3a3-164f-49ab-8d55-bce5b2cad6f4",
+  "id": "c97fd931-bf22-4d48-96eb-785c10bf36eb",
   "prevId": "d4877a02-b1f7-49b7-a7b9-138e58682cfc",
   "tables": {
     "auth_challenges": {
@@ -149,197 +149,6 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "friend_requests": {
-      "name": "friend_requests",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "sender_id": {
-          "name": "sender_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "recipient_id": {
-          "name": "recipient_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created": {
-          "name": "created",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires": {
-          "name": "expires",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "friend_requests_pair_unique": {
-          "name": "friend_requests_pair_unique",
-          "columns": [
-            "sender_id",
-            "recipient_id"
-          ],
-          "isUnique": true
-        },
-        "friend_requests_recipient": {
-          "name": "friend_requests_recipient",
-          "columns": [
-            "recipient_id",
-            "expires"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "friendships": {
-      "name": "friendships",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_a": {
-          "name": "user_a",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_b": {
-          "name": "user_b",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created": {
-          "name": "created",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "friendships_pair_unique": {
-          "name": "friendships_pair_unique",
-          "columns": [
-            "user_a",
-            "user_b"
-          ],
-          "isUnique": true
-        },
-        "friendships_user_a": {
-          "name": "friendships_user_a",
-          "columns": [
-            "user_a"
-          ],
-          "isUnique": false
-        },
-        "friendships_user_b": {
-          "name": "friendships_user_b",
-          "columns": [
-            "user_b"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "game_challenges": {
-      "name": "game_challenges",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "sender_id": {
-          "name": "sender_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "recipient_id": {
-          "name": "recipient_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "room_code": {
-          "name": "room_code",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "mode": {
-          "name": "mode",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created": {
-          "name": "created",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires": {
-          "name": "expires",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "game_challenges_recipient": {
-          "name": "game_challenges_recipient",
-          "columns": [
-            "recipient_id",
-            "expires"
-          ],
-          "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
     "match_queue": {
       "name": "match_queue",
       "columns": {
@@ -399,6 +208,14 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
+        },
+        "seen_at": {
+          "name": "seen_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
         }
       },
       "indexes": {
@@ -411,66 +228,6 @@
             "created"
           ],
           "isUnique": false
-        }
-      },
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "player_profiles": {
-      "name": "player_profiles",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "username": {
-          "name": "username",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "username_key": {
-          "name": "username_key",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "player_tag": {
-          "name": "player_tag",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created": {
-          "name": "created",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "player_profiles_username_key_unique": {
-          "name": "player_profiles_username_key_unique",
-          "columns": [
-            "username_key"
-          ],
-          "isUnique": true
-        },
-        "player_profiles_player_tag_unique": {
-          "name": "player_profiles_player_tag_unique",
-          "columns": [
-            "player_tag"
-          ],
-          "isUnique": true
         }
       },
       "foreignKeys": {},

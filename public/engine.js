@@ -8,8 +8,8 @@ export function pickBot(words,rows,random=Math.random,difficulty='normal'){
   const latest=rows.slice(-1);
   const partial=unused.filter(w=>latest.every(r=>r.colors.every((c,i)=>c!=='exact'||w[i]===r.word[i])));
   // Easier opponents sometimes overlook deductions. They still never repeat a word.
-  const careful=difficulty==='expert'||random()<(difficulty==='easy'?.3:.75);
+  const careful=difficulty==='expert'||random()<(difficulty==='easy'?.15:.5);
   const pool=careful&&complete.length?complete:partial.length?partial:unused;
   return pool[Math.floor(random()*pool.length)];
 }
-export function botDelay(difficulty,random=Math.random){const range={easy:[7000,5000],normal:[4500,3500],expert:[2500,2000]}[difficulty]||[4500,3500];return range[0]+random()*range[1];}
+export function botDelay(difficulty,random=Math.random){const range={easy:[18000,10000],normal:[12000,8000],expert:[6000,4000]}[difficulty]||[12000,8000];return range[0]+random()*range[1];}
