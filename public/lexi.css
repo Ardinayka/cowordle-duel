@@ -448,3 +448,6 @@ body:not(:has(.tabbar)){padding-bottom:0}
 #step-competitive:not([hidden]){display:flex;flex-direction:column}
 #step-competitive .rank-card{order:1}#competitive-find{order:2;margin-bottom:20px}#step-competitive .group-label{order:3}#step-competitive .rule-list{order:4}
 #board:focus,#board:focus-visible{outline:none}
+#invitation-banner-later::before{content:"";width:22px;height:22px;background:currentColor;-webkit-mask:var(--i-x) center/contain no-repeat;mask:var(--i-x) center/contain no-repeat}
+.player button.avatar{width:44px;height:44px;min-width:44px;min-height:44px}
+#back-button,#menu-button{min-height:48px}
