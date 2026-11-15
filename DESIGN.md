@@ -1,46 +1,46 @@
-# Lexivanto competitive visual system
+# Lexivanto visual system (2027 redesign)
 
-Approved reference: https://www.figma.com/design/ELQ2KEDLoXXbtwPNNwNUb1 . Mode: Operate, with a competitive game identity. Navy surfaces, cyan action highlights, amber clues and violet Co-op accent. User requested restrained glow and soft offset shadows, not elaborate lightning textures.
+Source of truth for the look: the Figma file "Lexivanto — Redesign 2027", https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido (Foundations, Components and screen pages). Implementation: `public/lexi.css` (single stylesheet for the game and guide pages) and `public/fonts.css` (self-hosted Inter 400/700 and Lexend 600/800, SIL OFL). `public/style.css` remains only for the two licence pages. The September 2026 look (style/arena/premium/avatars CSS) was retired in Phase 2; its history is in git.
+
+Mode: Operate. A competitive word game used on a phone, often outdoors and in short sessions. Precision and restraint; the board and keyboard are the hero.
 
 ## Tokens
-Dark: background #080e20, surface #111c32, arena #0d162a, text #f3f7ff, secondary #a8b8d0, border #29415d, primary/exact #51d4ff, present #f5b84c, absent #33445e. Exact and present use dark text; absent uses white. Light: background #eef3f9, surface #ffffff, text #111c32, secondary #475871, primary #086484, exact #08738e. Keep symbols and accessible descriptions for every clue.
+Defined as CSS custom properties on `:root` (light) and `:root[data-theme=dark]`; new players default to dark.
 
-Typography: self-hosted Inter 400/700, body16px, frequent labels14–16px, secondary markers12px. Main heading32–42px; mode labels26–28px. Tiles8px radius; controls10–12px; mode cards16px; arena18px. Dark depth: 0 14px 36px black28%; restrained cyan glow: 0 4px 22px cyan16%. Glows emphasize action and countdown, not every letter.
+| Role | Dark | Light |
+|---|---|---|
+| Background / surface / raised / sunken | #07101f / #0f1e36 / #172b4a / #050b16 | #eef3f9 / #fff / #fff / #e1e9f3 |
+| Text primary / secondary / tertiary | #f4f8ff / #c2d3ea / #93aacb | #0a1830 / #35486a / #52678a |
+| Border subtle / strong, focus | #2b4668 / #6485b0, #51d4ff | #c3d0e2 / #5e7391, #075a75 |
+| Primary action (neutral, never a tile colour) | #f4f8ff on #07101f | #0a1830 on #fff |
+| Exact tile | #3ccbfa, letter #021019 | #075a75, letter #fff |
+| Present tile | #f7b84a disc, letter #1a1000 | #f2ae30 disc, letter #1a1000 |
+| Absent tile | #0f1e36, letter #93aacb | #e1e9f3, letter #35486a |
+| Competitive / Normal / Friend / Bot | #b9a0ff / #51d4ff / #5fe3b3 / #9db8dd | #5b36c9 / #075a75 / #0b6b4b / #44546e |
+| Danger / success / warning | #ff8a80 / #5fe3b3 / #f7b84a | #b3261e / #0b6b4b / #8a5a00 |
 
-## Flow and responsive behavior
-Three stacked mode cards remain the entry point. Guest name then Online/Friend/Bot. Online fixed30s, no selector. Friend settings retain optional chip controls, bot choices start untimed practice. Search shows true elapsed time and explicit cancellation/practice choices. Result includes Play again and Game modes, with Change settings as a quieter existing option.
+All tile and key letters are at least 7:1 against their fill in both themes; body text at least 4.5:1; control borders at least 3:1.
 
-Active play uses dynamic viewport height. Only revealed history scrolls; draft and keyboard remain in flow outside that region. Phone header keeps visible exit, theme, profile and help. In short/zoomed windows page scrolling is allowed to prevent clipping. Light preference persists; new users default dark. Reduced motion disables search animation and transitions.
+## Tile language
+Shape first, colour second, so clues survive colour blindness, greyscale and glare:
+- **Exact:** solid square with a tick in the corner.
+- **Present:** a disc inside a dark slot.
+- **Absent:** flat and dim.
+- **Locked (Duel):** the opponent's hidden guess shows as dashed tiles with a dot.
+The same shapes appear on keyboard keys. No Unicode glyphs; icons are drawn SVG (24 px, 2 px stroke, round caps).
 
-## Validation for this release
-46 existing tests pass. Browser preview was blocked by browser URL security policy, so current production rendering has not been visually verified in this session. Source review and contrast checks are scoped evidence, not physical-device certification. Figma uses editable concept layers and illustrative match values; production displays actual game state.
+## Type
+Lexend (600/800) for headings, tiles, numbers and keys; Inter (400/700) for all UI text. Base size follows the reader's text-size setting (`1rem`). Smallest text 12 px, used only for short labels.
 
-## Menu and profile update
-English-only entry flow. Restore the original three large icon cards; no miniature letter headings or delayed selection. Header uses a 72px LEX logo without the wordmark, navigation in the middle and an avatar profile control at the right edge. Active play reduces the logo to 48px to protect board height. Theme and Help are inside Profile. Six high-contrast avatar colours persist on this device only; this is not shared account metadata.
+## Layout and navigation
+- Phone: compact top bar (logo, Back, in-match exit) and a bottom tab bar: Play, Friends, Inbox, Ranks, Me (64 px + safe area). From 768 px the tab bar becomes a left rail. The tab bar is hidden during a match.
+- Friends, Inbox, Ranks and Me are screens beside the tab bar (non-modal dialogs managed by `public/nav.js`); confirmations and results stay modal, as bottom sheets on phones.
+- Play home: four ways to play in two groups (Online: Competitive, Normal; Private: Play a friend, Practise vs bot). Each card names whether it is rated.
+- Match: label chip (COMPETITIVE · RATED, NORMAL · NOT RATED, FRIEND GAME · NOT RATED, PRACTICE · NOT RATED), players, timer, scrolling history, draft row and keyboard. The keyboard stays fully on screen down to 320×568 and 683×384 (200% desktop zoom).
+- Tap targets: 48 px for new controls; keyboard keys at least 44 px tall.
 
-Friends are accessed through Profile and private setup. Available friends appear inline after private rules, with direct Invite actions. No new permanent header item; a compact notification count uses the Profile control. Sign in remains visible for guests and the official Google button appears above personalisation controls.
+## Motion
+Short and stateful (150–420 ms, exponential ease-out): tile flip on reveal (90 ms stagger), invalid-word shake, invitation banner slide, result medal spring on a win, urgent-timer pulse, search radar. `prefers-reduced-motion` removes all of it.
 
-## Private-room usability update
-Use the events project's documented principles (Nielsen heuristics, WCAG/APG, GOV.UK research guidance): clear states, one action per button, essential rules visible, preserve work on failure, honest evidence. No external expert participation is implied. Private-room settings preserve participants; invitation banners avoid stealing focus; intermediate desktop widths use one centered arena. Profile character selection uses a six-cell generated illustration sheet. Close headers remain sticky in long dialogs.
-
-## Approved visual concept implementation
-The September premium study and user-approved LEX concept guide the current presentation. Gameplay code and rules are unchanged. Shared presentation is in public/premium.css, loaded after the legacy layout and avatar styles. Dark tokens: background #081426, surface #10223c, panel #0c1c32, text #f4f8ff, muted #b8cce6, border #2c4c70. Light theme retains its established tokens. Inter 400/700 is used throughout, including all dialog and result headings. Controls 12px, panels 16px, tiles 8px; press feedback is 100ms with reduced-motion support.
-
-A generated 1254px transparent raster master is embedded in lexivanto-logo.svg (a delivery wrapper, not authored vector geometry). Header 72 CSS px; play 48px. The header Friends destination replaces the old large button above mode choices; narrow setup screens hide that shortcut when Back is visible, with Friends still in Profile and private setup. Three large mode cards stay primary. Profile opens with identity, retains account and tag controls, and groups character/colour choices inside Edit appearance. Close remains sticky. The game board retains its height-aware sizing with a 300px desktop / 280px phone cap. Results use the same type and controls as the other dialogs.
-
-Validation: 73 automated tests passed. Browser inspected desktop and 390x700 menu, dark profile, light setup, phone active Race and centered result. Profile heading computed Inter and Close remained at y=33 with a 44px target after scrolling. Independent code review confirmed no removed/duplicate IDs and no gameplay JS changes. Header width and adaptive-board risks were corrected. Final browser populated-board confirmation was interrupted by transport loss; no physical-device certification is claimed.
-
-### Stable word workspace follow-up
-- Unified history and draft row widths with explicit five-column tracks; removed viewport-height-derived word sizing.
-- Short histories sit beside the current draft; long histories remain scrollable while keyboard stays visible.
-- Duel displays safe covered slots from submitted booleans, revealing only when existing engine state reveals both words. No gameplay rules changed.
-- Compact avatar/status strip on phones; player panels outside the board on wide desktop. Local selected character appears for self; opponent uses initial because remote character sync is not implemented.
-- Browser checked 390x700 empty/covered/revealed states and desktop layout. Final existing suite: 73 passing. Physical Safari scrolling still needs device feedback.
-
-## Phase 0 of the 2027 redesign (November 2026)
-Reference for the redesign: https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido (plan in REDESIGN-PLAN.md). Phase 0 changes only what the current interface can carry:
-- Border colour `--line` raised to 3:1 against surfaces in both themes (light #7a8ca5, dark #5c7aa0). The Duel badge text uses the button ink colour; the light-theme trophy uses a dark amber icon (leaderboard-cup-light.svg); notification counts use the danger colour with button ink.
-- The board heading states whether the match is rated; Rated Duel uses the violet accent.
-- Invitation banner: 48px buttons, live countdown bar, placed below the header, at the bottom of an open dialog, or as a strip above the current word during a match.
-- Motion: newly revealed rows flip tile by tile (420 ms, 90 ms stagger); an invalid word shakes the current row (240 ms). Both are removed by the existing reduced-motion rule.
-- In-play header controls are 44px (logo and buttons were 40px). On phones the signed-in Profile control shows the avatar without the word "Profile"; its accessible name is unchanged.
+## Validation (Phase 2)
+119 automated tests. Browser evidence at 320, 390, 768, 1366 and 683×384, both themes, guest and mocked signed-in, plus 200% text: no horizontal overflow, no overlapping controls, no clipped titles or badges, keyboard on screen. Physical iOS/Android devices and real signed-in accounts were not available in the review session.
