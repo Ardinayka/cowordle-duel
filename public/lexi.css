@@ -283,20 +283,20 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 #race-progress{font-size:.875rem;color:var(--muted)}
 #history-hint{font-size:.75rem;color:var(--faint);text-align:center}
 #board-scroll:focus-visible{outline-offset:-3px}
-#board-scroll{flex:1 1 auto;min-height:72px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border-radius:var(--r-control)}
+#board-scroll{flex:1 1 auto;min-height:72px;container-type:size;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border-radius:var(--r-control)}
 .board{display:flex;flex-direction:column;align-items:center;gap:var(--gap)}
-#board{--t:clamp(30px,8.4vw,44px);--gap:5px;padding:2px 0}
+#board{--gap:5px;--t:clamp(30px,min(12.5cqw,calc((100cqh - 5 * var(--gap) - 4px) / 6)),56px);padding:2px 0}
 #draft-row{--t:clamp(42px,13vw,58px);--gap:6px;flex:none}
 .guess-row{display:flex;align-items:center;gap:var(--gap)}
 .row-owner{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 .6875rem var(--font-ui);color:var(--muted);border:1.5px solid var(--line-strong);flex:none;margin-right:2px}
 .row-owner.owner-you{color:var(--link);border-color:var(--link)}
-.tile{position:relative;width:var(--t);height:var(--t);display:grid;place-items:center;border-radius:var(--r-tile);border:2px solid var(--tile-border);background:var(--tile-empty);color:var(--ink);font:800 calc(var(--t) * .5)/1 var(--font-display);text-transform:uppercase;user-select:none}
+.tile{position:relative;width:var(--t);height:var(--t);display:grid;place-items:center;border-radius:var(--r-tile);border:2px solid var(--tile-border);background:var(--tile-empty);color:var(--ink);font:800 calc(var(--t) * .46)/1 var(--font-display);text-transform:uppercase;user-select:none}
 .tile.filled{border-color:var(--draft-border);border-width:2.5px}
 .tile .symbol,.key-mark{display:none}
 /* shape language: exact = solid square + tick, present = disc, absent = flat and dim */
 .tile.exact{background:var(--exact);border-color:var(--exact);color:var(--on-exact)}
-.tile.exact::after,.key.exact::after{content:"";position:absolute;top:3px;right:3px;width:max(9px,calc(var(--t,40px) * .24));height:max(9px,calc(var(--t,40px) * .24));background:currentColor;-webkit-mask:var(--i-check) center/contain no-repeat;mask:var(--i-check) center/contain no-repeat}
-.tile.present{background:radial-gradient(circle at 50% 50%,var(--present) 0 calc(50% - 3px),transparent calc(50% - 2.5px)),var(--slot);border-color:var(--slot);color:var(--on-present)}
+.tile.exact::after,.key.exact::after{content:"";position:absolute;top:2px;right:2px;width:max(8px,calc(var(--t,40px) * .2));height:max(8px,calc(var(--t,40px) * .2));background:currentColor;-webkit-mask:var(--i-check) center/contain no-repeat;mask:var(--i-check) center/contain no-repeat}
+.tile.present{background:radial-gradient(circle closest-side,var(--present) calc(100% - 3px),transparent calc(100% - 2.5px)),var(--slot);border-color:var(--slot);color:var(--on-present)}
 .tile.absent{background:var(--absent);border-color:var(--absent);color:var(--on-absent);font-weight:600}
 .guess-row.covered .tile{border-style:dashed;border-color:var(--line-strong);background:var(--raised)}
 .guess-row.covered .tile::after{content:"";width:22%;height:22%;border-radius:50%;background:var(--faint)}
@@ -309,7 +309,7 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 .key.wide{flex:1.55 1 0;max-width:72px;font:700 .75rem/1 var(--font-ui);letter-spacing:.02em}
 .key.exact{background:var(--exact);color:var(--on-exact)}
 .key.exact::after{top:3px;right:3px;width:9px;height:9px}
-.key.present{background:radial-gradient(circle at 50% 50%,var(--present) 0 15px,transparent 15.5px),var(--slot);color:var(--on-present)}
+.key.present{background:radial-gradient(circle closest-side,var(--present) calc(100% - 4px),transparent calc(100% - 3.5px)),var(--slot);color:var(--on-present)}
 .key.absent{background:var(--sunken);color:var(--faint);box-shadow:inset 0 0 0 1px var(--line)}
 .key.enter.ready{background:var(--primary);color:var(--on-primary)}
 .key.backspace::before{content:"";width:24px;height:24px;background:currentColor;-webkit-mask:var(--i-back) center/contain no-repeat;mask:var(--i-back) center/contain no-repeat}
@@ -323,7 +323,7 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 body.playing #leave{display:none}
 .bottom-actions{min-height:20px}
 /* short phones: protect board and keyboard */
-@media(max-height:700px){#board{--t:clamp(26px,7.6vw,38px)}#draft-row{--t:clamp(40px,11.5vw,50px)}.key{--kh:46px}.players .avatar{width:30px;height:30px;min-width:30px}.player small{font-size:.75rem}.arena{gap:4px}}
+@media(max-height:700px){#board{--t:clamp(26px,min(11cqw,calc((100cqh - 5 * var(--gap) - 4px) / 6)),46px)}#draft-row{--t:clamp(40px,11.5vw,50px)}.key{--kh:46px}.players .avatar{width:30px;height:30px;min-width:30px}.player small{font-size:.75rem}.arena{gap:4px}}
 @media(max-height:600px){.key{--kh:44px}.keyboard{gap:5px}#draft-row{--t:40px}.players{display:none}}
 body.playing .topbar{--top-h:52px}
 body.playing #game-layout{height:calc(100dvh - 52px - var(--safe-t))}
@@ -439,3 +439,12 @@ dialog.result[data-outcome=win][open]::before,dialog.result[data-outcome=win][op
 @keyframes urgent{50%{transform:scale(1.08)}}
 body:not(:has(.tabbar)){padding-bottom:0}
 @media(max-height:450px){#game-layout{min-height:0}.players,#history-hint,.bottom-actions{display:none}#board-scroll{min-height:52px}.turn-line{min-height:20px}.arena{gap:4px;padding-top:4px}#draft-row{--t:38px}.keyboard{gap:4px}.key{--kh:44px}}
+
+/* Phase 2 review fixes */
+.tab:focus-visible{outline-offset:-3px}
+.tab-label,.profile-caption{font-size:clamp(11px,3.2vw,.75rem);max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.timer{white-space:nowrap}
+#ready:disabled{opacity:1;background:var(--raised);color:var(--ink);border:1.5px solid var(--line-strong);font-weight:600}
+#step-competitive:not([hidden]){display:flex;flex-direction:column}
+#step-competitive .rank-card{order:1}#competitive-find{order:2;margin-bottom:20px}#step-competitive .group-label{order:3}#step-competitive .rule-list{order:4}
+#board:focus,#board:focus-visible{outline:none}
