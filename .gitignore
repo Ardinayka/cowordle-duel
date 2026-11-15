@@ -10,3 +10,4 @@ server/assets.js
 # Impeccable engine binary (downloaded on first use)
 .claude/skills/impeccable/scripts/bin/
 .claude/settings.local.json
+.impeccable/review/
