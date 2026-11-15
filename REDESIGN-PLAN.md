@@ -25,6 +25,10 @@ Evidence labels used below: **SEEN** = observed in a real browser on the preview
 | 11 | **Not installable, and fragile as an app.** No manifest, icons or service worker; the match seat is stored per tab, so a killed app forfeits; sessions end after 7 days. | Blocks the phone app and push. | CODE + curl · high | Section 5. |
 | 12 | **Small bugs and stale text.** A Word Swap invitation is labelled "Duel"; a lobby nobody readies still pays 15 XP; the leave dialog says "three game modes" (there are four); PRODUCT.md says "no rankings" and "English only" while Portuguese is half-present (switching would print "undefined"); the privacy page still mentions the old host. | Trust. | CODE + SEEN · high | Quick wins, Phase 0. |
 | 13 | **Launch gates still open.** Player reports alert nobody, usernames are unfiltered, no published contact, operator identity and terms unresolved. | Required by both app stores. | CODE · high | Owner tasks; start early (longest lead time). |
+| 14 | **Ghost opponents online.** A player who closes the tab stays matchable for up to 20 s; the playtest got "Alice vs Alice" and then a zero-guess draw while a real second player kept searching. | A broken first online match is the worst possible first impression. | SEEN once, cause in `server/matchmaking.js` · medium | Phase 1: release the queue entry on page hide, require a fresh heartbeat before pairing. |
+| 15 | **A friend who joins by link cannot see "I'm ready".** It sits at y=847 in an 844px screen; the only visible button is "Copy invitation link". | Friend games stall at the lobby. | SEEN · high | Phase 0 makes Accept-from-invitation auto-ready; the lobby rebuild in Phase 2 fixes link joins. |
+| 16 | **Keyboard bottom row off-screen on short phones** (46–66px at 375×553, 360×560, 320×568). Error text under the keyboard shifts it a further 28–46px. | Enter and Delete unreachable without scrolling on small phones. | SEEN · high | Phase 2 layout (board history scrolls, keyboard pinned). |
+| 17 | **Rematch moves the other player silently** from the result to the lobby; offline players see a raw "Failed to fetch"; the opponent sees nothing for 35 s. Word Swap's "Give up" forfeits on one tap. | Confusing and occasionally unfair. | SEEN · high | Phase 1–2: rematch request message, plain connection states, confirm on give-up. |
 
 What is good and should be kept: the server-authoritative rules engine and its tests, the honest "never a silent bot" rule, the simultaneous-reveal Duel (a real original idea), the name and logo, block/report, and reduced-motion and focus handling that already pass.
 
@@ -110,6 +114,7 @@ Disagreement resolved: UX proposed one "Play online" button with a Normal | Comp
 Effort assumes one developer with AI assistance. Everything goes to the preview (`cloudflare-live`) first; nothing reaches `main` until you say "publish".
 
 **Phase 0 — Quick wins (about 1 week). No database change.**
+- Status (15 Nov 2026): approved and built on the preview (`cloudflare-live`); waiting for the owner's review before publishing. Browser-Back handling, auto guest names, faster bots, and the cancelled-lobby XP fix are included.
 - Code: per-match Competitive/Normal chip and removal of the fixed "unrated" note; friend requests pinned to the top and the badge moved to Friends; banner above dialogs with chime, vibration and countdown; one-tap Accept that joins in place; fix the Word Swap label, the cancelled-lobby XP, "three game modes"; auto guest name; faster Easy bot; switch on the tile flip and invalid shake that the CSS already contains; light-theme contrast fixes; browser Back handling.
 - Risk: low. Header and banner changes need the AGENTS.md browser checks at 320/390/768/1366.
 
@@ -172,4 +177,4 @@ Roughly five to six months end to end for one developer.
 - Real population, queue times and rating spread; tier bands, wait estimates and the Cloudflare cost figures are starting values.
 - The bot delay (read in code, not timed).
 
-The seven specialist reports and the playtest screenshots were working files in the review session and are not stored in this repository. The playtest lead's written report was still in progress when this plan was saved; its screenshot findings so far are included above, and any further findings should be added to section 1.
+The seven specialist reports and the playtest screenshots were working files in the review session and are not stored in this repository. Rows 14–17 come from the playtest lead's final report, which arrived after the first version of this plan.
