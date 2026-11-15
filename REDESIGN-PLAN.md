@@ -1,0 +1,175 @@
+# Lexivanto — critique, redesign and roadmap
+
+Lead game designer's report, 15 November 2026. Nothing in the code, the databases or your existing Figma file was changed. Seven senior specialists reviewed independently (UX, UI, accessibility, competitive systems, retention, mobile engineering, playtest/QA); this document merges their findings and records where I overruled one of them.
+
+**New Figma file:** https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido
+
+Evidence labels used below: **SEEN** = observed in a real browser on the preview at phone size; **CODE** = read in the code only; **SIM** = real element force-rendered because the state could not be reached. Google sign-in is switched off on the preview, so every signed-in screen (friends list, real invitations, rated results) is CODE or SIM, never SEEN.
+
+---
+
+## 1. Prioritised problems
+
+| # | What's wrong | Why it matters | Evidence · confidence | Fix |
+|---|---|---|---|---|
+| 1 | **Invitations and friend requests are close to invisible.** The only delivery is a 20-second poll that runs when you are signed in and the tab is visible. A game invitation shows a banner with no sound, vibration or countdown; it sits behind any open dialog and cannot be tapped there; in a match it covers the top of the board and Accept is disabled. Dismissing it deletes it for good. A friend request gets no banner at all, only a 22px badge on the Profile button, and its row is listed below all your friends. Accepting an invitation takes 4 taps and a page reload. You can only invite a friend who is idle on a menu. The sender only ever sees "Invitation sent… waiting". | This is your Problem 1 and it is structural: with the tab in the background or the site closed, nothing can reach you inside the 5 minutes. | CODE + SIM · high | Inbox tab with badge, banner above every layer with chime, haptic and countdown, one-tap Accept that joins in place, missed invitations kept with "Challenge back", sender status, then web push and app push. Section 3A. |
+| 2 | **"Ranked" is printed on the game, not on the match.** The Duel card says ONLINE · RANKED even when you then pick a bot or a friend. The play screen carries a fixed line "Custom matches are unrated" even in rated games. Guests share the ranked queue; a signed-in player paired with a guest silently gets a "Casual Duel" and learns it on the result line. | Players cannot tell what is at stake. Your Problem 2. | SEEN (card, note) + CODE · high | Split into Competitive and Normal as the first choice; one chip on every screen says which. Section 3B. |
+| 3 | **An empty queue is a dead end.** Search never ends, never widens, gives no estimate ("Still searching…" unchanged at 62 s). Rating is not used for matching at all. Backgrounding the tab drops you from the queue (20 s lease, polling stops). | For a small community this is the most likely reason a new player leaves and does not return. | SEEN + CODE · high | Honest search screen, rating window that widens, choices at 60 s, labelled bot offer in Normal only, search that survives backgrounding. |
+| 4 | **The ladder is easy to distort.** Flat K=32, no real placement, every rematch fully rated (two friends can farm), the exact 500 answers ship to the browser in `words-en.json`, the 45 s ready check lets players dodge for free, the 30 s clock only starts after the first lock so two idle players stall forever, and one timeout loses the whole match. A simulation suggests about two thirds of single-word Duels end with both players solving in the same round, so lock speed decides. | "Fair and hard to cheat" is not true yet. Good news: the answer, the opponent's pending guess and the clocks never reach the client early, and results cannot be forged. | CODE · high (simulation: indicative) | Section 3B: placements, K schedule, rating-window matching, same-pair caps, leaver strikes, best-of-3, server-only answer pool. |
+| 5 | **First visit does not explain or start the game.** Home says "Choose your game" with four cards and no Play button; a typed name is required before anything starts; the Easy bot appears to wait 18–28 s per guess, so a first win takes minutes. | The first 10 seconds decide whether a visitor becomes a player. | SEEN (home, name wall) + CODE (bot delay, medium) | Welcome screen with one "Play now", auto guest name, 60-second tutorial against a fast bot, sign-in offered after the first win. |
+| 6 | **The game does not feel like a game.** No tile flip (the CSS exists but is never triggered), no shake on an invalid word (the error appears below the keyboard and shifts the layout 27px), the win and loss screens are identical, sound and vibration default off. | Feedback is what makes a word game satisfying and a timed mode tense. | SEEN · high | Motion and sound spec in the Figma file (20 moments, each with a reduced-motion alternative). |
+| 7 | **Accessibility fails where it matters most.** Light theme: RANKED badge 2.8:1, trophy icon 1.6:1, control borders 1.5–1.95:1. Dark theme: correct and present tiles have identical brightness (1.03:1), told apart only by 12px marks. Letter keys are 32–36px wide (25–29px at 320px). At 320×568 the Enter/Delete row is off-screen. A screen reader never announces your own guess result, the timer gives no 10 s / 5 s warning, and invitations are silent. 28 text styles are under 14px. | Colour-blind, low-vision and screen-reader players cannot play reliably; sunlight washes out the light theme. | SEEN, measured · high | New tokens (every tile letter ≥7:1), shape-coded tiles, 48px targets, announcements, checks at 320px in both themes. |
+| 8 | **Nothing brings a player back.** No daily challenge, streak, achievements or sharing. Match history, win/loss record and XP are stored but never shown; XP unlocks nothing. There are no analytics, so retention cannot be measured. | A multiplayer game with few players online needs something to do alone. | CODE + SEEN · high | Daily Duel, streaks, stats and history, levels, share card, minimal first-party analytics. |
+| 9 | **Navigation behaves like a website.** The Friends button disappears after the home screen, Profile is disabled during search, profile/friends/leaderboard are long centred dialogs, the lobby is two screens tall, and the phone's Back button leaves the site, even mid-match. | Players lose their place; Android users lose matches. | SEEN + CODE · high | Bottom navigation (Play, Friends, Inbox, Ranks, Me), real screens, history handling. |
+| 10 | **The visual system has drifted.** 123 colours (32 near-identical navies), 57 font sizes, 16 radii across three stylesheets that override each other; weights requested that are not loaded; a light-grey keyboard inside the dark theme; a 270px empty band on the play screen; the logo is a 384px image; four different illustration styles. The existing Figma file mirrors the code, so it inherits all of it. | Explains the "slightly different colours" you noticed, and makes every change risky. | CODE + SEEN · high | One token set, 40 components, rebuilt view layer. |
+| 11 | **Not installable, and fragile as an app.** No manifest, icons or service worker; the match seat is stored per tab, so a killed app forfeits; sessions end after 7 days. | Blocks the phone app and push. | CODE + curl · high | Section 5. |
+| 12 | **Small bugs and stale text.** A Word Swap invitation is labelled "Duel"; a lobby nobody readies still pays 15 XP; the leave dialog says "three game modes" (there are four); PRODUCT.md says "no rankings" and "English only" while Portuguese is half-present (switching would print "undefined"); the privacy page still mentions the old host. | Trust. | CODE + SEEN · high | Quick wins, Phase 0. |
+| 13 | **Launch gates still open.** Player reports alert nobody, usernames are unfiltered, no published contact, operator identity and terms unresolved. | Required by both app stores. | CODE · high | Owner tasks; start early (longest lead time). |
+
+What is good and should be kept: the server-authoritative rules engine and its tests, the honest "never a silent bot" rule, the simultaneous-reveal Duel (a real original idea), the name and logo, block/report, and reduced-motion and focus handling that already pass.
+
+---
+
+## 2. The new Figma file
+
+https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido — "Lexivanto — Redesign 2027" (in your Events team drafts, the only team with a full seat and theme modes).
+
+| Page | What is on it |
+|---|---|
+| Cover & Guide | Summary and this page list |
+| Foundations | Colour tokens for dark and light as Figma variables with two modes, computed contrast table (all pass), the tile shape language, type scale, spacing and radius |
+| Components | 40 components and 50 icons, states as variants (default, pressed, focused, disabled, loading, error where they apply) |
+| 01 First visit & Home | 6 screens |
+| 02 Play setup, Search, Lobby | 11 screens |
+| 03 Gameplay & Results | 16 screens |
+| 04 Invitations, Friends, Inbox | 11 screens and a delivery flow diagram |
+| 05 Profile, Ranks, Settings, States | 12 screens |
+| 06 Light theme & 320px checks | 12 light screens, 5 screens at 320×568 |
+| 07 Tablet & Desktop | 768 and 1366 layouts for home and Duel |
+| Motion & Sound | 20 moments: movement, timing, sound, vibration, reduced-motion alternative |
+| Rule changes to approve | 14 existing rules the redesign would change, with reasons |
+| _build | Helper scripts I used to generate the file; not design, safe to delete |
+
+Design decisions worth knowing:
+- **Tiles are coded by shape first.** Correct = solid square with a tick. Right letter, wrong place = a circle. Not in the word = flat and dim. Keys repeat it. This survives colour-blindness, greyscale and glare; in light theme the fills also differ in brightness by about 4:1.
+- **The main action is no longer cyan.** The UI designer showed that Enter looked like a confirmed letter. Primary buttons are near-white in dark theme and ink in light theme; cyan/teal belongs to correct tiles.
+- **Type:** Lexend for headings, tiles and numbers, Inter for reading. Smallest text 12px (capital labels only).
+- **Limits of the file:** avatars and the logo are placeholders for your production artwork; rating numbers and tier bands shown are illustrative; components are real and variable-bound, but screens were composed by script and checked by screenshot, not hand-polished pixel by pixel.
+
+---
+
+## 3A. Invitations and friend requests, screen by screen (page 04)
+
+How one arrives today (traced in code): sender taps Challenge → a row with a 5-minute expiry → your client finds it on its next 20 s poll, if signed in and the tab is visible → banner "X invited you" with View invitation / Dismiss → View opens the Friends dialog → a second View invitation accepts and reloads the page → Join room → I'm ready. On another screen: same banner, hidden behind dialogs. In a match: covers the board, Accept disabled. Tab in background or site closed: nothing. Friend request: badge only.
+
+Proposed:
+
+| Screen | What you see and do |
+|---|---|
+| 1.5 Invitation arrives (any screen) | A card slides down over everything, dialogs included, with a two-note chime and double vibration: who, which game, "not rated", a countdown and draining bar. **Accept** and **Decline** are one tap each. |
+| 4.5 After Accept | You are in the room at once. No Friends dialog, no reload, no Join, no Ready. Both count as ready; 3-2-1 starts. |
+| 4.4 During a match | The banner shrinks to a pill in the empty band between history and your draft row, never over tiles, keyboard or clock. "Play after" queues the accept; the sender sees "will join after her game". No sound in Competitive. |
+| 4.3 Friend request | Gets a banner too. It does not block; after 8 s it folds into the Inbox, and the badges stay until you answer. |
+| 4.1 Friends tab | Requests pinned to the top with Accept / Decline. Every friend has an action whatever their status; a busy or offline friend receives the invitation in their Inbox. |
+| 4.6 Inbox tab | Everything that needs an answer, newest first, answerable in place. Live invitations show their countdown. The tab carries the unread count. |
+| 4.7 Missed invitation | Nothing is silently deleted. After 5 minutes it becomes "You missed Maya's invitation" with **Challenge back**. |
+| 4.9 Sender status | Sent → Seen → Joined / Declined / No answer, with the same countdown. |
+| 4.10 Push (app, and web where allowed) | "Maya invited you to a Duel · 5 minutes to join" with Accept / Decline; Accept opens the room directly. |
+| 4.11 Permission | Asked once, in context, right after you send your first invitation, with a plain reason. |
+
+Disagreement resolved: UX proposed four tabs with the Inbox inside Friends; I chose five tabs with a dedicated Inbox in the centre, because missed invitations are the problem you raised first and a badge in thumb reach is the cheapest insurance. UX also proposed extending invitations to 30 minutes; I kept your 5-minute live window (it matches "play now") and added the missed-invitation trail instead.
+
+## 3B. Competitive vs Normal, screen by screen (pages 01–03)
+
+What the code does today: plain Elo, K=32, start 1000, draws 0.5, no floor or seasons; "provisional under 10 games" is a label only. Only public-queue Duel between two different signed-in accounts is rated. Friend and bot games write nothing. XP is 20/15/10 per online Duel and unlocks nothing. Matchmaking is first-come-first-served.
+
+| Decision | Proposal | Why |
+|---|---|---|
+| Which games are ranked | **Duel only**, one rating. Race, Co-op and Word Swap stay in Normal and Friend. | Race with unlimited guesses and no clock rewards guess-spamming; Co-op has no opponent; Word Swap depends on obscure words. One ladder also keeps a small community in one queue. Revisit Race later with a guess cap. |
+| Ranked format | Best of 3 words; 45 s per guess for both players, 20 s once the opponent locks; a timeout loses the word. | Cuts the luck of a single word and stops idle stalls. **This changes game rules, so it needs your approval.** |
+| Rating system | Stay on Elo (the tables and tests already fit); do not move to Glicko-2. K 48 during 5 placement games, then 32, 24, and 16 above 1400; opponents of a placement player risk half. Start 1000, floor 400. Existing ratings are kept untouched. | Simple to explain ("like chess"), safe to migrate. Glicko's benefits mostly matter at larger scale. |
+| Tiers | Bronze, Silver, Gold, Platinum, Diamond, Master, pure rating bands with a 25-point demotion buffer. Start with 100-point bands and tune from the real distribution before Season 1. (The Figma figures are illustrative.) | Goals between the numbers; no promotion series to engineer. |
+| Matchmaking | Competitive: ±100 rating, widening every 15 s to anyone at 60 s; then you choose Keep waiting / Play Normal / Notify me. **Never a bot, never a fake opponent.** No ready check, no rematch. Normal: anyone; after 20 s a clearly labelled bot is offered while the search continues. | Honest for a small population. |
+| Leaving | Forfeit = loss with full rating change; leaving in the first seconds before any guess = no contest; strikes give queue cooldowns of 5 min, 30 min, 2 h. Server clocks. | Standard, proportionate. |
+| Anti-cheat | Sign-in required, 5 Normal games to unlock Competitive, at most 3 rated games per pair per day, answer pool grown to 2,000+ and kept on the server, solver-speed and tab-switch flags for manual review (no automatic bans), report flow. | Honest limit: a solver cannot be fully prevented in any word game; simultaneous reveal plus a short clock makes it pay less. |
+| Seasons | About 3 months, soft reset halfway to 1000, cosmetic rewards only, leaderboard scopes Global / Friends / All time, 5 games to appear. | |
+
+Screens: **1.3/1.4 Home** shows four full-width cards in two groups: Competitive and Normal (online), Play a friend and Practise vs bot (private). Each says "Rated" or "Not rated" in words; Competitive is visible but locked for guests with the reason. **2.1** Competitive hub: your tier, rating, season, and the rules in four lines before you commit. **2.2** placements: "2 of 5", no number shown yet. **2.3** searching: real elapsed time and the rating window in words. **2.4** quiet queue at 60 s with the three choices. **2.5** match found: both ratings and "Win +17 · Lose −15" before the first letter. **2.6/2.7** Normal: pick any game; bot offer at 20 s. **3.1–3.5** Duel with the mode chip in the header throughout. **3.9** leaving a ranked match states the cost on the button. **3.11/3.12** result: rating before → after, signed and arrowed change, tier progress, XP, "Next match". **3.13** placement result. **3.14/3.15** friend and Normal results show "Not rated" where the rating would be. **3.16** promotion moment. **5.3/5.4** leaderboard and tiers explained.
+
+Disagreement resolved: UX proposed one "Play online" button with a Normal | Competitive switch. I chose two separate cards: a switch hides what is at stake behind a control state, and four cards keep your approved stacked-card layout.
+
+## 3C. The rest of the critique in brief
+
+- **Compared with successful games.** Borrow: Wordle's flip cadence, streak and spoiler-free share grid; Chess.com's rating graph, daily puzzle and clear rated/unrated split; Duolingo's streak with a humane freeze; Clash Royale's short, loud win moments; Words With Friends' "nudge" and asynchronous play. Avoid: coin and booster clutter, photo backgrounds behind text, energy timers, loot boxes, fake "players" in queues, and guilt-trip notifications.
+- **English and Portuguese.** Today the game is English only; Portuguese is leftover and broken. A proper PT-PT / PT-BR release needs externalised strings, about 30% text expansion (the designs leave room), Ç and accent handling on tiles and keyboard, a reviewed Portuguese answer list, and the page language set for screen readers. I recommend it as its own project after the redesign.
+
+---
+
+## 4. Roadmap, with code, database and risk per phase
+
+Effort assumes one developer with AI assistance. Everything goes to the preview (`cloudflare-live`) first; nothing reaches `main` until you say "publish".
+
+**Phase 0 — Quick wins (about 1 week). No database change.**
+- Code: per-match Competitive/Normal chip and removal of the fixed "unrated" note; friend requests pinned to the top and the badge moved to Friends; banner above dialogs with chime, vibration and countdown; one-tap Accept that joins in place; fix the Word Swap label, the cancelled-lobby XP, "three game modes"; auto guest name; faster Easy bot; switch on the tile flip and invalid shake that the CSS already contains; light-theme contrast fixes; browser Back handling.
+- Risk: low. Header and banner changes need the AGENTS.md browser checks at 320/390/768/1366.
+
+**Phase 1 — Inbox and measurement (2–3 weeks).**
+- Database (additive): new `notifications` table; `friend_challenges` gains `status`, `created`, `seen_at`, `responded_at` and stops being deleted on dismiss; a small `events` table for first-party analytics.
+- Code: one `/api/inbox` call replacing two polls (every 5 s while visible), Inbox screen, missed invitations, sender status, invitations to any friend.
+- Risk: low-medium. Invitations in flight at deploy must still resolve; changing the invitation id shape needs the friends tests extended first.
+
+**Phase 2 — New interface (3–4 weeks, the largest visual change).**
+- Code: rebuild the view layer only (rules engine and server untouched) on the new tokens and components; bottom navigation; new home, setup, play and result screens; motion and sound; installable web app (manifest, icons, service worker); web push with a `push_tokens` table.
+- Risk: medium. Interface tests are bound to element ids and will need rewriting; a service worker can strand players on an old version, so it ships with a kill switch; this is where the 14 rule changes take effect, so I need your approval of that page first.
+
+**Phase 3 — Competitive and Normal (3–4 weeks, in four flagged steps).**
+- Database (additive): `match_queue` gains `queue`, `user_id`, `rating`; `match_results` gains `queue`, `season`, scores, `end_type`; `player_ratings` gains `peak_rating`, `season`, `season_games`; new `seasons`, `season_results`, `queue_penalties`, `guess_telemetry`, `player_flags`.
+- Steps: (1) queue split and wording, no formula change; (2) rating-window matching, K schedule, placements, pair caps, strikes; (3) best-of-3, larger server-only answer pool; (4) tiers, new result screens, Season 1 with no reset.
+- Risk to ratings: the settlement query is the most delicate code in the project. Before step 2 goes live, replay every stored rating event through the new code and confirm no existing rating changes. Nobody's rating is reset. Check for farmed pairs before attaching rewards. Guests lose a "ranked" card that never rated them.
+
+**Phase 4 — Reasons to return (2–3 weeks).**
+- Database: `daily_puzzles`, `daily_results`, `player_progress` (streaks, level), later `player_achievements`.
+- Code: Daily Duel, streak with an earned freeze, stats and history screens (the data already exists), levels from XP, share card.
+- Risk: low; additive.
+
+**Phase 5 — Phone app (10–12 engineer-weeks across 14–16 calendar weeks, overlapping Phases 2–4).** Section 5.
+
+Roughly five to six months end to end for one developer.
+
+---
+
+## 5. Path to iPhone and Android
+
+**Recommendation: installable web app first, then a Trusted Web Activity on Google Play, then a Capacitor shell on the App Store. No rewrite.**
+
+| Option | Effort | Push | Verdict |
+|---|---|---|---|
+| Installable web app only | 2–3 weeks | Good on Android; on iPhone only after "Add to Home Screen" | Needed anyway, not enough alone |
+| Capacitor wrapper on both | 9–11 weeks | Full | Works, but redoes sign-in on Android for no gain |
+| **Web app + Play listing that runs it + Capacitor on iPhone** | **10–12 weeks total** | Good on Android, full on iPhone | **Recommended** |
+| React Native / Flutter rewrite | 20–28 weeks | Full | Discards the tested rules engine; two interfaces to maintain |
+| Fully native | 35–50 weeks | Full | Not justified for a turn-based word game |
+
+- **Cost:** Apple US$99 a year, Google US$25 once, Cloudflare paid plan about US$60 a year: about US$185 in year one, about US$160 a year after, plus a Mac if you have none. The polling design uses roughly 80 requests per match-minute, so the free Cloudflare plan tops out near 250 matches a day (estimate from code, not measured).
+- **Store requirements checked on 15 Nov 2026:** Google still requires new personal accounts to run a closed test with 12 testers for 14 days; Apple rejects thin website wrappers (guideline 4.2), so the app must feel native (the redesign, haptics, push, offline screen); Sign in with Apple is required next to Google (4.8); account deletion in the app (already exists); report, block, username filter and a published contact (1.2); privacy labels and age rating on both stores. Store commission of 15% would apply only if you later sell cosmetics.
+- **What must change in the code first, in order:** serve manifest and icon files (the build cannot today); manifest, icons, service worker; safe-area layout; keep the match seat across restarts; inbox and web push; a scheduled cleanup job; a light live connection so invitations arrive in about a second; an API mode for native clients (allowed origins, longer sessions); a provider-neutral identity table so Apple and Google can link to one account; the iPhone shell with native haptics and push; offline screen; version gate ("update required"); crash reporting.
+- **Biggest risks:** (1) the identity migration touches every account, so it is done as copy-then-switch after a tested database backup and restore, which is also still an open launch gate; (2) mis-linked Apple and Google sign-ins would split a player's rating and friends; (3) store listings and EU rules will make the operator's legal identity public, and the project currently uses an alias — **this is your decision and has the longest lead time.**
+- Not verified: direct push delivery to Apple from a Cloudflare Worker (needs a short technical trial), action buttons on iPhone web push, and current availability of home-screen web apps in the EU.
+
+---
+
+## 6. What I need from you
+
+1. Approve, change or reject the 14 lines on the Figma page "Rule changes to approve" (bottom navigation, 48px targets with the keyboard exception, the four cards becoming ways to play, ranked best-of-3, and the rest).
+2. Approve the Competitive rules in section 3B, or tell me what to change.
+3. Decide on the operator identity question for the stores.
+4. Approve the roadmap order. On approval I start Phase 0 on the preview and show you before anything is published.
+
+## 7. What was not verified
+
+- Signed-in screens and real two-account rated matches (sign-in is disabled on the preview).
+- Real devices, real sunlight, VoiceOver and TalkBack.
+- Real population, queue times and rating spread; tier bands, wait estimates and the Cloudflare cost figures are starting values.
+- The bot delay (read in code, not timed).
+
+The seven specialist reports and the playtest screenshots were working files in the review session and are not stored in this repository. The playtest lead's written report was still in progress when this plan was saved; its screenshot findings so far are included above, and any further findings should be added to section 1.
