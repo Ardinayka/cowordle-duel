@@ -51,7 +51,7 @@ This guide lists what the owner does (accounts, payments, testers) and what is a
   • Word Swap: pick the word your friend must guess.
   • Daily word: one word a day for everyone, six guesses, with a streak and a spoiler-free result to share.
 
-  Play a friend with a link (no account needed), find an online opponent in Normal, or climb the Competitive ladder: best of three words, placements, tiers and seasons. No opponent around? Practise against a bot on Easy, Medium or Hard.
+  Play a friend with a link (no account needed), find an online opponent in Normal, or climb the Competitive ladder: best of three words, placements, tiers and seasons. No opponent around? Practice against a bot on Easy, Medium or Hard.
 
   Clues use shapes as well as colours, so the game works for colour-blind players. Light and dark themes. No ads, nothing to buy that helps you win.
 

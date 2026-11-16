@@ -190,6 +190,8 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 ### Named Rules
 **The No-Glyph Rule.** No Unicode glyphs for icons or clues. Icons are drawn SVG (24 px, 2 px stroke, round caps).
 
+**The Spelling Rule.** Player-facing text uses American English: practice (never "practise"), color, license, canceled. One standard, so no word reads as a typo. Code names (avatarColour, data-avatar-colour) and status codes are not player-facing and stay as they are. The guess list still accepts both UK and US spellings; answers are chosen from the curated list.
+
 ## Layout
 
 - Phone: compact top bar (logo with the Lexivanto wordmark, Back, in-match exit, 56 px) and a bottom tab bar: Play, Friends, Inbox, Ranks, Me (64 px plus the safe area). From 768 px the tab bar becomes a left rail. The tab bar is hidden during a match.
@@ -198,7 +200,7 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 - Column: Play and the tab screens (Friends, Inbox, Ranks, Me) share one centred column (568 px of content) beside the rail, so content does not shift between tabs.
 - Large text: in the game area, lobby and play area only the board and the lobby list shrink (both scroll); text lines and buttons keep their full height. At 200% text on a 320 × 568 phone the page may scroll a little rather than overlap.
 - Friends, Inbox, Ranks and Me are screens beside the tab bar (non-modal dialogs managed by `public/nav.js`); confirmations and results stay modal, as bottom sheets on phones.
-- Play home: the Daily word card (group Today, amber accent) above four ways to play in two groups (Online: Competitive, Normal; Private: Play a friend, Practise vs bot). Each card names whether it is rated.
+- Play home: the Daily word card (group Today, amber accent) above four ways to play in two groups (Online: Competitive, Normal; Private: Play a friend, Practice vs bot). Each card names whether it is rated.
 - Daily word uses the match layout without an opponent: chip DAILY WORD #N, GUESS N OF 6, and a result sheet with the spread of results and a Share result button.
 - First-visit welcome note on Play and tips in the first game sit in the flow (never over the board) with a Got it button. Guests see Create invitation link first on Play a friend; sign-in features stay out of their way. Reactions replace the sender's status line for a few seconds; the reaction button takes the place of "vs" and opens a row of chips that pushes the board down while open.
 - Match: label chip, players, timer, scrolling history, draft row and keyboard. Competitive shows "WORD 2 OF 3 · 1–0" where other games show the round, and the status line gives the stakes ("Win +14 · Lose −18") before word 1 and the previous word's answer between words. The board grows into the free space (tile size 30–56 px, set from the container) and the keyboard stays fully on screen. Height breakpoints at 700, 600 and 450 px tighten the match screen.
