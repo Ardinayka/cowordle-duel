@@ -194,7 +194,9 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 
 - Phone: compact top bar (logo, Back, in-match exit, 56 px) and a bottom tab bar: Play, Friends, Inbox, Ranks, Me (64 px plus the safe area). From 768 px the tab bar becomes a left rail. The tab bar is hidden during a match.
 - Friends, Inbox, Ranks and Me are screens beside the tab bar (non-modal dialogs managed by `public/nav.js`); confirmations and results stay modal, as bottom sheets on phones.
-- Play home: four ways to play in two groups (Online: Competitive, Normal; Private: Play a friend, Practise vs bot). Each card names whether it is rated.
+- Play home: the Daily word card (group Today, amber accent) above four ways to play in two groups (Online: Competitive, Normal; Private: Play a friend, Practise vs bot). Each card names whether it is rated.
+- Daily word uses the match layout without an opponent: chip DAILY WORD #N, GUESS N OF 6, and a result sheet with the spread of results and a Share result button.
+- First-visit tips sit in the flow above the board (never over it) with a Got it button. Reactions replace the sender's status line for a few seconds; the reaction button takes the place of "vs" and opens a row of chips that pushes the board down while open.
 - Match: label chip, players, timer, scrolling history, draft row and keyboard. Competitive shows "WORD 2 OF 3 · 1–0" where other games show the round, and the status line gives the stakes ("Win +14 · Lose −18") before word 1 and the previous word's answer between words. The board grows into the free space (tile size 30–56 px, set from the container) and the keyboard stays fully on screen. Height breakpoints at 700, 600 and 450 px tighten the match screen.
 - Width breakpoints: 360 and 599 px (compact phone), 768 px (left rail), 1100 px (wide desktop).
 - Spacing steps of 8, 12, 16, 20 and 24 px.

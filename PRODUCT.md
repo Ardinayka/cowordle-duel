@@ -31,6 +31,19 @@ Home (the Play tab) offers four ways to play: Competitive (rated best-of-3 onlin
 
 English has 6,508 allowed guesses, 500 curated secret answers for friend and bot games, 2,015 secret answers for online games (kept on the server, never sent to browsers) and 2,254 bot words. Existing licence notices remain published. Portuguese source data and legacy room support are archived; the public client does not offer Portuguese or join Portuguese rooms.
 
+## Daily word
+
+- One five-letter word a day, the same for everyone, solo, six guesses, never rated. Each player gets the new word at their own local midnight. Puzzle #1 was 16 November 2026. Words come from the 2,015-word online pool, never repeat until the pool is used up, and stay on the server until the player finishes.
+- After finishing: today's anonymous spread of results, friends' results (signed in), and a spoiler-free share text ("Lexivanto #12 4/6" with square, circle and dark marks per letter, matching the clue shapes).
+- Streak: days played in a row. Every 7th day earns a freeze (hold at most 2), used automatically for a missed day. Guests keep progress on the device; signing in moves it to the account.
+- Signed-in players earn 10 XP for a solved daily word and 5 for a finished one. Levels come from XP (level 2 at 100 XP, each next level needs 50 more). Cosmetic only.
+- Me shows level, daily stats (played, solved %, streak, best, freezes, spread) and the recent rating trend.
+
+## First visit and reactions
+
+- A first-time visitor goes straight into an easy practice Duel with three short tips above the board. Returning visitors see Play. A practice game in progress survives a page reload in the same tab.
+- Friend and online matches offer six preset reactions (Hello, Nice guess, Wow, Oops, Thanks, Good game): one every 3 s, 30 per match, shown for a few seconds in place of the sender's status line, announced to screen readers, with Mute reactions on the device. No free text.
+
 ## Competitive
 
 - Format: best of 3 words. 45 seconds per guess; once one player locks, the other has 20 seconds. If only one player locks in time they win the word; if neither does, nobody does. First to 2 words wins; after 3 words the higher score wins, otherwise it is a draw. 3 seconds before word 1 and 4 seconds between words. No ready check and no rematch: the result offers Next match.
@@ -39,7 +52,7 @@ English has 6,508 allowed guesses, 500 curated secret answers for friend and bot
 - Rating: Elo, start 1,000, floor 400. K 48 for the first 5 rated games (placements, shown as "Placement 2 of 5" with no number), then 32, 24 from 30 games, 16 at 1,400 or above. A settled player facing someone in placements risks half. The stakes (Win/Lose) are shown before word 1. Existing ratings were not recalculated.
 - Tiers: Bronze (below 900), Silver 900, Gold 1,000, Platinum 1,100, Diamond 1,200, Master 1,300, with a 25-point buffer before demotion. Bands will be tuned from the real distribution.
 - Fair play: at most 3 rated games per pair per day (further games are played but not rated, and say so). Leaving before the first guess makes the match void; leaving later is a loss. Either gives a strike: cooldowns of 5 minutes, 30 minutes, then 2 hours; strikes clear after 24 hours.
-- Season 1 started with Phase 3 and runs about 3 months, with no reset. The leaderboard shows players with 5 or more rated games.
+- Season 1 started with Phase 3 and runs about 3 months, with no reset. The leaderboard shows players with 5 or more rated games. Season rewards by best tier reached: Gold earns the season emote, Master the Master badge, handed out when the season ends (the best tier is recorded now; the reward items are not built yet).
 - Not yet built: solver-speed and tab-switch flags, the Friends leaderboard scope, season rewards and the soft reset.
 
 ## Multiplayer and identity

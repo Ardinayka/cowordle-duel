@@ -79,3 +79,16 @@ SELECT end_type, COUNT(*) FROM match_results WHERE queue='ranked' GROUP BY end_t
 ```
 
 To clear a player's cooldown after a support request: `DELETE FROM queue_penalties WHERE user_id = ?`.
+
+## Daily word and progress (Phase 4, November 2026)
+
+Migration `drizzle/0015_daily_and_progress.sql` is additive: `daily_puzzles` (one word per date, chosen on first request), `daily_results`, `player_progress` and `player_ratings.season_tier`. Guest rows use the key `g:` plus the hashed device code and are removed after a year without play; account deletion removes the account's rows.
+
+```sql
+-- Daily players and solve rate, last 14 days
+SELECT day, COUNT(*) AS players, ROUND(100.0*SUM(solved)/COUNT(*)) AS solved_pct FROM daily_results WHERE finished=1 GROUP BY day ORDER BY day DESC LIMIT 14;
+-- Streak spread
+SELECT streak, COUNT(*) FROM player_progress GROUP BY streak ORDER BY streak;
+-- Best tier reached this season (for handing out Season 1 rewards)
+SELECT season_tier, COUNT(*) FROM player_ratings WHERE season=1 GROUP BY season_tier;
+```

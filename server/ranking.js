@@ -6,6 +6,8 @@ const json=(data,status=200)=>Response.json(data,{status,headers:{'cache-control
 // because an empty Normal queue would lock everyone out; set to 5 once queues are busy (REDESIGN-PLAN.md section 8).
 export const PLACEMENTS=5,UNLOCK_NORMAL_GAMES=0,FLOOR=400,START=1000,PAIR_CAP=3,DAY=864e5;
 export const TIERS=[['Bronze',0],['Silver',900],['Gold',1000],['Platinum',1100],['Diamond',1200],['Master',1300]];
+// Season rewards go by tier reached, not by leaderboard place (REDESIGN-PLAN.md section 8). Handed out when the season ends.
+export const SEASON_REWARDS=[{tier:'Gold',reward:'season emote'},{tier:'Master',reward:'Master badge'}];
 export const COOLDOWNS=[5*6e4,30*6e4,120*6e4];
 const expected=(rating,opponent)=>1/(1+10**((opponent-rating)/400));
 const outcome=(winner,seat)=>winner===null?.5:winner===seat?1:0;
@@ -24,8 +26,8 @@ export async function accountFor(storage,tag){
  return storage.prepare('SELECT user_id FROM friend_profiles WHERE tag=?').bind(tag).first();
 }
 export async function current(storage,userId){
- const row=await storage.prepare('SELECT rating,rated_games,wins,draws,losses,xp,peak_rating,tier,season_games FROM player_ratings WHERE user_id=?').bind(userId).first();
- return row||{rating:START,rated_games:0,wins:0,draws:0,losses:0,xp:0,peak_rating:null,tier:null,season_games:0};
+ const row=await storage.prepare('SELECT rating,rated_games,wins,draws,losses,xp,peak_rating,tier,season,season_games,season_tier FROM player_ratings WHERE user_id=?').bind(userId).first();
+ return row||{rating:START,rated_games:0,wins:0,draws:0,losses:0,xp:0,peak_rating:null,tier:null,season:null,season_games:0,season_tier:null};
 }
 export async function currentSeason(storage,now=Date.now()){
  return await storage.prepare('SELECT id,name,starts,ends FROM seasons WHERE starts<=? ORDER BY starts DESC LIMIT 1').bind(now).first()||null;
@@ -56,8 +58,10 @@ export async function settleMatch(storage,g,code){
   const b=before[seat],xp=xpFor(g.winner,seat),win=g.winner===seat?1:0,draw=g.winner===null?1:0,loss=g.winner!==null&&g.winner!==seat?1:0;
   const after=b.rating+deltas[seat],games=b.rated_games+(rated?1:0);
   const tierBefore=b.rated_games>=PLACEMENTS?(b.tier||tierFor(b.rating)):null,tierAfter=rated?(games>=PLACEMENTS?nextTier(after,tierBefore):null):tierBefore;
-  statements.push(storage.prepare("INSERT INTO player_ratings (user_id,rating,rated_games,wins,draws,losses,xp,updated,peak_rating,tier,season,season_games) SELECT ?,?,?,?,?,?,?,?,?,?,?,?"+unsettled+" ON CONFLICT(user_id) DO UPDATE SET rating=player_ratings.rating+excluded.rating-1000,rated_games=player_ratings.rated_games+excluded.rated_games,wins=player_ratings.wins+excluded.wins,draws=player_ratings.draws+excluded.draws,losses=player_ratings.losses+excluded.losses,xp=player_ratings.xp+excluded.xp,updated=excluded.updated,peak_rating=CASE WHEN excluded.rated_games>0 THEN MAX(COALESCE(player_ratings.peak_rating,player_ratings.rating),excluded.peak_rating) ELSE player_ratings.peak_rating END,tier=CASE WHEN excluded.rated_games>0 THEN excluded.tier ELSE player_ratings.tier END,season=COALESCE(excluded.season,player_ratings.season),season_games=CASE WHEN excluded.season IS NOT NULL AND player_ratings.season IS NOT excluded.season THEN excluded.season_games ELSE player_ratings.season_games+excluded.season_games END")
-   .bind(users[seat],1000+deltas[seat],rated?1:0,rated?win:0,rated?draw:0,rated?loss:0,xp,now,after,tierAfter,season?.id??null,rated?1:0,id));
+  // Best tier reached this season, for end-of-season rewards.
+  const heldSeason=b.season===(season?.id??null)?b.season_tier:null,seasonTier=tierAfter&&tierIndex(tierAfter)>tierIndex(heldSeason)?tierAfter:heldSeason;
+  statements.push(storage.prepare("INSERT INTO player_ratings (user_id,rating,rated_games,wins,draws,losses,xp,updated,peak_rating,tier,season,season_games,season_tier) SELECT ?,?,?,?,?,?,?,?,?,?,?,?,?"+unsettled+" ON CONFLICT(user_id) DO UPDATE SET rating=player_ratings.rating+excluded.rating-1000,rated_games=player_ratings.rated_games+excluded.rated_games,wins=player_ratings.wins+excluded.wins,draws=player_ratings.draws+excluded.draws,losses=player_ratings.losses+excluded.losses,xp=player_ratings.xp+excluded.xp,updated=excluded.updated,peak_rating=CASE WHEN excluded.rated_games>0 THEN MAX(COALESCE(player_ratings.peak_rating,player_ratings.rating),excluded.peak_rating) ELSE player_ratings.peak_rating END,tier=CASE WHEN excluded.rated_games>0 THEN excluded.tier ELSE player_ratings.tier END,season=COALESCE(excluded.season,player_ratings.season),season_games=CASE WHEN excluded.season IS NOT NULL AND player_ratings.season IS NOT excluded.season THEN excluded.season_games ELSE player_ratings.season_games+excluded.season_games END,season_tier=CASE WHEN excluded.rated_games>0 THEN excluded.season_tier ELSE player_ratings.season_tier END")
+   .bind(users[seat],1000+deltas[seat],rated?1:0,rated?win:0,rated?draw:0,rated?loss:0,xp,now,after,tierAfter,season?.id??null,rated?1:0,seasonTier,id));
   statements.push(storage.prepare("INSERT OR IGNORE INTO rating_events (id,match_id,user_id,rating_before,delta,rating_after,xp,created,tier_before,tier_after) SELECT ?,?,?,?,?,?,?,?,?,?"+unsettled).bind(id+':'+seat,id,users[seat],b.rating,deltas[seat],after,xp,now,tierBefore,tierAfter,id));
  }
  // Leaving a Competitive match earns a strike: cooldowns of 5 min, 30 min, then 2 h; strikes clear after 24 h.
@@ -81,8 +85,8 @@ export async function leaderboardRoute(request,storage,account){
  if(request.method!=='GET')return json({error:'method'},405);
  const rows=await storage.prepare("SELECT f.username,f.avatar,f.colour,r.rating,r.rated_games,r.wins,r.draws,r.losses,r.xp,r.tier FROM player_ratings r JOIN friend_profiles f ON f.user_id=r.user_id WHERE r.rated_games>=? AND f.username IS NOT NULL ORDER BY r.rating DESC,r.wins DESC,r.updated ASC LIMIT 100").bind(PLACEMENTS).all();
  let mine=null;
- if(account){const p=await storage.prepare('SELECT f.username,f.avatar,f.colour,r.rating,r.rated_games,r.wins,r.draws,r.losses,r.xp,r.tier,r.peak_rating,(SELECT COUNT(*)+1 FROM player_ratings x WHERE x.rated_games>=? AND x.rating>r.rating) AS rank FROM friend_profiles f LEFT JOIN player_ratings r ON r.user_id=f.user_id WHERE f.user_id=?').bind(PLACEMENTS,account.user_id).first();
+ if(account){const p=await storage.prepare('SELECT f.username,f.avatar,f.colour,r.rating,r.rated_games,r.wins,r.draws,r.losses,r.xp,r.tier,r.peak_rating,r.season_tier,(SELECT COUNT(*)+1 FROM player_ratings x WHERE x.rated_games>=? AND x.rating>r.rating) AS rank FROM friend_profiles f LEFT JOIN player_ratings r ON r.user_id=f.user_id WHERE f.user_id=?').bind(PLACEMENTS,account.user_id).first();
   if(p){const status=await competitiveStatus(storage,account.user_id),games=p.rated_games||0;mine={...p,rated_games:games,rank:games>=PLACEMENTS?p.rank:null,tier:games>=PLACEMENTS?(p.tier||tierFor(p.rating)):null,placement:{played:Math.min(games,PLACEMENTS),of:PLACEMENTS},unlocked:status.unlocked,normalGames:status.normalGames,normalNeeded:status.normalNeeded,cooldownUntil:status.cooldownUntil};}}
  const season=await currentSeason(storage);
- return json({season:season?.name||'Preseason',seasonEnds:season?.ends||null,placementGames:PLACEMENTS,tiers:TIERS.map(([name,floor])=>({name,floor})),rows:(rows.results||rows||[]).map((r,i)=>({...r,tier:r.tier||tierFor(r.rating),rank:i+1})),mine});
+ return json({season:season?.name||'Preseason',seasonEnds:season?.ends||null,rewards:SEASON_REWARDS,placementGames:PLACEMENTS,tiers:TIERS.map(([name,floor])=>({name,floor})),rows:(rows.results||rows||[]).map((r,i)=>({...r,tier:r.tier||tierFor(r.rating),rank:i+1})),mine});
 }
