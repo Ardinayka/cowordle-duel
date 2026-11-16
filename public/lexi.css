@@ -216,7 +216,9 @@ dialog.screen button.close{display:none}
 .feedback-option p{font-size:.875rem;color:var(--muted);margin:2px 0 0}
 .profile-tools{display:grid;gap:8px;margin:0 0 12px}
 .account-actions{display:grid;gap:8px;margin-bottom:12px}
-.prominent-friends{margin:0 0 12px}
+.prominent-friends{margin-block:0 12px}
+/* Same centred column as the other cards in Me (desktop widths). */
+#profile-dialog>#friends-open{display:flex;margin-inline:auto}
 .prominent-friends img{width:24px;height:24px}
 .avatar-characters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .avatar-characters button{flex-direction:column;padding:8px;min-height:104px;font-size:.8125rem;background:var(--surface);border-color:var(--line)}
@@ -256,6 +258,11 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 /* lobby */
 .lobby{display:flex;flex-direction:column;align-items:stretch;gap:12px;overflow:auto;padding:4px 0 8px;text-align:center}
 .lobby h2{margin:4px 0 0}
+/* In the lobby the matchup already shows both players, so the small players row is hidden; this also keeps the
+   lobby from overflowing at laptop heights (Firefox scrolled it under the players row). */
+#game-layout:has(#lobby:not([hidden])) .players{display:none}
+@media(max-height:820px){.lobby{gap:8px}.matchup-avatar{width:56px;height:56px;font-size:1.375rem}}
+.practice-stats{margin:0 0 16px}.practice-stats p{margin:0}
 #invite-sent:not(:empty){align-self:center;max-width:100%;margin:0;padding:10px 14px;border:2px solid var(--line-strong);border-radius:999px;background:var(--surface);font-weight:700}
 #invite-sent[data-state=seen],#invite-sent[data-state=accepted]{border-color:var(--success);color:var(--success)}
 #invite-sent[data-state=missed],#invite-sent[data-state=declined]{border-color:var(--warning);color:var(--warning)}
