@@ -477,6 +477,7 @@ dialog.result[data-outcome=win][open]::before,dialog.result[data-outcome=win][op
 .rating-delta.even,.rating-delta.unrated{color:var(--muted);background:var(--sunken);font:700 .875rem var(--font-ui)}
 .rating-xp{font-weight:700;color:var(--link)}
 .rating-note{width:100%;font-size:.875rem;color:var(--muted)}
+.result-support{display:flex;justify-content:center;margin-top:4px;font-size:.875rem;color:var(--muted)}
 .rating-promo{width:100%;font:800 1.125rem var(--font-display);color:var(--competitive)}
 .result-rating:has(.unrated):not(:has(.rating-xp)){border:0;padding:0;background:transparent}
 .timer.urgent{animation:urgent 1s ease-in-out infinite}

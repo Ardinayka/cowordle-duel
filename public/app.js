@@ -26,7 +26,7 @@ function stakesText(){const k=state?.stakes;if(!k)return '';return (k.placement?
 function wordIntro(){if(!bestOf()||state.status!=='playing')return '';const left=Math.ceil((state.startsAt-Date.now()-offset)/1000);if(left<=0)return '';const last=state.words?.at(-1),n=state.words?.length||0;if(!last){const k=state.stakes;return k?(k.placement?'Placement · ':'')+'Win '+signed(k.win)+' · Lose '+signed(k.lose):state.unrated==='pair_cap'?'Not rated this time':'Get ready';}const who=last.winner===null?'Nobody':last.winner===state.me?'You':(state.players[1-state.me]?.name||'Opponent');return who+' won word '+n+': '+String(last.answer).toUpperCase();}
 function nextMatch(){$('result').close();resultDismissed=true;Promise.resolve(returnToModes()).then(ok=>{if(ok!==false)startQueue('ranked');});}
 // Support link (REDESIGN-PLAN.md section 8). Empty keeps it hidden; set it to the Ko-fi or similar page.
-const SUPPORT_URL='';
+const SUPPORT_URL='https://ko-fi.com/elbully';
 let installPrompt=null;
 function isStandalone(){try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch{return false;}}
 function isIos(){return /iphone|ipad|ipod/i.test(navigator.userAgent||'')||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}

@@ -65,8 +65,8 @@ test('a bot game in progress survives a reload',async()=>{
  const saved=h.run("stored('lexivanto-practice')");assert.ok(saved,'practice is saved while playing');
  const again=await harness({'lexivanto-practice':saved});assert.equal(again.run('state?.status'),'playing');assert.equal(again.run('local.answer'),JSON.parse(saved).local.answer);
 });
-test('App & notifications: invitations need an account, the support link stays hidden until a page is set',async()=>{
+test('App & notifications: invitations need an account; the support link points to the Ko-fi page',async()=>{
  const h=await harness();h.run("signedAccount=null;renderAppSection()");
  assert.equal(h.get('notify-invites').disabled,true);assert.match(h.get('notify-invites-note').textContent,/need an account/);
- assert.equal(h.get('support-link').hidden,true);assert.equal(h.get('install-app').hidden,true,'no install button unless the browser offers one');
+ assert.equal(h.get('support-link').hidden,false);assert.equal(h.get('support-link').href,'https://ko-fi.com/elbully');assert.equal(h.get('install-app').hidden,true,'no install button unless the browser offers one');
 });
