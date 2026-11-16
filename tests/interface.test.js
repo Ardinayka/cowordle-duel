@@ -78,3 +78,40 @@ test('home heading says what the game is for guests and greets a signed-in playe
  h.run('renderStreakChip(4,true)');assert.match(h.get('streak-chip')['aria-label'],/Today’s word is done/);
  h.run('renderStreakChip(0,false)');assert.equal(h.get('streak-chip').hidden,true,'no streak, no chip');
 });
+// Normal search with nobody around: Milo (a labelled bot) fills the wait, the search keeps running, a real player wins.
+async function fillerHarness(){
+ const h=await harness();const calls=[];const state={matched:false};
+ h.run("var roomFixture=(()=>{const g=makeRoom(onlineSettings('duel','en',30),'Rui','other',chooseAnswer({lang:'en'}),Date.now());g.online=true;g.queue='normal';g.readyUntil=Date.now()+45000;g.players[1]={name:'Tester',auth:'me',ready:false};return {code:'ROOM1',revision:0,...view(g,1)};})()");
+ h.ctx.fetch=async path=>{path=String(path);calls.push(path);const reply=data=>({ok:true,status:200,json:async()=>data});
+  if(path.startsWith('/api/matchmaking/search'))return reply(state.matched?{status:'matched',room:h.run('roomFixture')}:{status:'searching'});
+  if(path.startsWith('/api/matchmaking/cancel'))return reply({status:'cancelled'});
+  if(path.startsWith('/api/rooms/ROOM1'))return reply(h.run('roomFixture'));
+  return reply({ok:true});};
+ const settle=async()=>{for(let i=0;i<8;i++)await new Promise(setImmediate);};
+ return {h,calls,state,settle};
+}
+test('a quiet Normal search plays Milo after 10 s, keeps looking, and switches when a real player is found',async()=>{
+ const {h,calls,state,settle}=await fillerHarness();
+ h.run("startQueue('normal')");await settle();assert.equal(h.run('step'),'search');assert.equal(h.run('state'),null,'no bot before 10 s');
+ h.run('search.started=Date.now()-11000;tick()');await settle();
+ assert.equal(h.run('search'),null);assert.ok(h.run('filler'),'the search continues in the background');
+ assert.equal(h.run('remote'),false);assert.equal(h.run('state.players[1].name'),'Milo');
+ h.run('renderFiller()');assert.equal(h.get('filler-note').hidden,false);assert.match(h.get('filler-note').textContent,/^Milo is a bot\. Still looking for a real player/);
+ await h.run('fillerPoll()');assert.ok(h.run('filler'),'still looking while nobody is found');
+ state.matched=true;await h.run('fillerPoll()');await settle();
+ assert.equal(h.run('filler'),null);assert.equal(h.run('remote'),true);assert.equal(h.run('code'),'ROOM1');assert.equal(h.run('local'),null,'the bot game ends');
+ assert.ok(calls.includes('/api/rooms/ROOM1/ready'),'the player is made ready for the real match');
+ assert.match(h.get('filler-note').textContent,/A real player joined/);
+});
+test('leaving the Milo game stops the background search; the Practice button starts Milo at once',async()=>{
+ const {h,calls,settle}=await fillerHarness();
+ h.run("startQueue('normal')");await settle();assert.equal(h.get('search-bot').textContent,'Play Milo (a bot) while we look');
+ await h.run('startFiller()');await settle();assert.ok(h.run('filler'));assert.equal(h.run('state.players[1].name'),'Milo');
+ h.run('menu()');await settle();assert.equal(h.run('filler'),null);assert.ok(calls.some(c=>c.startsWith('/api/matchmaking/cancel')),'the queue entry is cancelled');
+});
+test('Competitive never fills the wait with a bot',async()=>{
+ const {h,settle}=await fillerHarness();
+ h.run("startQueue('ranked')");await settle();h.run('search.started=Date.now()-61000;tick()');await settle();
+ assert.equal(h.run('filler'),null);assert.ok(h.run('search'),'the rated search keeps going');assert.equal(h.run('state'),null);
+ assert.equal(h.get('search-bot').textContent,'Practice with a bot instead');
+});

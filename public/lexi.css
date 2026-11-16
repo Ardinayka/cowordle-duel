@@ -573,3 +573,5 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h1[tabindex="-1"]:focus-visible,
 body.embedded #app-section{display:none}
 a.button{text-decoration:none}
 #open-site{margin-top:12px}
+/* Playing Milo while a Normal search continues: one quiet line, so the board keeps its space. */
+.filler-note{margin:0;font-size:.8125rem;line-height:1.35;color:var(--muted);text-align:center;font-weight:600}
