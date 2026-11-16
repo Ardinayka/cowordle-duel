@@ -128,7 +128,7 @@ Effort assumes one developer with AI assistance. Everything goes to the preview 
 - Risk: medium. Interface tests are bound to element ids and will need rewriting; a service worker can strand players on an old version, so it ships with a kill switch; this is where the 14 rule changes take effect, so I need your approval of that page first.
 
 **Phase 3 — Competitive and Normal (3–4 weeks, in four flagged steps).**
-- Status (16 Nov 2026): built on the preview. Step 1 shipped with Phase 2. Steps 2–4 are built: rating window, K schedule, placements, floor, pair cap, unlock after 5 Normal games, leaver strikes, best of 3 with a 45 s clock, a 2,015-word server-only answer pool, tiers and Season 1 (no reset). Migration 0014 adds the columns and the `seasons` and `queue_penalties` tables. Not built yet: `guess_telemetry` and `player_flags` (solver-speed and tab-switch review), "Notify me" (needs push), the Friends leaderboard scope and season rewards. The Normal bot offer is the existing "Practise with a bot instead" button, which ends the search rather than running alongside it.
+- Status (16 Nov 2026): built on the preview. Step 1 shipped with Phase 2. Steps 2–4 are built: rating window, K schedule, placements, floor, pair cap, unlock after 5 Normal games (built, switched off until queues are busy), leaver strikes, best of 3 with a 45 s clock, a 2,015-word server-only answer pool, tiers and Season 1 (no reset). Migration 0014 adds the columns and the `seasons` and `queue_penalties` tables. Not built yet: `guess_telemetry` and `player_flags` (solver-speed and tab-switch review), "Notify me" (needs push), the Friends leaderboard scope and season rewards. The Normal bot offer is the existing "Practise with a bot instead" button, which ends the search rather than running alongside it.
 - Database (additive): `match_queue` gains `queue`, `user_id`, `rating`; `match_results` gains `queue`, `season`, scores, `end_type`; `player_ratings` gains `peak_rating`, `season`, `season_games`; new `seasons`, `season_results`, `queue_penalties`, `guess_telemetry`, `player_flags`.
 - Steps: (1) queue split and wording, no formula change; (2) rating-window matching, K schedule, placements, pair caps, strikes; (3) best-of-3, larger server-only answer pool; (4) tiers, new result screens, Season 1 with no reset.
 - Risk to ratings: the settlement query is the most delicate code in the project. Before step 2 goes live, replay every stored rating event through the new code and confirm no existing rating changes. Nobody's rating is reset. Check for farmed pairs before attaching rewards. Guests lose a "ranked" card that never rated them.
@@ -179,3 +179,38 @@ Roughly five to six months end to end for one developer.
 - The bot delay (read in code, not timed).
 
 The seven specialist reports and the playtest screenshots were working files in the review session and are not stored in this repository. Rows 14–17 come from the playtest lead's final report, which arrived after the first version of this plan.
+
+## 8. Growth and income (added 16 Nov 2026, approved by the owner)
+
+Keep these in mind for every later phase. Figures are rules of thumb, to be rechecked before acting on them.
+
+**Where we started.** On 16 Nov 2026 production had 5 accounts, 2 friendships, 4 finished online matches and no rated players. Players come before features, income and apps.
+
+**Product priorities**
+1. **A reason to return daily.** Phase 4 (one shared daily puzzle, a streak with a fair freeze, a spoiler-free share grid) comes next after Phase 3. The share grid is also the main marketing channel.
+2. **Design for an empty room.** Every online feature must work with very few players: say honestly when queues are quiet, offer a bot or a friend link, and avoid gates that need other players (the 5-Normal-games unlock stays off until queues are busy). Add asynchronous friend games (take your turn when you can, with a notification) after the daily puzzle.
+3. **The first minute.** First-time visitors go straight into an easy bot Duel with two or three tips. Fix the reload that loses a bot game.
+
+**Income: a supporter pass, not ads or advantages.**
+- The product promise is no ads and nothing that helps you win, so income comes from a supporter pass (about €2.99 a month or €19.99 a year): cosmetic tile themes and avatars, a supporter badge, fuller stats and the daily-puzzle archive. Never gameplay advantages, never loot boxes or energy timers.
+- About €2 per subscriber per month reaches you after VAT and fees, so €200 a month needs about 100 supporters. At the usual 1–3% of players paying, that means roughly 3,500–10,000 monthly players.
+- Running costs are about €5–15 a month (hosting and domain); five or six supporters cover them.
+- First step costs nothing to build: a "Support Lexivanto" link (Ko-fi or similar) on the site and in the result screen footer. Build the in-game pass at around 2,000 monthly players.
+- Ads would need roughly 70,000–100,000 sessions a month for €200 and break the promise; not planned.
+
+**Order of work**
+1. Publish the Google pages, then the owner sets up Search Console, the www redirect and listings (itch.io, CrazyGames, Reddit word-game communities).
+2. Phase 3 (Competitive), with the unlock gate off.
+3. Phase 4: daily puzzle, streak, share grid.
+4. Support link.
+5. Android listing (installable web app on Google Play; about €25 once; 12 testers for 14 days for new personal accounts).
+6. Supporter pass at about 2,000 monthly players.
+7. iPhone app last, at about 1,000 weekly players or once income covers Apple's €99 a year.
+
+**App Store approval checklist (iPhone)**
+- More than a wrapped website: push notifications, haptics, an offline screen (guideline 4.2).
+- Sign in with Apple next to Google (4.8).
+- Supporter pass sold through Apple in-app purchase (15% commission in the Small Business Program).
+- In-app account deletion, reporting and blocking (already built).
+- Never use "Wordle" or "Cowordle" in the name, keywords, screenshots or description; Apple removed lookalikes in 2022 and the New York Times enforces the name. Lexivanto's own name, clue shapes and two-player modes are the difference to stress.
+- EU trader status: selling through either store publishes the operator's name, address and phone number. Confirm with an accountant how income is received and taxed before charging anything.

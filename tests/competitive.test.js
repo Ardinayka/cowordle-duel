@@ -57,12 +57,16 @@ test('placements end with a tier, leaving earns a cooldown, and existing ratings
  assert.equal(e.sql.prepare('SELECT rated FROM match_results WHERE match=6').get().rated,0);
 });
 
-test('Competitive needs sign-in, five Normal games and no cooldown; matching uses a widening rating window',async t=>{
+test('Competitive needs sign-in and no cooldown; the optional Normal-games unlock counts finished Normal games',async t=>{
+ const e=testEnv();t.after(()=>e.sql.close());profile(e.sql,'u1','LEX-000000000001');
+ assert.equal((await competitiveStatus(e.DB,'u1')).unlocked,true,'unlock rule is off while the player base is small');
+ assert.equal((await competitiveStatus(e.DB,'u1',Date.now(),5)).unlocked,false);normalGames(e.sql,'u1',5);assert.equal((await competitiveStatus(e.DB,'u1',Date.now(),5)).unlocked,true);
+});
+test('matching uses a widening rating window and starts with no ready check',async t=>{
  const e=testEnv();t.after(()=>e.sql.close());profile(e.sql,'u1','LEX-000000000001');profile(e.sql,'u2','LEX-000000000002');
  const search=(seat,tag)=>matchmaking(e.DB,seat,{searchId:seat.repeat(32),name:seat,mode:'duel',lang:'en',queue:'ranked'},'search',(lang,skip=[])=>pool.find(w=>![].concat(skip).includes(w)),tag);
  assert.equal((await search('f',null)).status,403);
- const locked=await search('a','LEX-000000000001');assert.equal(locked.status,403);assert.equal((await locked.json()).error,'competitive_locked');
- normalGames(e.sql,'u1',5);normalGames(e.sql,'u2',5);
+  normalGames(e.sql,'u1',5);normalGames(e.sql,'u2',5);
  e.sql.prepare('INSERT INTO player_ratings (user_id,rating,rated_games,wins,draws,losses,xp,updated) VALUES (?,?,?,?,?,?,?,?)').run('u2',1250,20,10,0,10,0,1);
  assert.equal((await (await search('a','LEX-000000000001')).json()).window,100);
  assert.equal((await (await search('b','LEX-000000000002')).json()).status,'searching','250 apart: no match at first');

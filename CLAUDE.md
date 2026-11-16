@@ -12,6 +12,8 @@ npm run dev
 
 See [Deployment](DEPLOYMENT.md) for the Cloudflare preview and the release process.
 
+Before planning new features, monetisation or app-store work, read section 8 of [REDESIGN-PLAN.md](REDESIGN-PLAN.md) (growth and income, approved by the owner): players first, design for an empty room, supporter pass rather than ads, Android before iPhone.
+
 ## gstack (recommended)
 
 This project uses [gstack](https://github.com/garrytan/gstack) for AI-assisted workflows.

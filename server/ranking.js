@@ -2,7 +2,9 @@ const json=(data,status=200)=>Response.json(data,{status,headers:{'cache-control
 
 // Competitive rules (REDESIGN-PLAN.md section 3B). Existing ratings are never recalculated;
 // these rules apply to games settled from Phase 3 onwards.
-export const PLACEMENTS=5,UNLOCK_NORMAL_GAMES=5,FLOOR=400,START=1000,PAIR_CAP=3,DAY=864e5;
+// UNLOCK_NORMAL_GAMES: Normal games required before Competitive. Off (0) while the player base is small,
+// because an empty Normal queue would lock everyone out; set to 5 once queues are busy (REDESIGN-PLAN.md section 8).
+export const PLACEMENTS=5,UNLOCK_NORMAL_GAMES=0,FLOOR=400,START=1000,PAIR_CAP=3,DAY=864e5;
 export const TIERS=[['Bronze',0],['Silver',900],['Gold',1000],['Platinum',1100],['Diamond',1200],['Master',1300]];
 export const COOLDOWNS=[5*6e4,30*6e4,120*6e4];
 const expected=(rating,opponent)=>1/(1+10**((opponent-rating)/400));
@@ -33,12 +35,12 @@ export async function ratedPairGames(storage,a,b,now=Date.now()){
  return row?.n||0;
 }
 // Competitive opens after a few Normal games, so new accounts learn the game before risking a rating.
-export async function competitiveStatus(storage,userId,now=Date.now()){
+export async function competitiveStatus(storage,userId,now=Date.now(),need=UNLOCK_NORMAL_GAMES){
  const rating=await current(storage,userId);
- const normal=rating.rated_games>0?null:await storage.prepare("SELECT COUNT(*) AS n FROM match_results WHERE rated=0 AND mode='duel' AND reason NOT IN ('cancelled','no_contest') AND COALESCE(queue,'normal')='normal' AND (player_a=? OR player_b=?)").bind(userId,userId).first();
+ const normal=rating.rated_games>0||!need?null:await storage.prepare("SELECT COUNT(*) AS n FROM match_results WHERE rated=0 AND mode='duel' AND reason NOT IN ('cancelled','no_contest') AND COALESCE(queue,'normal')='normal' AND (player_a=? OR player_b=?)").bind(userId,userId).first();
  const penalty=await storage.prepare('SELECT strikes,last_strike,until FROM queue_penalties WHERE user_id=?').bind(userId).first();
  const normalGames=normal?.n||0;
- return {rating,unlocked:rating.rated_games>0||normalGames>=UNLOCK_NORMAL_GAMES,normalGames,normalNeeded:UNLOCK_NORMAL_GAMES,cooldownUntil:penalty?.until>now?penalty.until:0};
+ return {rating,unlocked:rating.rated_games>0||normalGames>=need,normalGames,normalNeeded:need,cooldownUntil:penalty?.until>now?penalty.until:0};
 }
 
 export async function settleMatch(storage,g,code){
