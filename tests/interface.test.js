@@ -53,14 +53,15 @@ test('revealing a word keeps its feedback visible instead of scrolling to next-r
 });
 test('home offers four ways to play: friend and bot pick a game first, Back retraces, guests see Competitive locked',async()=>{const h=await harness();assert.equal(h.run('step'),'modes');h.run("openGames('friend')");assert.equal(h.run('step'),'games');h.run("chooseMode('race')");assert.equal(h.run('step'),'friend');assert.equal(h.run('mode'),'race');h.run('back()');assert.equal(h.run('step'),'games');h.run('back()');assert.equal(h.run('step'),'modes');assert.equal(h.run('intent'),null);h.run("openGames('bot')");h.run("chooseMode('duel')");assert.equal(h.run('step'),'bot');h.run('back()');h.run('back()');h.run("signedAccount=null");await h.run('renderCompetitive()');assert.equal(h.get('competitive-find').textContent,'Sign in with Google');});
 test('result shows the rating change as before → after with a signed delta, or Not rated',async()=>{const h=await harness();h.run("renderRating(true,{rating_before:1240,rating_after:1258,delta:18,xp:20})");const box=h.get('result-rating');assert.equal(box.hidden,false);const text=JSON.stringify(box.children.map(c=>c.textContent));assert(text.includes('+18'),text);assert(text.includes('+20 XP'),text);h.run("renderRating(false,null)");assert(JSON.stringify(h.get('result-rating').children.map(c=>c.textContent)).includes('Not rated'));});
-test('a first visit starts an easy bot Duel with tips; a returning visitor sees the home screen',async()=>{
- const first=await harness({'lexivanto-seen':null});await new Promise(r=>setTimeout(r,1700));
- assert.equal(first.run('state?.settings.mode'),'duel');assert.equal(first.run('remote'),false);assert.equal(first.run("$('difficulty').value"),'easy');
- assert.equal(first.get('coach').hidden,false);assert.match(first.get('coach-text').textContent,/five-letter word/);
- const back=await harness();assert.equal(back.run('state'),null);assert.equal(back.run('step'),'modes');
+test('a first visit shows Play with a welcome note and no forced game; tips appear in the first game',async()=>{
+ const first=await harness({'lexivanto-seen':null});await new Promise(r=>setTimeout(r,300));
+ assert.equal(first.run('state'),null);assert.equal(first.run('step'),'modes');assert.equal(first.get('welcome').hidden,false);
+ first.run("opponent='bot';mode='duel';$('difficulty').value='easy';create()");await new Promise(r=>setTimeout(r,1700));
+ assert.equal(first.get('welcome').hidden,true);assert.equal(first.get('coach').hidden,false);assert.match(first.get('coach-text').textContent,/five-letter word/);
+ const back=await harness();assert.equal(back.run('state'),null);assert.notEqual(back.get('welcome').hidden,false,'no welcome for a returning visitor');
 });
 test('a bot game in progress survives a reload',async()=>{
- const h=await harness({'lexivanto-seen':null});await new Promise(r=>setTimeout(r,1700));
+ const h=await harness();h.run("opponent='bot';mode='duel';$('difficulty').value='easy';create()");await new Promise(r=>setTimeout(r,1700));
  const saved=h.run("stored('lexivanto-practice')");assert.ok(saved,'practice is saved while playing');
  const again=await harness({'lexivanto-practice':saved});assert.equal(again.run('state?.status'),'playing');assert.equal(again.run('local.answer'),JSON.parse(saved).local.answer);
 });

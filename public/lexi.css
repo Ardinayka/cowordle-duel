@@ -408,6 +408,13 @@ body.daily-mode #other-player,body.daily-mode .versus,body.daily-mode #emote-but
 .coach{display:flex;align-items:center;gap:12px;margin:0 0 8px;padding:10px 12px;border:1.5px solid var(--link);border-radius:var(--r-control);background:var(--normal-soft)}
 .coach p{margin:0;flex:1;font-size:.9375rem;line-height:1.4}
 .coach button{flex:none}
+.welcome{margin:0 0 16px}
+/* Guests invite by link; the saved-friends parts only appear once signed in. */
+.guest-only{display:none}
+body.guest .guest-only{display:block}
+body.guest #saved-friends-open,body.guest #step-friend .inline-friends{display:none}
+#friend-create{display:flex;flex-direction:column}
+body.guest #friend-create #create{order:-1;margin-bottom:12px}
 .emote-button{min-width:48px;width:48px;height:48px;border-color:var(--line);font-size:inherit}
 .emote-button[aria-expanded=true]{border-color:var(--link);color:var(--link)}
 .emote-tray{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}

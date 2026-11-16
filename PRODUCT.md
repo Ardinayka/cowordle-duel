@@ -41,7 +41,7 @@ English has 6,508 allowed guesses, 500 curated secret answers for friend and bot
 
 ## First visit and reactions
 
-- A first-time visitor goes straight into an easy practice Duel with three short tips above the board. Returning visitors see Play. A practice game in progress survives a page reload in the same tab.
+- No forced game and no sign-in push: a first-time visitor lands on Play with a short welcome note ("To play a friend, choose Play a friend and send them the link. No account needed."). Their first game of any kind, including one joined from an invitation link, shows three short tips above the board. For guests, Play a friend leads with Create invitation link and hides the saved-friends parts that need an account. A practice game in progress survives a page reload in the same tab.
 - Friend and online matches offer six preset reactions (Hello, Nice guess, Wow, Oops, Thanks, Good game): one every 3 s, 30 per match, shown for a few seconds in place of the sender's status line, announced to screen readers, with Mute reactions on the device. No free text.
 
 ## Competitive
