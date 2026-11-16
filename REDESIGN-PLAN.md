@@ -198,13 +198,25 @@ Keep these in mind for every later phase. Figures are rules of thumb, to be rech
 - First step costs nothing to build: a "Support Lexivanto" link (Ko-fi or similar) on the site and in the result screen footer. Build the in-game pass at around 2,000 monthly players.
 - Ads would need roughly 70,000–100,000 sessions a month for €200 and break the promise; not planned.
 
+**Emotes, shop and season rewards (added 16 Nov 2026)**
+- Emotes are preset reactions during a match, with no free chat, so there is nothing to moderate. Ship a free set of about six first, as a social feature, alongside the daily puzzle phase; then earnable ones; a shop only together with the supporter pass.
+- Rules: own art only (the fox, robot and Milo characters; never another game's emotes), a mute button, shown beside the avatar and never over the board or keyboard, announced to screen readers, still under reduced motion, rate-limited. No random packs or loot boxes.
+- What sells is what the opponent sees: emotes, badges, avatar frames. Keyboard and tile styles are seen only by their owner, so they are a supporter-pass perk, and every style must keep the clue shapes and the contrast rules.
+- Season rewards go by tier, not by top 10: everyone who reaches Gold gets that season's emote, Master gets a badge. A top-10 badge waits until a few hundred people play ranked, because with few players it means little and it concentrates the incentive to cheat.
+
+**Cheating (added 16 Nov 2026)**
+- A solver in another tab cannot be fully prevented in any browser word game. The approach is to make cheating pay little and to detect it, not to promise prevention.
+- Duel already blunts solvers: both guesses are revealed to both players, so good guesses help the opponent equally, and ties go to the earlier lock. Keep ranked on the shared-board Duel.
+- Cheap protections, in order: keep ranked rewards cosmetic; shorten the Competitive clock in later rounds; add review flags for consistently fast, near-perfect play and for tab switching; match flagged accounts against each other; no automatic bans.
+- Only if the data shows cheating: prototype "probe or call" (each round a player either probes for information or calls the answer, and a wrong call loses the word). It adds a bluffing skill that off-the-shelf solvers do not cover. Do not build a new game for this.
+
 **Order of work**
 1. Publish the Google pages, then the owner sets up Search Console, the www redirect and listings (itch.io, CrazyGames, Reddit word-game communities).
 2. Phase 3 (Competitive), with the unlock gate off.
-3. Phase 4: daily puzzle, streak, share grid.
+3. Phase 4: daily puzzle, streak, share grid, plus the free emote set and tier-based season rewards.
 4. Support link.
 5. Android listing (installable web app on Google Play; about €25 once; 12 testers for 14 days for new personal accounts).
-6. Supporter pass at about 2,000 monthly players.
+6. Supporter pass and the emote shop at about 2,000 monthly players.
 7. iPhone app last, at about 1,000 weekly players or once income covers Apple's €99 a year.
 
 **App Store approval checklist (iPhone)**
