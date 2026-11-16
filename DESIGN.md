@@ -192,7 +192,11 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 
 ## Layout
 
-- Phone: compact top bar (logo, Back, in-match exit, 56 px) and a bottom tab bar: Play, Friends, Inbox, Ranks, Me (64 px plus the safe area). From 768 px the tab bar becomes a left rail. The tab bar is hidden during a match.
+- Phone: compact top bar (logo with the Lexivanto wordmark, Back, in-match exit, 56 px) and a bottom tab bar: Play, Friends, Inbox, Ranks, Me (64 px plus the safe area). From 768 px the tab bar becomes a left rail. The tab bar is hidden during a match.
+- Top bar right side: the daily streak chip (flame and day count, 48 px, opens today's word) on top-level screens when the player has a streak. Inside a flow, Back takes its place. With very large text on a narrow phone, the wordmark gives way to Back; the logo stays.
+- Play heading: guests see "Word games for two" and one line on what the game is; signed-in players see "Hi, <name>" with no explainer.
+- Column: Play and the tab screens (Friends, Inbox, Ranks, Me) share one centred column (568 px of content) beside the rail, so content does not shift between tabs.
+- Large text: in the game area, lobby and play area only the board and the lobby list shrink (both scroll); text lines and buttons keep their full height. At 200% text on a 320 × 568 phone the page may scroll a little rather than overlap.
 - Friends, Inbox, Ranks and Me are screens beside the tab bar (non-modal dialogs managed by `public/nav.js`); confirmations and results stay modal, as bottom sheets on phones.
 - Play home: the Daily word card (group Today, amber accent) above four ways to play in two groups (Online: Competitive, Normal; Private: Play a friend, Practise vs bot). Each card names whether it is rated.
 - Daily word uses the match layout without an opponent: chip DAILY WORD #N, GUESS N OF 6, and a result sheet with the spread of results and a Share result button.
