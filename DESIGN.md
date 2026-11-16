@@ -201,6 +201,7 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 - Width breakpoints: 360 and 599 px (compact phone), 768 px (left rail), 1100 px (wide desktop).
 - Spacing steps of 8, 12, 16, 20 and 24 px.
 - Tap targets: 48 px for new controls; keyboard keys at least 44 px tall.
+- Launch animation: on opening the app, five tiles on the theme background flip in one by one (the reveal flip, 90 ms stagger) into a solved word with exact ticks; the last tile gives a small pop, then everything fades into Play (240 ms). The word changes each launch from a friendly list (HELLO, CHARM, MERRY, …); TODAY when a daily streak is waiting. It covers only real loading time, with a minimum of about 0.8 s and a maximum of 2.5 s; links from notifications skip the minimum; reduced motion shows still tiles.
 - Turn-based games: a Your games list at the top of Play (rows: vs name, game type, a state chip; Your turn chips in the friend green), and an Or take turns section under Create invitation link for signed-in players. The game screen shows FRIEND GAME · TAKE TURNS and the move time left instead of a clock.
 - Me has an App & notifications panel (install, two notification switches, support link when set). The app icon is the LEX tile logo on Night Navy (#07101f), with a maskable version for Android. The offline page is self-contained and follows the system theme.
 

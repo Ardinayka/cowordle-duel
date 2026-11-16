@@ -51,6 +51,10 @@ English has 6,508 allowed guesses, 500 curated secret answers for friend and bot
 - Google Play listing as a Trusted Web Activity is prepared (ANDROID.md); the owner creates the developer account and runs the 12-tester closed test.
 - Support link to https://ko-fi.com/elbully: in Me, in the footer of the home and guide pages, and as one quiet line at the bottom of the result sheet. A plain link; no pop-ups or reminders. Change it in `SUPPORT_URL` (`public/app.js`) and the page footers.
 
+## Launch animation
+
+- Opening the app shows five tiles flipping into a word that changes each time (TODAY when a daily streak is waiting), then fades into Play. About one second at most in normal use, never longer than 2.5 s, shorter when a notification link opens a specific screen. No sound.
+
 ## Turn-based friend games
 
 - Play a friend → Duel or Co-op → Or take turns → pick an accepted friend. The game starts at once (no lobby) and appears in both players' **Your games** list on Play (your turn first). Both players must be signed in; the seat belongs to the account, so the game follows the player to any device. Guests keep the live link games.
