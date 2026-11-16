@@ -130,7 +130,7 @@ components:
 
 # Design System: Lexivanto
 
-Source of truth for the look: the Figma file "Lexivanto — Redesign 2027", https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido (Foundations, Components and screen pages). Implementation: `public/lexi.css` (single stylesheet for the game and guide pages) and `public/fonts.css` (self-hosted Inter 400/700 and Lexend 600/800, SIL OFL). `public/style.css` remains only for the two licence pages. The September 2026 look (style/arena/premium/avatars CSS) was retired in Phase 2; its history is in git.
+Source of truth for the look: the Figma file "Lexivanto — Redesign 2027", https://www.figma.com/design/KeY08mZ8AcKEfxFJAHAido (Foundations, Components and screen pages; page 08 holds the launch animation, Your games, daily word, turn-based games, reactions and App & notifications as shipped in November 2026, with the GameRow, Reaction and DistRow components). Implementation: `public/lexi.css` (single stylesheet for the game and guide pages) and `public/fonts.css` (self-hosted Inter 400/700 and Lexend 600/800, SIL OFL). `public/style.css` remains only for the two licence pages. The September 2026 look (style/arena/premium/avatars CSS) was retired in Phase 2; its history is in git.
 
 The frontmatter lists the dark ("night") and light ("day") values; component tokens show the dark theme, which new players get by default. In CSS each role is one custom property on `:root` (light) and `:root[data-theme=dark]` (dark), for example `--exact`, `--on-exact`, `--present`, `--ink`.
 
