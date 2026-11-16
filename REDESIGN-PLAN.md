@@ -141,6 +141,8 @@ Effort assumes one developer with AI assistance. Everything goes to the preview 
 
 **Phase 5a — Installable app and notifications (built 16 Nov 2026 on the preview).** Manifest and icons, service worker with an offline page and a kill switch, Install button and iPhone instructions in Me, opt-in push notifications (friend invitations; 19:00 streak reminder from an hourly scheduled job) with no content through push services and a VAPID key generated per database, `/.well-known/assetlinks.json` for the Android app, ANDROID.md with the Play listing steps and texts, and a hidden support-link slot. Migration 0016 adds `push_config` and `push_subscriptions`. Not verified: delivery to real phones (needs a device), the Play build and review (needs the owner's account).
 
+**Phase 6 — Turn-based friend games (built 16 Nov 2026 on the preview).** Duel and Co-op between signed-in friends, 3 days per move, Your games list on Play, account-bound seats, your-turn notifications, Back keeps the game open, resign in the leave dialog. Migration 0017 adds `room_members`. Section 8 called this out as the next product priority after the daily word.
+
 **Phase 5 — Phone app (10–12 engineer-weeks across 14–16 calendar weeks, overlapping Phases 2–4).** Section 5.
 
 Roughly five to six months end to end for one developer.

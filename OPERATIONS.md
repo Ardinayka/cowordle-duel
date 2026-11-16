@@ -110,3 +110,12 @@ Migration `drizzle/0016_push_notifications.sql` adds `push_config` (the VAPID ke
 -- Notification opt-ins
 SELECT SUM(invites) AS invites, SUM(reminders) AS reminders, COUNT(*) AS devices FROM push_subscriptions;
 ```
+
+## Turn-based friend games (Phase 6, November 2026)
+
+Migration `drizzle/0017_turn_based_games.sql` adds `room_members` (one row per signed-in player per turn-based room: opponent name, mode, status, whose turn, result). Rooms themselves stay in `rooms` with `expires` pushed 7 days after each move; list rows are removed 30 days after their last update.
+
+```sql
+-- Active turn-based games and how many are waiting on a move
+SELECT COUNT(DISTINCT code) AS games, SUM(my_turn) AS waiting_moves FROM room_members WHERE status='playing';
+```

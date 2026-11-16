@@ -51,6 +51,14 @@ English has 6,508 allowed guesses, 500 curated secret answers for friend and bot
 - Google Play listing as a Trusted Web Activity is prepared (ANDROID.md); the owner creates the developer account and runs the 12-tester closed test.
 - Support link to https://ko-fi.com/elbully: in Me, in the footer of the home and guide pages, and as one quiet line at the bottom of the result sheet. A plain link; no pop-ups or reminders. Change it in `SUPPORT_URL` (`public/app.js`) and the page footers.
 
+## Turn-based friend games
+
+- Play a friend → Duel or Co-op → Or take turns → pick an accepted friend. The game starts at once (no lobby) and appears in both players' **Your games** list on Play (your turn first). Both players must be signed in; the seat belongs to the account, so the game follows the player to any device. Guests keep the live link games.
+- Duel: each player locks a guess whenever they like; guesses reveal when both are in. Co-op: players alternate. Race and Word Swap stay live only. Never rated.
+- 3 days per move. An overdue Duel goes to the player who had locked; otherwise the game ends without a winner (Co-op unsolved). Rooms stay open 7 days after the last move; at most 20 active turn-based games per player.
+- Notifications (the Friend games and invitations switch): a game started with you, your friend locked a guess, a new round opened, your Co-op turn, and the result if you were not there. Never while you made the move yourself.
+- Back leaves the game open ("Leave this game for now?" → Back to Play); Resign is in the same dialog. Play again starts the next game straight away, also after a resignation.
+
 ## Competitive
 
 - Format: best of 3 words. 45 seconds per guess; once one player locks, the other has 20 seconds. If only one player locks in time they win the word; if neither does, nobody does. First to 2 words wins; after 3 words the higher score wins, otherwise it is a draw. 3 seconds before word 1 and 4 seconds between words. No ready check and no rematch: the result offers Next match.
