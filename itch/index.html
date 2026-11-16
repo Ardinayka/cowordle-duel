@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Lexivanto</title>
+<!-- itch.io launcher: shows the live game from lexivanto.com, so the itch page always runs the current version.
+     ?from=itch tells the game it is embedded (guest play; sign-in opens lexivanto.com in a new tab). -->
+<style>
+  html,body{margin:0;height:100%;background:#07101f;color:#f4f8ff;font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  iframe{position:fixed;inset:0;display:block;width:100%;height:100%;border:0;background:transparent}
+  .fallback{position:fixed;inset:0;display:grid;place-items:center;padding:24px;text-align:center}
+  a{color:#51d4ff;font-weight:600}
+</style>
+</head>
+<body>
+<div class="fallback"><p>Loading Lexivanto…<br>If the game does not appear, <a href="https://lexivanto.com/?from=itch" target="_blank" rel="noopener">play it at lexivanto.com</a>.</p></div>
+<iframe src="https://lexivanto.com/?from=itch" title="Lexivanto" allow="clipboard-write; fullscreen; web-share; autoplay"></iframe>
+</body>
+</html>

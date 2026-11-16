@@ -569,3 +569,7 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h1[tabindex="-1"]:focus-visible,
   .way-card{grid-template-columns:minmax(0,1fr);padding:14px 12px}
   .way-card .way-icon,.way-card::after{display:none}
 }
+/* Inside the itch.io page: install and notifications do not work in an embedded frame, so Me hides them. */
+body.embedded #app-section{display:none}
+a.button{text-decoration:none}
+#open-site{margin-top:12px}

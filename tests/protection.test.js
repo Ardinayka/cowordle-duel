@@ -40,3 +40,11 @@ test('maintenance expires stale friend requests without deleting friendships',as
  await cleanupExpired(DB,now);
  assert.deepEqual(sql.prepare('SELECT id FROM friendships ORDER BY id').all().map(x=>x.id),['accepted','fresh']);
 });
+test('the game may be shown inside the itch.io page but not inside other sites, and itch visits are counted',async()=>{
+ const env=testEnv();const r=await worker.fetch(new Request('https://game.test/?from=itch'),env);
+ const ancestors=r.headers.get('content-security-policy').match(/frame-ancestors ([^;]+)/)[1].split(' ');
+ for(const origin of ["'self'",'https://itch.io','https://*.itch.io','https://*.itch.zone'])assert.ok(ancestors.includes(origin),origin);
+ assert.ok(!ancestors.includes('*')&&!ancestors.some(a=>a.startsWith('http:')),'no wildcard or insecure ancestors');
+ const ev=await worker.fetch(new Request('https://game.test/api/event',{method:'POST',headers:{origin:'https://game.test','content-type':'application/json',authorization:'Bearer '+'c'.repeat(64)},body:JSON.stringify({event:'visit_itch'})}),env);
+ assert.equal(ev.status,200);assert.equal(env.sql.prepare("SELECT value FROM daily_stats WHERE metric='visit_itch'").get()?.value,1);
+});
