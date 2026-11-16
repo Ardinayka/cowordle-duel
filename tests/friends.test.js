@@ -77,8 +77,8 @@ test('online identities use server-verified player tags and guests cannot use a 
  const a=await e.call('a'),b=await e.call('b');await e.call('a','username',{username:'wordfox'});
  const send=async(id,path,body,signed=true)=>{const r=await worker.fetch(new Request('https://game.test'+path,{method:'POST',headers:{origin:'https://game.test','content-type':'application/json',authorization:'Bearer '+id.repeat(64),...(signed?{cookie:'__Host-lexivanto_session='+id.repeat(64)}:{})},body:JSON.stringify(body)}),e);return {status:r.status,...await r.json()};};
  assert.equal((await send('c','/api/rooms',{name:'WordFox',settings:{mode:'duel'}},false)).error,'username_reserved');e.sql.prepare('UPDATE auth_profiles SET display_name=? WHERE id=?').run('WordFox','c');assert.equal((await send('c','/api/rooms',{name:'anything',settings:{mode:'duel'}})).error,'username_reserved');
- await send('a','/api/matchmaking/search',{name:'spoof',tag:b.tag,mode:'duel',lang:'en',searchId:'a'.repeat(32)});
- const match=await send('b','/api/matchmaking/search',{name:'spoof',tag:a.tag,mode:'duel',lang:'en',searchId:'b'.repeat(32)});
+ await send('a','/api/matchmaking/search',{name:'spoof',tag:b.tag,mode:'duel',lang:'en',searchId:'a'.repeat(32),queue:'normal'});
+ const match=await send('b','/api/matchmaking/search',{name:'spoof',tag:a.tag,mode:'duel',lang:'en',searchId:'b'.repeat(32),queue:'normal'});
  assert.equal(match.status,'matched');assert.equal(match.room.players.find(p=>p.name==='wordfox').tag,a.tag);
  assert.deepEqual(match.room.players.map(p=>p.tag).sort(),[a.tag,b.tag].sort());assert.equal(match.room.players[0].auth,undefined);
 });

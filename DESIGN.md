@@ -195,7 +195,7 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 - Phone: compact top bar (logo, Back, in-match exit, 56 px) and a bottom tab bar: Play, Friends, Inbox, Ranks, Me (64 px plus the safe area). From 768 px the tab bar becomes a left rail. The tab bar is hidden during a match.
 - Friends, Inbox, Ranks and Me are screens beside the tab bar (non-modal dialogs managed by `public/nav.js`); confirmations and results stay modal, as bottom sheets on phones.
 - Play home: four ways to play in two groups (Online: Competitive, Normal; Private: Play a friend, Practise vs bot). Each card names whether it is rated.
-- Match: label chip, players, timer, scrolling history, draft row and keyboard. The board grows into the free space (tile size 30–56 px, set from the container) and the keyboard stays fully on screen. Height breakpoints at 700, 600 and 450 px tighten the match screen.
+- Match: label chip, players, timer, scrolling history, draft row and keyboard. Competitive shows "WORD 2 OF 3 · 1–0" where other games show the round, and the status line gives the stakes ("Win +14 · Lose −18") before word 1 and the previous word's answer between words. The board grows into the free space (tile size 30–56 px, set from the container) and the keyboard stays fully on screen. Height breakpoints at 700, 600 and 450 px tighten the match screen.
 - Width breakpoints: 360 and 599 px (compact phone), 768 px (left rail), 1100 px (wide desktop).
 - Spacing steps of 8, 12, 16, 20 and 24 px.
 - Tap targets: 48 px for new controls; keyboard keys at least 44 px tall.
@@ -239,7 +239,7 @@ Full-width stacked cards on Play: a 52 px icon, title and meta line, and a chevr
 A pill with a 1 px current-colour border and an uppercase label (COMPETITIVE · RATED, NORMAL · NOT RATED, FRIEND GAME · NOT RATED, PRACTICE · NOT RATED).
 
 ### Tiles and keyboard
-Tiles follow the tile language above. Keys are 54 px tall (46 px on short screens, never under 44 px), with the same clue shapes. Enter shows a ready state when the draft is complete.
+Tiles follow the tile language above. Keys are 54 px tall (46 px on short screens, never under 44 px), with the same clue shapes. Key labels are capped at 24 px (Enter at 13 px) so they never overflow at large text sizes. Enter shows a ready state when the draft is complete.
 
 ### Navigation
 Bottom tab bar with icon and label; the current tab gets a pill behind its icon and `aria-current`. Labels shrink with the screen width (11–12 px) and keep accessible names. Inbox shows a count badge.

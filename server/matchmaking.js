@@ -1,9 +1,13 @@
 import {count} from './stats.js';
-import {makeRoom,view,expire,leave,onlineSettings,normalizeRace} from '../public/game.js';
+import {makeRoom,view,expire,leave,onlineSettings,rankedSettings,begin,normalizeRace} from '../public/game.js';
+import {competitiveStatus,stakesFor,ratedPairGames,PAIR_CAP} from './ranking.js';
 const json=(data,status=200)=>Response.json(data,{status,headers:{'cache-control':'no-store','x-robots-tag':'noindex, nofollow'}});
 // A waiting player holds a 20 s lease that each poll (every 2.5 s) renews. Only players who polled
 // within the last 6 s are offered as opponents, so a closed tab stops being matchable almost at once.
 const FRESH=14000;
+// Competitive pairs players within a rating window: ±100, widening by 100 every 15 s; anyone after 60 s.
+export const windowFor=waited=>waited>=60000?null:100+100*Math.floor(waited/15000);
+const windowSql="CASE WHEN ?-created>=60000 THEN 1000000 ELSE 100+100*((?-created)/15000) END";
 export async function matchmaking(storage,auth,body,action,chooseAnswer,verifiedTag=null,verifiedProfile=null){
   if(!/^[a-f0-9]{32}$/.test(body.searchId||''))return json({error:'invalid_request'},400);
   const id=body.searchId,now=Date.now();
@@ -39,8 +43,16 @@ export async function matchmaking(storage,auth,body,action,chooseAnswer,verified
     if(active)return json({error:'account_active'},409);
   }
   const queue=body.queue==='ranked'||body.queue==='normal'?body.queue:(verifiedTag?'ranked':'normal');if(queue==='ranked'&&!verifiedTag)return json({error:'sign_in_required'},403);
-  const config=onlineSettings('duel',body.lang,30),bucket=(queue==='normal'?'normal:':'')+'duel:'+config.lang+':2:response:30',name=String(body.name||'Player').trim().slice(0,24)||'Player';
-  await storage.prepare("INSERT INTO match_queue (auth,search_id,bucket,name,player_tag,status,created,lease_until) SELECT ?,?,?,?,?,'waiting',?,? WHERE NOT EXISTS (SELECT 1 FROM retired_searches WHERE id=?) AND NOT EXISTS (SELECT 1 FROM match_queue q WHERE q.player_tag=? AND q.auth!=? AND q.status='waiting' AND q.lease_until>?) ON CONFLICT(auth) DO UPDATE SET search_id=excluded.search_id,bucket=excluded.bucket,name=excluded.name,player_tag=excluded.player_tag,status='waiting',created=CASE WHEN match_queue.search_id=excluded.search_id THEN match_queue.created ELSE excluded.created END,lease_until=excluded.lease_until,room_code=NULL WHERE match_queue.status!='matched' AND ((match_queue.search_id!=excluded.search_id AND (match_queue.status='cancelled' OR match_queue.lease_until<=?)) OR (match_queue.search_id=excluded.search_id AND match_queue.status='waiting'))").bind(auth,id,bucket,name,verifiedTag,now,now+20000,retirement,verifiedTag,auth,now,now).run();
+  let userId=null,rating=null;
+  if(queue==='ranked'){
+    userId=(await storage.prepare('SELECT user_id FROM friend_profiles WHERE tag=?').bind(verifiedTag).first())?.user_id||null;if(!userId)return json({error:'sign_in_required'},403);
+    const status=await competitiveStatus(storage,userId,now);
+    if(!status.unlocked)return json({error:'competitive_locked',normalGames:status.normalGames,normalNeeded:status.normalNeeded},403);
+    if(status.cooldownUntil)return json({error:'cooldown',until:status.cooldownUntil},403);
+    rating=status.rating.rating;
+  }
+  const config=queue==='ranked'?rankedSettings(body.lang):onlineSettings('duel',body.lang,30),bucket=queue==='ranked'?'ranked:duel:'+config.lang+':bo3':'normal:duel:'+config.lang+':2:response:30',name=String(body.name||'Player').trim().slice(0,24)||'Player';
+  await storage.prepare("INSERT INTO match_queue (auth,search_id,bucket,name,player_tag,status,created,lease_until,queue,user_id,rating) SELECT ?,?,?,?,?,'waiting',?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM retired_searches WHERE id=?) AND NOT EXISTS (SELECT 1 FROM match_queue q WHERE q.player_tag=? AND q.auth!=? AND q.status='waiting' AND q.lease_until>?) ON CONFLICT(auth) DO UPDATE SET search_id=excluded.search_id,bucket=excluded.bucket,queue=excluded.queue,user_id=excluded.user_id,rating=excluded.rating,name=excluded.name,player_tag=excluded.player_tag,status='waiting',created=CASE WHEN match_queue.search_id=excluded.search_id THEN match_queue.created ELSE excluded.created END,lease_until=excluded.lease_until,room_code=NULL WHERE match_queue.status!='matched' AND ((match_queue.search_id!=excluded.search_id AND (match_queue.status='cancelled' OR match_queue.lease_until<=?)) OR (match_queue.search_id=excluded.search_id AND match_queue.status='waiting'))").bind(auth,id,bucket,name,verifiedTag,now,now+20000,queue,userId,rating,retirement,verifiedTag,auth,now,now).run();
   await storage.prepare('DELETE FROM retired_searches WHERE id IN (SELECT id FROM retired_searches WHERE expires<? LIMIT 50)').bind(now).run();
   // Keep cleanup bounded, never remove an active assignment.
   await storage.prepare("DELETE FROM match_queue WHERE auth IN (SELECT auth FROM match_queue WHERE lease_until<? LIMIT 50)").bind(now-300000).run();
@@ -48,9 +60,18 @@ export async function matchmaking(storage,auth,body,action,chooseAnswer,verified
     ticket=await get();if(ticket?.status==='matched')return json(await result(ticket));
     if(!ticket&&verifiedTag)return json({error:'account_active'},409);
     if(!ticket||ticket.search_id!==id||ticket.status!=='waiting')return json({status:'cancelled'});
-    const peer=await storage.prepare("SELECT * FROM match_queue WHERE bucket=? AND status='waiting' AND lease_until>? AND auth!=? AND (player_tag IS NULL OR ? IS NULL OR player_tag!=?) AND NOT EXISTS(SELECT 1 FROM player_blocks bl JOIN friend_profiles a ON a.user_id=bl.owner JOIN friend_profiles b ON b.user_id=bl.blocked WHERE (a.tag=? AND b.tag=match_queue.player_tag) OR (b.tag=? AND a.tag=match_queue.player_tag)) ORDER BY created LIMIT 1").bind(ticket.bucket,Date.now()+FRESH,auth,verifiedTag,verifiedTag,verifiedTag,verifiedTag).first();if(!peer)return json({status:'searching',searchId:id});
+    const ranked=ticket.queue==='ranked',mine=ranked?(windowFor(Date.now()-ticket.created)??1000000):0;
+    const peer=await storage.prepare("SELECT * FROM match_queue WHERE bucket=? AND status='waiting' AND lease_until>? AND auth!=? AND (?=0 OR ABS(COALESCE(rating,1000)-?)<=MAX(?,"+windowSql+")) AND (player_tag IS NULL OR ? IS NULL OR player_tag!=?) AND NOT EXISTS(SELECT 1 FROM player_blocks bl JOIN friend_profiles a ON a.user_id=bl.owner JOIN friend_profiles b ON b.user_id=bl.blocked WHERE (a.tag=? AND b.tag=match_queue.player_tag) OR (b.tag=? AND a.tag=match_queue.player_tag)) ORDER BY created LIMIT 1").bind(ticket.bucket,Date.now()+FRESH,auth,ranked?1:0,ticket.rating??1000,mine,Date.now(),Date.now(),verifiedTag,verifiedTag,verifiedTag,verifiedTag).first();if(!peer){const waited=Date.now()-ticket.created;return json({status:'searching',searchId:id,...(ticket.queue==='ranked'?{waited,window:windowFor(waited),rating:ticket.rating}:{})});}
     const roomCode=Array.from(crypto.getRandomValues(new Uint8Array(6))).map(x=>x.toString(16).padStart(2,'0')).join('').toUpperCase();
-    const g=makeRoom(config,ticket.name,auth,chooseAnswer(config.lang),Date.now());g.online=true;g.queue=queue;g.players[0].tag=ticket.player_tag||null;g.players[0].ready=false;g.players[1]={name:peer.name,auth:peer.auth,tag:peer.player_tag||null,ready:false};g.readyUntil=Date.now()+45000;
+    const first=chooseAnswer(config.lang),g=makeRoom(config,ticket.name,auth,first,Date.now());g.online=true;g.queue=ranked?'ranked':'normal';g.players[0].tag=ticket.player_tag||null;g.players[0].ready=false;g.players[1]={name:peer.name,auth:peer.auth,tag:peer.player_tag||null,ready:false};
+    if(ranked){
+      // No ready check: the first word starts after a 3-second introduction showing what is at stake.
+      const second=chooseAnswer(config.lang,[first]);g.answers=[first,second,chooseAnswer(config.lang,[first,second])];
+      const ra=await competitiveStatus(storage,ticket.user_id),rb=await competitiveStatus(storage,peer.user_id);
+      if(await ratedPairGames(storage,ticket.user_id,peer.user_id)>=PAIR_CAP)g.unrated='pair_cap';
+      else g.stakes=[stakesFor(ra.rating,rb.rating),stakesFor(rb.rating,ra.rating)];
+      g.players.forEach(x=>x.ready=true);begin(g,Date.now());
+    }else g.readyUntil=Date.now()+45000;
     const avatars=await storage.prepare("SELECT COALESCE(json_group_array(json_object('tag',tag,'avatar',avatar,'colour',colour)),'[]') AS data FROM friend_profiles WHERE tag=? OR tag=?").bind(ticket.player_tag,peer.player_tag).first();
     for(const player of g.players){const avatar=JSON.parse(avatars.data).find(x=>x.tag===player.tag);if(avatar){player.avatar=avatar.avatar;player.colour=avatar.colour;}}
     const stamp=Date.now();

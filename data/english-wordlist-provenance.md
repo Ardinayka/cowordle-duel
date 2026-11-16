@@ -22,3 +22,9 @@ https://raw.githubusercontent.com/deepin-community/scowl/master/Copyright
 Raw file sha256 digests are recorded in source-checksums.json. The english-words.60 and Copyright files were fetched at master; the file tree reports all final files' last change at the pinned snapshot commit above. Other word files use the pinned URL.
 
 Example valid guesses included: GAMER, EMAIL, EMOJI, ALOES, ADIEU, FIBRE, FIBER, TYRES, TIRES, PESTO, SUSHI, QUADS. Proper-name-only PARIS and AARON and invented QWERT are excluded by the new source subset. Previously allowed words are intentionally retained when merging.
+
+## Online answer pool (November 2026)
+
+`server/answers-en.js` holds 2,015 secret answers for online games (Competitive and Normal). It is used only on the server and never sent to browsers; friend and bot games keep the 500 curated answers in `public/words-en.json`.
+
+Built from the same pinned SCOWL snapshot: five-letter lowercase words from english, american and british words at levels 10, 20 and 35 (the most common words), limited to the allowed-guess list. Regular plurals and past tenses were removed automatically when the shorter base word appears at levels 10 to 50 (for example GAMES, BAKED, CITIES). 94 words were then removed by hand: offensive or sexual words, slang contractions (GONNA), abbreviations and rare comparatives (ABLER, WRYER), Greek letters, Latin plurals (RADII), present participles (ACING) and a few past tenses. The 500 existing curated answers were added back. Every answer is also an allowed guess.

@@ -99,6 +99,13 @@
       "when": 1794775068656,
       "tag": "0013_inbox_and_stats",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "6",
+      "when": 1794788736458,
+      "tag": "0014_competitive_rules",
+      "breakpoints": true
     }
   ]
 }

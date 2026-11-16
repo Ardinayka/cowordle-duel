@@ -11,7 +11,7 @@ export async function activity(storage,now=Date.now()){
   };
   for(const mode of ['duel','race','coop','swap']){
     const s=onlineSettings(mode,'en');const bucket=mode+':en:2:'+s.clockMode+':'+s.seconds;
-    const ranked=await count(bucket);
+    const ranked=await count(mode==='duel'?'ranked:duel:en:bo3':bucket);
     if(mode==='duel'){const normal=await count('normal:'+bucket);queues.ranked=ranked;queues.normal=normal;modes.duel={waiting:ranked.waiting+normal.waiting,playing:ranked.playing+normal.playing};}
     else modes[mode]=ranked;
   }

@@ -72,7 +72,8 @@ test('rotating guest tokens cannot bypass the hourly report network cap',async t
  await cleanupExpired(e.DB,Date.now()+91*86400000);assert.equal(e.sql.prepare('SELECT count(*) AS n FROM support_reports').get().n,0);
 });
 
-function queue(e,seat,tag,search=seat){return matchmaking(e.DB,seat,{searchId:search.repeat(32),name:'Player',mode:'duel',lang:'en'},'search',()=> 'crane',tag);}
+// Pairing protections apply to both queues; these tests use Normal so new accounts need no Competitive unlock.
+function queue(e,seat,tag,search=seat,q='normal'){return matchmaking(e.DB,seat,{searchId:search.repeat(32),name:'Player',mode:'duel',lang:'en',queue:q},'search',()=> 'crane',tag);}
 test('concurrent sessions of one verified account cannot queue or match against each other',async t=>{
  const e=testEnv();t.after(()=>e.sql.close());
  const responses=await Promise.all([queue(e,'a','LEX-000000000001'),queue(e,'b','LEX-000000000001')]);

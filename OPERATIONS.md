@@ -60,3 +60,22 @@ FROM first GROUP BY d0 ORDER BY d0 DESC LIMIT 30;
 SELECT day, SUM(CASE WHEN metric='invitations_accepted' THEN value END)*100.0/NULLIF(SUM(CASE WHEN metric='invitations_sent' THEN value END),0) AS accept_pct
 FROM daily_stats GROUP BY day ORDER BY day DESC LIMIT 14;
 ```
+
+## Competitive (Phase 3, November 2026)
+
+Migration `drizzle/0014_competitive_rules.sql` is additive: new columns on `match_queue`, `match_results`, `player_ratings` and `rating_events`, plus the `seasons` and `queue_penalties` tables. It inserts Season 1 starting at the moment it is applied, so apply it to production immediately before publishing. Existing ratings are not changed.
+
+Useful queries:
+
+```sql
+-- Rating distribution of settled players (to tune tier bands before Season 2)
+SELECT (rating/100)*100 AS band, COUNT(*) FROM player_ratings WHERE rated_games>=5 GROUP BY band ORDER BY band;
+-- Active cooldowns
+SELECT user_id, strikes, datetime(until/1000,'unixepoch') FROM queue_penalties WHERE until > strftime('%s','now')*1000;
+-- Pairs that hit the 3-games-a-day cap (possible rating farming)
+SELECT player_a, player_b, COUNT(*) n FROM match_results WHERE queue='ranked' AND created > strftime('%s','now','-1 day')*1000 GROUP BY player_a, player_b HAVING n >= 3;
+-- How Competitive matches end
+SELECT end_type, COUNT(*) FROM match_results WHERE queue='ranked' GROUP BY end_type;
+```
+
+To clear a player's cooldown after a support request: `DELETE FROM queue_penalties WHERE user_id = ?`.
