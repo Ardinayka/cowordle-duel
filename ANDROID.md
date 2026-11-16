@@ -13,6 +13,9 @@ This guide lists what the owner does (accounts, payments, testers) and what is a
 
 ## Owner steps
 
+**Devices (noted 16 Nov 2026):** the owner has no Android phone. Building, uploading and the store listing all work from a computer. As far as we know, Google asks new personal developer accounts to confirm access to a real Android device through the Play Console app; check the current rule when signing up, and borrow a phone or use an inexpensive second-hand one for that step if needed. The 12 closed-test testers need their own Android phones. Until then, test the installed app and notifications on a computer (Chrome or Edge use the same push service as Android) or on an iPhone added to the Home Screen.
+
+
 1. **Google Play developer account.** Create one at play.google.com/console (one-time fee of about €25 / US$25). New personal accounts must verify identity; the developer name and, for paid apps or in-app sales, an address are shown publicly. Decide which name to publish under before you start.
 2. **Choose the package name.** Suggested: `com.lexivanto.app`. It can never change once published.
 3. **Build the Android package (about 30 minutes, on a computer with Node.js).**
