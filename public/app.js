@@ -18,15 +18,20 @@ const errors={account_active:['This account is already searching in another tab.
 function message(where,e){$(where).textContent=errors[e]?tr(...errors[e]):e;if(where==='game-error')$('result-error').textContent=$(where).textContent;}
 function stored(key){try{return sessionStorage.getItem(key);}catch{return null;}}
 function save(key,value){try{value===null?sessionStorage.removeItem(key):sessionStorage.setItem(key,value);}catch{}}
-// Launch animation: a different friendly word each time the app opens. "TODAY" when a daily streak is waiting.
+// Launch animation, like the start of a game: the middle tile counts 3, 2, 1, then all five tiles flip into a
+// friendly word that changes each time the app opens ("TODAY" when a daily streak is waiting).
 const LAUNCH_WORDS=['hello','plays','games','words','duels','spell','clues','guess','smile','ready','happy','brain','lucky','charm','spark','quest','cheer','sunny','bloom','dream','merry','score','tiles','pairs'];
-const launchStart=Date.now(),LAUNCH_MIN=800,LAUNCH_MAX=2500;
+const launchStart=Date.now(),LAUNCH_MAX=2500,COUNT_STEP=220;let LAUNCH_MIN=1300;
 function launchMemory(){try{return JSON.parse(localStorage.getItem('lexivanto-launch')||'{}');}catch{return {};}}
 function rememberLaunch(patch){try{localStorage.setItem('lexivanto-launch',JSON.stringify({...launchMemory(),...patch}));}catch{}}
 function startLaunch(){const box=$('launch'),tiles=Array.from($('launch-tiles')?.children||[]);if(!box||tiles.length!==5)return;const m=launchMemory(),d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
  let word=m.streak>0&&m.dailyDone!==today&&m.last!=='today'?'today':'';
  if(!word){const pool=LAUNCH_WORDS.filter(w=>w!==m.last);word=pool[Math.floor(Math.random()*pool.length)];}
- tiles.forEach((t,i)=>{t.textContent=word[i].toUpperCase();t.className='tile exact';});box.classList.add('go');rememberLaunch({last:word});
+ rememberLaunch({last:word});
+ // Each tile stays an empty tile until its own flip (60 ms apart), so the row never shows gaps.
+ const reveal=(stagger)=>{box.classList.remove('count');box.classList.add('go');tiles.forEach((t,i)=>setTimeout(()=>{t.textContent=word[i].toUpperCase();t.className='tile exact flip';},stagger?i*60:0));};
+ let still=false;try{still=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch{}
+ if(still){LAUNCH_MIN=600;reveal(false);}else{box.classList.add('count');const mid=tiles[2];['3','2','1'].forEach((n,k)=>setTimeout(()=>{mid.textContent=n;mid.className='tile present';void mid.offsetWidth;mid.classList.add('count-flip');},k*COUNT_STEP));setTimeout(()=>reveal(true),3*COUNT_STEP);}
  setTimeout(()=>endLaunch(true),LAUNCH_MAX);}
 let launchEnded=false;
 function endLaunch(fast){const box=$('launch');if(!box||launchEnded)return;launchEnded=true;setTimeout(()=>{box.classList.add('done');setTimeout(()=>{box.hidden=true;},300);},fast?0:Math.max(0,LAUNCH_MIN-(Date.now()-launchStart)));}

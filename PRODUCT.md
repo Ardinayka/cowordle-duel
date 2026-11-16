@@ -53,7 +53,7 @@ English has 6,508 allowed guesses, 500 curated secret answers for friend and bot
 
 ## Launch animation
 
-- Opening the app shows five tiles flipping into a word that changes each time (TODAY when a daily streak is waiting), then fades into Play. About one second at most in normal use, never longer than 2.5 s, shorter when a notification link opens a specific screen. No sound.
+- Opening the app plays a short countdown on the tiles (3, 2, 1) and then five tiles flip into a word that changes each time (TODAY when a daily streak is waiting), then fades into Play. About 1.3 s, never longer than 2.5 s, skipped when a notification link opens a specific screen, still under reduced motion. No sound. It plays only when the app opens, not before each game.
 
 ## Turn-based friend games
 
