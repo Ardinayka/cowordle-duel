@@ -50,8 +50,10 @@ if(url.pathname.startsWith('/api/auth/'))return await authRoute(request,env,db(e
 const token=(request.headers.get('authorization')||'').replace(/^Bearer /,'');if(!/^[a-f0-9]{64}$/.test(token))return json({error:'session'},401);const auth=await hash(token);const storage=db(env);
 if(url.pathname==='/api/activity'){if(request.method!=='GET')return json({error:'method'},405);return json(await activity(storage));}
 if(url.pathname==='/api/leaderboard'){const account=await getSession(request,storage);return await leaderboardRoute(request,storage,account);}
-if(url.pathname.startsWith('/api/push/')){const account=await getSession(request,storage);return await pushRoute(request,storage,auth,account,url);}
-if(url.pathname==='/api/daily'||url.pathname.startsWith('/api/daily/')){const account=await getSession(request,storage);return await dailyRoute(request,storage,auth,account,url);}
+// Device key for the daily word and reminders: a random id the browser keeps across tabs and restarts.
+const device=request.headers.get('x-lexivanto-device')||'',deviceKey=/^[a-f0-9]{64}$/.test(device)?'g:'+await hash('device:'+device):null;
+if(url.pathname.startsWith('/api/push/')){const account=await getSession(request,storage);return await pushRoute(request,storage,auth,account,url,deviceKey);}
+if(url.pathname==='/api/daily'||url.pathname.startsWith('/api/daily/')){const account=await getSession(request,storage);return await dailyRoute(request,storage,auth,account,url,deviceKey);}
 let body={};if(request.method==='POST'){const raw=await request.text();if(raw.length>2048)return json({error:'too_large'},413);try{body=JSON.parse(raw);}catch{return json({error:'invalid_request'},400);}}
 if(!body||typeof body!=='object'||Array.isArray(body))return json({error:'invalid_request'},400);
   if(url.pathname==='/api/event'){if(request.method!=='POST')return json({error:'method'},405);if(body.event==='visit')await visit(storage,auth);else if(EVENT_METRICS.includes(body.event))await count(storage,body.event);else return json({error:'invalid_request'},400);return json({ok:true});}

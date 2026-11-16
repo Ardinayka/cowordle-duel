@@ -3,7 +3,7 @@ import {dailyRoute,nextProgress,currentStreak,validDay,levelFor,puzzleNumber} fr
 import {makeRoom,emote,view} from '../public/game.js';
 
 const day=(offset=0)=>new Date(Date.now()+offset*864e5).toISOString().slice(0,10);
-const call=async(e,{auth='dev1',account=null,path='/api/daily',query='',body}={})=>{const url=new URL('https://game.test'+path+query);const r=await dailyRoute(new Request(url,body?{method:'POST',body:JSON.stringify(body)}:{}),e.DB,auth,account,url);return {...await r.json(),http:r.status};};
+const call=async(e,{auth='dev1',account=null,path='/api/daily',query='',body,device=null}={})=>{const url=new URL('https://game.test'+path+query);const r=await dailyRoute(new Request(url,body?{method:'POST',body:JSON.stringify(body)}:{}),e.DB,auth,account,url,device);return {...await r.json(),http:r.status};};
 const answerOf=e=>e.sql.prepare('SELECT word FROM daily_puzzles WHERE day=?').get(day()).word;
 
 test('daily dates follow the player\'s local day within one day of the server, numbered from the launch',()=>{
@@ -56,4 +56,16 @@ test('emotes are preset, rate-limited and per match',()=>{
  assert.throws(()=>emote(g,0,'wow',2000),/too_fast/);assert.throws(()=>emote(g,0,'rude words',9000),/invalid_emote/);
  for(let i=1;i<=30;i++)emote(g,1,'gg',i*4000);assert.throws(()=>emote(g,1,'gg',200000),/too_many_emotes/);
  g.match++;assert.equal(view(g,0).emotes[0],null,'a new match starts clean');
+});
+
+test('a guest cannot start today\'s word again in a new tab or after relaunching: the device key decides',async t=>{
+ const e=testEnv();t.after(()=>e.sql.close());
+ await call(e,{auth:'tab1',device:'g:dev',query:'?day='+day()});const answer=answerOf(e);
+ const done=await call(e,{auth:'tab1',device:'g:dev',path:'/api/daily/guess',body:{day:day(),word:answer}});assert.equal(done.status,'finished');
+ const newTab=await call(e,{auth:'tab2',device:'g:dev',query:'?day='+day()});assert.equal(newTab.status,'finished','same device, new tab: already played');assert.equal(newTab.progress.streak,1);
+ assert.equal((await call(e,{auth:'tab2',device:'g:dev',path:'/api/daily/guess',body:{day:day(),word:'crane'}})).error,'daily_finished');
+ // Results saved before device keys existed (per-tab key) move to the device on its next request.
+ await call(e,{auth:'oldtab',path:'/api/daily/guess',body:{day:day(),word:answer}});
+ const moved=await call(e,{auth:'oldtab',device:'g:dev2',query:'?day='+day()});assert.equal(moved.status,'finished');
+ assert.equal(e.sql.prepare("SELECT COUNT(*) n FROM daily_results WHERE player='g:dev2'").get().n,1);
 });

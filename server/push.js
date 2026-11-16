@@ -64,8 +64,8 @@ export async function sendReminders(storage,{now=Date.now(),fetcher=fetch,limit=
  return sent;
 }
 
-export async function pushRoute(request,storage,auth,account,url){
- const userId=account?.user_id||null,player=userId||'g:'+auth,now=Date.now();
+export async function pushRoute(request,storage,auth,account,url,deviceKey=null){
+ const userId=account?.user_id||null,player=userId||deviceKey||'g:'+auth,now=Date.now();
  if(url.pathname==='/api/push/key'){if(request.method!=='GET')return json({error:'method'},405);return json({publicKey:(await vapidKeys(storage)).publicKey});}
  if(request.method!=='POST')return json({error:'method'},405);
  let body;try{body=JSON.parse(await request.text());}catch{return json({error:'invalid_request'},400);}

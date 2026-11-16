@@ -59,8 +59,12 @@ async function snapshot(storage,player,userId,day){
   progress:{streak:currentStreak(progress,day),best:progress?.best||0,freezes:progress?.freezes||0,played:progress?.played||0,won:progress?.won||0,dist:JSON.parse(progress?.dist||'[0,0,0,0,0,0,0]'),signedIn:!!userId}};
 }
 
-export async function dailyRoute(request,storage,auth,account,url){
- const userId=account?.user_id||null,guest='g:'+auth,player=userId||guest,now=Date.now();
+// Guests are identified by a device key (kept in the browser's permanent storage), not by the per-tab
+// seat token, so a new tab or a relaunched app cannot start today's word again. Results saved under
+// the older per-tab key move to the device key, and to the account on sign-in.
+export async function dailyRoute(request,storage,auth,account,url,deviceKey=null){
+ const userId=account?.user_id||null,tabGuest='g:'+auth,guest=deviceKey||tabGuest,player=userId||guest,now=Date.now();
+ if(deviceKey&&deviceKey!==tabGuest)await adoptGuest(storage,tabGuest,deviceKey);
  if(userId)await adoptGuest(storage,guest,userId);
  if(url.pathname==='/api/daily/stats'){
   if(request.method!=='GET')return json({error:'method'},405);
