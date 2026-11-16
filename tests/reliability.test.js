@@ -110,7 +110,9 @@ test('public binary assets preserve bytes, support conditional caching, and keep
  const html=await (await worker.fetch(new Request('https://game.test/'),e)).text();const versioned=html.match(/(?:\.\/|\/)?lexivanto-logo\.webp\?v=[a-f0-9]+/)[0];
  assert.match((await worker.fetch(new Request(new URL(versioned,'https://game.test/')),e)).headers.get('cache-control'),/immutable/);
  for(const path of ['/privacy.html','/contact.html'])assert.equal((await worker.fetch(new Request('https://game.test'+path),e)).status,200);
- const sitemap=await (await worker.fetch(new Request('https://game.test/sitemap.xml'),e)).text();assert.equal((sitemap.match(/<loc>/g)||[]).length,7);
+ const sitemap=await (await worker.fetch(new Request('https://game.test/sitemap.xml'),e)).text();assert.equal((sitemap.match(/<loc>/g)||[]).length,8);
+ for(const loc of sitemap.match(/<loc>[^<]+/g)){const r=await worker.fetch(new Request(loc.slice(5).replace('https://lexivanto.com','https://game.test')),e);assert.equal(r.status,200,loc);assert.equal(r.headers.get('x-robots-tag'),'index, follow',loc);}
+ const og=await worker.fetch(new Request('https://game.test/og-image.png'),e);assert.equal(og.headers.get('content-type'),'image/png');assert.deepEqual([...new Uint8Array(await og.arrayBuffer()).slice(1,4)],[80,78,71]);
 });
 
 test('the advertised 800-character report limit accepts Unicode within its byte budget',async t=>{
