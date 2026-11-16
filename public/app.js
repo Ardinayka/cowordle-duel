@@ -21,7 +21,8 @@ function save(key,value){try{value===null?sessionStorage.removeItem(key):session
 // Launch animation, like the start of a game: the middle tile counts 3, 2, 1, then all five tiles flip into a
 // friendly word that changes each time the app opens ("TODAY" when a daily streak is waiting).
 const LAUNCH_WORDS=['hello','plays','games','words','duels','spell','clues','guess','smile','ready','happy','brain','lucky','charm','spark','quest','cheer','sunny','bloom','dream','merry','score','tiles','pairs'];
-const launchStart=Date.now(),LAUNCH_MAX=2500,COUNT_STEP=220;let LAUNCH_MIN=1300;
+// All launch timings count from the start of page loading, so a slow download never adds a countdown on top.
+const launchStart=Date.now(),sinceNav=()=>typeof performance!=='undefined'&&performance.now?performance.now():Date.now()-launchStart,LAUNCH_MAX=2500,COUNT_STEP=220,COUNT_IF_BEFORE=500;let LAUNCH_MIN=1400;
 function launchMemory(){try{return JSON.parse(localStorage.getItem('lexivanto-launch')||'{}');}catch{return {};}}
 function rememberLaunch(patch){try{localStorage.setItem('lexivanto-launch',JSON.stringify({...launchMemory(),...patch}));}catch{}}
 function startLaunch(){const box=$('launch'),tiles=Array.from($('launch-tiles')?.children||[]);if(!box||tiles.length!==5)return;const m=launchMemory(),d=new Date(),today=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
@@ -31,10 +32,10 @@ function startLaunch(){const box=$('launch'),tiles=Array.from($('launch-tiles')?
  // Each tile stays an empty tile until its own flip (60 ms apart), so the row never shows gaps.
  const reveal=(stagger)=>{box.classList.remove('count');box.classList.add('go');tiles.forEach((t,i)=>setTimeout(()=>{t.textContent=word[i].toUpperCase();t.className='tile exact flip';},stagger?i*60:0));};
  let still=false;try{still=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch{}
- if(still){LAUNCH_MIN=600;reveal(false);}else{box.classList.add('count');const mid=tiles[2];['3','2','1'].forEach((n,k)=>setTimeout(()=>{mid.textContent=n;mid.className='tile present';void mid.offsetWidth;mid.classList.add('count-flip');},k*COUNT_STEP));setTimeout(()=>reveal(true),3*COUNT_STEP);}
- setTimeout(()=>endLaunch(true),LAUNCH_MAX);}
+ if(still){LAUNCH_MIN=sinceNav()+400;reveal(false);}else if(sinceNav()>COUNT_IF_BEFORE){LAUNCH_MIN=sinceNav()+700;reveal(true);}else{box.classList.add('count');const mid=tiles[2];['3','2','1'].forEach((n,k)=>setTimeout(()=>{mid.textContent=n;mid.className='tile present';void mid.offsetWidth;mid.classList.add('count-flip');},k*COUNT_STEP));setTimeout(()=>reveal(true),3*COUNT_STEP);}
+ setTimeout(()=>endLaunch(true),Math.max(0,LAUNCH_MAX-sinceNav()));}
 let launchEnded=false;
-function endLaunch(fast){const box=$('launch');if(!box||launchEnded)return;launchEnded=true;setTimeout(()=>{box.classList.add('done');setTimeout(()=>{box.hidden=true;},300);},fast?0:Math.max(0,LAUNCH_MIN-(Date.now()-launchStart)));}
+function endLaunch(fast){const box=$('launch');if(!box||launchEnded)return;launchEnded=true;setTimeout(()=>{box.classList.add('done');setTimeout(()=>{box.hidden=true;},300);},fast?0:Math.max(0,LAUNCH_MIN-sinceNav()));}
 try{startLaunch();}catch{}
 let token=stored('cw-player-token');if(!token){token=Array.from(crypto.getRandomValues(new Uint8Array(32))).map(n=>n.toString(16).padStart(2,'0')).join('');save('cw-player-token',token);}
 // The match seat token is per tab; the daily word and its streak use a device id that survives new tabs and restarts.
