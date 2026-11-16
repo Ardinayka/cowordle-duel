@@ -97,7 +97,13 @@ details>:last-child{margin-bottom:16px}
 
 /* ---------- Top bar ---------- */
 .topbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:8px;min-height:calc(var(--top-h) + var(--safe-t));padding:var(--safe-t) max(12px,env(safe-area-inset-right)) 0 max(12px,env(safe-area-inset-left));background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.brand{min-width:48px;min-height:48px;padding:4px;border:0;background:transparent}
+.brand{display:flex;align-items:center;gap:8px;min-width:48px;min-height:48px;padding:4px 10px 4px 4px;border:0;border-radius:var(--r-control);background:transparent;color:var(--ink)}
+/* The wordmark is a logotype, so it keeps its size when text is enlarged; the top bar always has room for it. */
+.wordmark{font:800 20px/1 var(--font-display);letter-spacing:-.01em;white-space:nowrap}
+.streak-chip{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:48px;min-height:48px;padding:0 14px;border-radius:999px;border:1.5px solid color-mix(in srgb,var(--warning) 50%,transparent);background:var(--warning-soft);color:var(--ink);font:800 1rem/1 var(--font-ui);font-variant-numeric:tabular-nums}
+.streak-chip:hover:not(:disabled){background:var(--warning-soft);border-color:var(--warning)}
+.streak-chip .icon{width:20px;height:20px;fill:var(--warning);stroke:none}
+body.playing .streak-chip{display:none}
 .brand:hover:not(:disabled){background:transparent}
 .game-logo{width:40px;height:40px;display:block}
 .top-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
@@ -121,7 +127,7 @@ body.playing .tabbar{display:none}
 
 /* ---------- Menu and setup ---------- */
 #menu{max-width:600px;margin:0 auto;padding:20px 16px 24px}
-.flow-step>h1{font-size:1.75rem}
+.flow-step>h1{font-size:clamp(1.25rem,9vw,1.75rem)}
 .menu-explainer{color:var(--muted);font-size:1.0625rem;margin-bottom:20px}
 .big-list{display:grid;gap:12px;margin:16px 0}
 .big-list>button{display:grid;grid-template-columns:minmax(0,1fr);justify-items:start;text-align:left;gap:2px;width:100%;min-height:76px;padding:16px;border-radius:var(--r-panel);background:var(--surface);border:1.5px solid var(--line);box-shadow:var(--shadow-1)}
@@ -178,9 +184,10 @@ dialog[open]{animation:dialog-in 180ms var(--ease-out)}
 /* tab screens: dialogs shown non-modally beside the tab bar */
 dialog.screen{position:fixed;inset:calc(var(--top-h) + var(--safe-t)) 0 calc(var(--tab-h) + var(--safe-b)) 0;z-index:20;width:100%;max-width:none;height:auto;max-height:none;margin:0;border:0;border-radius:0;box-shadow:none;background:var(--bg);padding:16px 16px 24px;animation:screen-in 200ms var(--ease-out)}
 @keyframes screen-in{from{opacity:0;transform:translateY(6px)}}
-dialog.screen>*{max-width:640px;margin-inline:auto}
+/* Same column as Play (#menu: 600px with 16px padding), so content does not jump sideways between tabs. */
+dialog.screen>*{max-width:568px;margin-inline:auto}
 dialog.screen .dialog-header{position:static;margin:0 auto 16px;padding:0;border:0;background:transparent}
-dialog.screen .dialog-header h2{font-size:1.75rem}
+dialog.screen .dialog-header h2{font-size:clamp(1.25rem,9vw,1.75rem)}
 dialog.screen button.close{display:none}
 #friends-dialog[data-view=inbox] #friends-content>:not(#inbox-section),#friends-dialog[data-view=inbox] #friends-retry-challenge{display:none}
 #friends-dialog[data-view=friends] #inbox-section{display:none}
@@ -211,8 +218,8 @@ dialog.screen button.close{display:none}
 #profile-display-name{font:800 1.375rem/1.2 var(--font-display)}
 .account-panel,.profile-tag-section,.feedback-settings,.username-form{padding:16px;border:1.5px solid var(--line);border-radius:var(--r-panel);background:var(--surface);margin:0 0 12px}
 .account-panel strong{display:block;font-size:1.0625rem}
-.feedback-option{display:flex;gap:12px;align-items:center;padding:8px 0}
-.feedback-option>div{flex:1;min-width:0}
+.feedback-option{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:8px 0}
+.feedback-option>div{flex:1 1 10em;min-width:0}
 .feedback-option p{font-size:.875rem;color:var(--muted);margin:2px 0 0}
 .profile-tools{display:grid;gap:8px;margin:0 0 12px}
 .account-actions{display:grid;gap:8px;margin-bottom:12px}
@@ -230,15 +237,18 @@ dialog.screen button.close{display:none}
 .colour-options button[aria-pressed=true]{border-color:var(--ink)}
 .leaderboard-mine{margin:12px 0 16px;padding:14px 16px;border:2px solid var(--link);border-radius:var(--r-panel);background:var(--normal-soft);font-weight:700}
 .leaderboard-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
-.leaderboard-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;min-height:56px;padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--r-control);background:var(--surface)}
-.leaderboard-list li>strong{min-width:0;overflow-wrap:anywhere}
-.leaderboard-list li>span{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+.leaderboard-list li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px;align-items:center;min-height:56px;padding:10px 14px;border:1.5px solid var(--line);border-radius:var(--r-control);background:var(--surface)}
+.leaderboard-list li>strong{flex:1 1 auto;min-width:0;overflow-wrap:anywhere}
+.leaderboard-list li>span{margin-left:auto;text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
 .eyebrow{color:var(--muted);font-weight:600}
 
 /* ---------- Game ---------- */
 #game-layout{display:grid;grid-template-columns:minmax(0,1fr);max-width:1200px;margin:0 auto;height:calc(100dvh - var(--top-h) - var(--safe-t));min-height:480px}
 .left-panel,.right-panel{display:none}
 .arena{display:flex;flex-direction:column;min-height:0;height:100%;width:100%;max-width:520px;margin:0 auto;padding:8px 12px max(8px,var(--safe-b));gap:6px}
+/* When space runs out only the board and the lobby give way (both scroll). Everything else keeps its full height:
+   buttons have a minimum height, so without this a flex column squeezes them below their text. */
+.arena>:not(#play-area):not(#lobby),#play-area>:not(#board-scroll),.lobby>*{flex-shrink:0}
 .arena-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:28px}
 #board-title{display:inline-flex;align-items:center;min-height:26px;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font:700 .75rem/1.2 var(--font-ui);letter-spacing:.04em;color:var(--muted)}
 #board-title[data-kind=rated]{color:var(--competitive);background:var(--competitive-soft)}
@@ -272,7 +282,7 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 .matchup-avatar.character-picture{color:transparent}
 .matchup-player small{color:var(--muted)}
 .matchup-symbol{display:flex;gap:4px}
-.matchup-symbol span{display:grid;place-items:center;width:30px;height:34px;border-radius:7px;background:var(--exact);color:var(--on-exact);font:800 1.125rem var(--font-display)}
+.matchup-symbol span{display:grid;place-items:center;min-width:30px;min-height:34px;padding:0 4px;border-radius:7px;background:var(--exact);color:var(--on-exact);font:800 1.125rem var(--font-display)}
 .matchup-symbol span:last-child{background:var(--present);color:var(--on-present)}
 .matchup-symbol.together span{width:auto;background:transparent;color:var(--muted);font-size:.8125rem}
 #lobby-summary{color:var(--muted);font-size:.9375rem}
@@ -280,10 +290,13 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 #room-share p{color:var(--muted);font-size:.875rem;margin:0}
 #ready{order:-1}
 /* play area */
-#play-area{display:flex;flex-direction:column;min-height:0;flex:1;gap:6px}
-.turn-line{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;font-size:.875rem;color:var(--muted);font-weight:600}
+/* min-height:auto: the play area never gets shorter than its content. Size containment on the board keeps its share
+   of that at 72px, so at very large text the page scrolls a little instead of text running under the board. */
+#play-area{display:flex;flex-direction:column;min-height:auto;flex:1;gap:6px}
+.turn-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;min-height:24px;font-size:.875rem;color:var(--muted);font-weight:600}
+#turn-label{flex:1 1 0}
 #turn-label.needs-reply{color:var(--danger)}
-.timer{font:800 1.125rem/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--ink)}
+.timer{margin-left:auto;font:800 1.125rem/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--ink)}
 .timer.urgent{color:var(--danger)}
 .time-track{height:6px;border-radius:999px;background:var(--sunken);overflow:hidden;border:1px solid var(--line)}
 #play-area.untimed .time-track{display:none}
@@ -296,7 +309,7 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 #board{--gap:5px;--t:clamp(30px,min(12.5cqw,calc((100cqh - 5 * var(--gap) - 4px) / 6)),56px);padding:2px 0}
 #draft-row{--t:clamp(42px,13vw,58px);--gap:6px;flex:none}
 .guess-row{display:flex;align-items:center;gap:var(--gap)}
-.row-owner{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 .6875rem var(--font-ui);color:var(--muted);border:1.5px solid var(--line-strong);flex:none;margin-right:2px}
+.row-owner{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--font-ui);color:var(--muted);border:1.5px solid var(--line-strong);flex:none;margin-right:2px}
 .row-owner.owner-you{color:var(--link);border-color:var(--link)}
 .tile{position:relative;width:var(--t);height:var(--t);display:grid;place-items:center;border-radius:var(--r-tile);border:2px solid var(--tile-border);background:var(--tile-empty);color:var(--ink);font:800 calc(var(--t) * .46)/1 var(--font-display);text-transform:uppercase;user-select:none}
 .tile.filled{border-color:var(--draft-border);border-width:2.5px}
@@ -383,7 +396,8 @@ body.match-introducing .matchup-player{animation:match-arrive .32s var(--ease-ou
   body.playing{padding-left:0}
   .tabbar{top:0;right:auto;width:96px;height:100dvh;grid-template-columns:none;grid-auto-rows:80px;align-content:center;border-top:0;border-right:1px solid var(--line);padding:var(--safe-t) 0 var(--safe-b)}
   .tab{height:80px;min-height:80px}
-  dialog.screen{inset:calc(var(--top-h) + var(--safe-t)) 0 0 96px;padding-top:32px}
+  /* width:auto so the screen fills the space right of the rail (width:100% pushed it 96px past the right edge). */
+  dialog.screen{inset:calc(var(--top-h) + var(--safe-t)) 0 0 96px;width:auto;padding-top:32px}
   .topbar{padding-left:16px}
   #menu{padding-top:32px}
   h1,.flow-step>h1{font-size:2rem}
@@ -444,7 +458,9 @@ body.daily-mode #other-player,body.daily-mode .versus,body.daily-mode #emote-but
 body.guest .guest-only{display:block}
 body.guest #saved-friends-open,body.guest #step-friend .inline-friends{display:none}
 #friend-create{display:flex;flex-direction:column}
-body.guest #friend-create #create{order:-1;margin-bottom:12px}
+/* The main action comes first; rules, saved friends and "find a friend" follow. */
+#friend-create #create{order:-1;margin:0 0 12px}
+#saved-friends-open{margin-top:4px}
 .emote-button{min-width:48px;width:48px;height:48px;border-color:var(--line);font-size:inherit}
 .emote-button[aria-expanded=true]{border-color:var(--link);color:var(--link)}
 .emote-tray{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 8px}
@@ -521,8 +537,35 @@ body:not(:has(.tabbar)){padding-bottom:0}
 .timer{white-space:nowrap}
 #ready:disabled{opacity:1;background:var(--raised);color:var(--ink);border:1.5px solid var(--line-strong);font-weight:600}
 #step-competitive:not([hidden]){display:flex;flex-direction:column}
-#step-competitive .rank-card{order:1}#competitive-find{order:2;margin-bottom:20px}#step-competitive .group-label{order:3}#step-competitive .rule-list{order:4}
+#step-competitive .rank-card{order:1}#competitive-find{order:2;margin-bottom:12px}#step-competitive .rewards-line{order:3;margin:0 0 4px}#step-competitive .group-label{order:4}#step-competitive .rule-list{order:5}
 #board:focus,#board:focus-visible{outline:none}
 #invitation-banner-later::before{content:"";width:22px;height:22px;background:currentColor;-webkit-mask:var(--i-x) center/contain no-repeat;mask:var(--i-x) center/contain no-repeat}
 .player button.avatar{width:44px;height:44px;min-width:44px;min-height:44px}
-#back-button,#menu-button{min-height:48px}
+#back-button,#menu-button{min-height:48px;white-space:nowrap;flex-shrink:0}
+
+/* ---------- UI polish (November 2026) ---------- */
+/* Screen titles take focus only so screen readers announce the new screen. They are not controls: no ring. */
+h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h1[tabindex="-1"]:focus-visible,h2[tabindex="-1"]:focus-visible{outline:none}
+.profile-personality{margin:8px 0 20px}
+#friends-guest{display:grid;gap:12px}
+#friends-guest p{margin:0}
+#friend-search-results:not(:empty){margin:12px 0 16px;color:var(--muted)}
+#friend-search-results .friend-row{margin:0 0 8px}
+#friend-search-results .friend-row:last-child{margin:0}
+.friend-mode{margin-top:20px}
+#friends-refresh{margin-top:4px}
+.leaderboard-mine.guest{padding:0;border:0;background:transparent}
+#leaderboard-summary{margin-block:4px 0}
+/* The streak is a home shortcut: inside a flow the Back button takes its place. */
+.topbar:has(#back-button:not([hidden])) .streak-chip{display:none}
+/* With very large text on a narrow phone, Back keeps one line and the wordmark gives way (the logo stays). */
+.topbar{container-type:inline-size}
+@container (max-width:12em){.topbar:has(#back-button:not([hidden])) .wordmark{display:none}}
+/* Very large text on a narrow phone (about 200% at 390 px or less): a one-word title such as "Competitive"
+   cannot fit beside the icon and arrow, so the card drops those decorations and the title gets the full width.
+   em here is the list's own font size, so this follows the reader's text size, not the screen alone. */
+.way-list{container-type:inline-size}
+@container (max-width:12em){
+  .way-card{grid-template-columns:minmax(0,1fr);padding:14px 12px}
+  .way-card .way-icon,.way-card::after{display:none}
+}

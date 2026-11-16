@@ -70,3 +70,11 @@ test('App & notifications: invitations need an account; the support link points 
  assert.equal(h.get('notify-invites').disabled,true);assert.match(h.get('notify-invites-note').textContent,/need an account/);
  assert.equal(h.get('support-link').hidden,false);assert.equal(h.get('support-link').href,'https://ko-fi.com/elbully');assert.equal(h.get('install-app').hidden,true,'no install button unless the browser offers one');
 });
+test('home heading says what the game is for guests and greets a signed-in player; the streak chip follows the daily streak',async()=>{
+ const h=await harness();
+ h.run('signedAccount=null;renderHomeHeading()');assert.equal(h.get('modes-heading').textContent,'Word games for two');assert.equal(h.get('menu-explainer').hidden,false);
+ h.run("signedAccount={name:'maya'};renderHomeHeading()");assert.equal(h.get('modes-heading').textContent,'Hi, maya');assert.equal(h.get('menu-explainer').hidden,true,'signed-in players go straight to the games');
+ h.run('renderStreakChip(4,false)');assert.equal(h.get('streak-chip').hidden,false);assert.equal(h.get('streak-count').textContent,'4');assert.match(h.get('streak-chip')['aria-label'],/^4-day streak\. Play today’s word\.$/);
+ h.run('renderStreakChip(4,true)');assert.match(h.get('streak-chip')['aria-label'],/Today’s word is done/);
+ h.run('renderStreakChip(0,false)');assert.equal(h.get('streak-chip').hidden,true,'no streak, no chip');
+});
