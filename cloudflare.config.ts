@@ -1,4 +1,7 @@
-import { bindings, defineConfig } from "cf/config";
+import { bindings, defineConfig, triggers } from "cf/config";
+
+// Hourly job for the daily-word streak reminder (sent at 19:00 in each player's time zone).
+const reminderSchedule = triggers.scheduled({ schedule: "7 * * * *" });
 
 const compatibilityDate = "2026-09-11";
 
@@ -15,6 +18,7 @@ export default defineConfig(({ mode, isPreview }) => {
         entrypoint: "./server/cloudflare-production.js",
         compatibilityDate,
         domains: ["lexivanto.com"],
+        triggers: [reminderSchedule],
         env: {
           DB: bindings.d1({
             name: "lexivanto-production",
@@ -31,6 +35,7 @@ export default defineConfig(({ mode, isPreview }) => {
       name: "lexivanto-preview",
       entrypoint: "./server/cloudflare-preview.js",
       compatibilityDate,
+      triggers: [reminderSchedule],
       env: {
         DB: bindings.d1({ name: "lexivanto-preview" }),
       },

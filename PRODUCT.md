@@ -44,6 +44,13 @@ English has 6,508 allowed guesses, 500 curated secret answers for friend and bot
 - No forced game and no sign-in push: a first-time visitor lands on Play with a short welcome note ("To play a friend, choose Play a friend and send them the link. No account needed."). Their first game of any kind, including one joined from an invitation link, shows three short tips above the board. For guests, Play a friend leads with Create invitation link and hides the saved-friends parts that need an account. A practice game in progress survives a page reload in the same tab.
 - Friend and online matches offer six preset reactions (Hello, Nice guess, Wow, Oops, Thanks, Good game): one every 3 s, 30 per match, shown for a few seconds in place of the sender's status line, announced to screen readers, with Mute reactions on the device. No free text.
 
+## App and notifications
+
+- Installable web app: manifest, icons, a service worker that serves an offline page and never caches game pages (players cannot get stuck on an old version). Me shows Install where the browser offers it, and Add to Home Screen instructions on iPhone.
+- Notifications, opt-in in Me, with no message text sent through the push services: friend invitations while the game is closed (signed-in players), and a streak reminder at 19:00 local time, only for players with a daily streak who have not played that day (at most one a day). On iPhone they need the Home Screen app. A notification opens the inbox or the daily word.
+- Google Play listing as a Trusted Web Activity is prepared (ANDROID.md); the owner creates the developer account and runs the 12-tester closed test.
+- Support link slot in Me, hidden until a Ko-fi (or similar) page exists (`SUPPORT_URL` in `public/app.js`).
+
 ## Competitive
 
 - Format: best of 3 words. 45 seconds per guess; once one player locks, the other has 20 seconds. If only one player locks in time they win the word; if neither does, nobody does. First to 2 words wins; after 3 words the higher score wins, otherwise it is a draw. 3 seconds before word 1 and 4 seconds between words. No ready check and no rematch: the result offers Next match.

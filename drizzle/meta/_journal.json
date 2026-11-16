@@ -113,6 +113,13 @@
       "when": 1794792205379,
       "tag": "0015_daily_and_progress",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "6",
+      "when": 1794817742136,
+      "tag": "0016_push_notifications",
+      "breakpoints": true
     }
   ]
 }

@@ -45,6 +45,8 @@ export async function protect(request,storage,now=Date.now()) {
 export async function cleanupExpired(storage,now=Date.now()) {
   const targets=[['friend_challenges','id','expires',now-7*864e5],['rooms','code','expires',now],['room_presence','id','expires',now],['support_reports','id','expires',now],['auth_sessions','hash','expires',now],['auth_challenges','hash','expires',now],['retired_searches','id','expires',now],['match_queue','auth','lease_until',now-300000],['request_limits','id','expires',now],['player_days','rowid','day',new Date(now-60*864e5).toISOString().slice(0,10)]];
   await storage.prepare("DELETE FROM friendships WHERE id IN (SELECT id FROM friendships WHERE status='pending' AND created<? LIMIT 500)").bind(now-7*86400000).run();
+  // Push subscriptions nobody has refreshed for 180 days are dropped.
+  await storage.prepare('DELETE FROM push_subscriptions WHERE endpoint IN (SELECT endpoint FROM push_subscriptions WHERE updated<? LIMIT 500)').bind(now-180*864e5).run();
   // Guest daily-word records (keyed by a one-way hash of the device code) are removed after a year without play.
   await storage.prepare("DELETE FROM daily_results WHERE rowid IN (SELECT rowid FROM daily_results WHERE player LIKE 'g:%' AND updated<? LIMIT 500)").bind(now-365*864e5).run();
   await storage.prepare("DELETE FROM player_progress WHERE player IN (SELECT player FROM player_progress WHERE player LIKE 'g:%' AND updated<? LIMIT 500)").bind(now-365*864e5).run();

@@ -15,6 +15,7 @@ import {protect,maintain} from './protection.js';
 import {matchmaking} from './matchmaking.js';
 import {settleMatch,matchProgress,leaderboardRoute} from './ranking.js';
 import {dailyRoute} from './daily.js';
+import {pushRoute,notifyUser,sendReminders} from './push.js';
 const dictionaries={en,pt};const allowed={en:new Set(en.allowed),pt:new Set(pt.allowed)};
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json','cache-control':'no-store','x-content-type-options':'nosniff','x-robots-tag':'noindex, nofollow'}});
 // Online games draw from the larger server-only pool; friend rooms keep the published list.
@@ -22,7 +23,9 @@ function onlineAnswer(lang,exclude=[]){const pool=lang==='en'?onlineAnswers:dict
 function answer(lang,previous){const words=dictionaries[lang].answers.filter(w=>w!==previous);const n=crypto.getRandomValues(new Uint32Array(1))[0];return words[n%words.length];}
 async function hash(s){return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))).map(x=>x.toString(16).padStart(2,'0')).join('');}
 function db(env){if(!env.DB)throw Error('storage_unavailable');return env.DB.withSession?env.DB.withSession('first-primary'):env.DB;}
-export default {async fetch(request,env){try{const url=new URL(request.url);if(!url.pathname.startsWith('/api/')){
+export default {async scheduled(event,env,ctx){const job=sendReminders(db(env)).catch(e=>console.error('Reminders failed',String(e)));if(ctx?.waitUntil)ctx.waitUntil(job);else await job;},
+async fetch(request,env,ctx){try{const url=new URL(request.url);if(!url.pathname.startsWith('/api/')){
+ if(url.pathname==='/.well-known/assetlinks.json'){if(!env.ANDROID_PACKAGE||!env.ANDROID_SHA256)return new Response('Not found',{status:404});return Response.json([{relation:['delegate_permission/common.handle_all_urls'],target:{namespace:'android_app',package_name:env.ANDROID_PACKAGE,sha256_cert_fingerprints:String(env.ANDROID_SHA256).split(',').map(x=>x.trim())}}],{headers:{'cache-control':'public, max-age=3600'}});}
  if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405});
  const path=url.pathname==='/'?'/index.html':url.pathname,asset=assets[path];if(!asset)return new Response('Not found',{status:404});
  const headers={'content-type':asset.type,'cache-control':url.searchParams.get('v')===asset.version&&!asset.type.startsWith('text/html')?'public, max-age=31536000, immutable':'no-cache',etag:asset.etag,'x-content-type-options':'nosniff','referrer-policy':'strict-origin-when-cross-origin','x-robots-tag':url.searchParams.has('room')?'noindex, nofollow':asset.type.startsWith('text/html')?'index, follow':asset.type.startsWith('image/')?'all':'noindex','content-security-policy':"default-src 'self'; style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style; script-src 'self' https://accounts.google.com/gsi/client; connect-src 'self' https://accounts.google.com; frame-src https://accounts.google.com; font-src 'self' data:; img-src 'self' data:; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://chatgpt.com https://*.chatgpt.com"};
@@ -34,18 +37,20 @@ if(!['GET','POST'].includes(request.method))return json({error:'method'},405);
 if(request.method==='POST'&&request.headers.get('origin')&&request.headers.get('origin')!==url.origin)return json({error:'origin'},403);
 const authorization=request.headers.get('authorization')||'';
 if(authorization.length>128)return json({error:'session'},401);
-const accountRoute=url.pathname==='/api/friends'||url.pathname.startsWith('/api/friends/')||url.pathname.startsWith('/api/auth/');
+const accountRoute=url.pathname==='/api/friends'||url.pathname.startsWith('/api/friends/')||url.pathname.startsWith('/api/auth/')||url.pathname==='/api/push/pending';
 if(!accountRoute&&!/^Bearer [a-f0-9]{64}$/.test(authorization))return json({error:'session'},401);
 if(request.method==='POST'){try{const raw=await boundedBody(request,url.pathname.startsWith('/api/auth/')?14000:url.pathname==='/api/support'?8192:2048);request=new Request(request,{body:raw});}catch(e){return json({error:e.status?e.message:'invalid_request'},e.status||400);}}
 const storageForProtection=db(env);
 if(!await protect(request,storageForProtection))return new Response(JSON.stringify({error:'rate_limited'}),{status:429,headers:{'content-type':'application/json','cache-control':'no-store','retry-after':'60','x-robots-tag':'noindex, nofollow'}});
 try{await maintain(storageForProtection);}catch(e){console.error('Cleanup failed',String(e));}
 if(url.pathname==='/api/support')return await supportRoute(request,db(env));
-if(url.pathname==='/api/friends'||url.pathname.startsWith('/api/friends/'))return await friendsRoute(request,db(env));
+if(url.pathname==='/api/push/pending')return await pushRoute(request,db(env),'',null,url);
+if(url.pathname==='/api/friends'||url.pathname.startsWith('/api/friends/')){const storage=db(env);return await friendsRoute(request,storage,(userId,message)=>{const job=notifyUser(storage,userId,'invite',message).catch(e=>console.error('Invite push failed',String(e)));if(ctx?.waitUntil)ctx.waitUntil(job);else return job;});}
 if(url.pathname.startsWith('/api/auth/'))return await authRoute(request,env,db(env));
 const token=(request.headers.get('authorization')||'').replace(/^Bearer /,'');if(!/^[a-f0-9]{64}$/.test(token))return json({error:'session'},401);const auth=await hash(token);const storage=db(env);
 if(url.pathname==='/api/activity'){if(request.method!=='GET')return json({error:'method'},405);return json(await activity(storage));}
 if(url.pathname==='/api/leaderboard'){const account=await getSession(request,storage);return await leaderboardRoute(request,storage,account);}
+if(url.pathname.startsWith('/api/push/')){const account=await getSession(request,storage);return await pushRoute(request,storage,auth,account,url);}
 if(url.pathname==='/api/daily'||url.pathname.startsWith('/api/daily/')){const account=await getSession(request,storage);return await dailyRoute(request,storage,auth,account,url);}
 let body={};if(request.method==='POST'){const raw=await request.text();if(raw.length>2048)return json({error:'too_large'},413);try{body=JSON.parse(raw);}catch{return json({error:'invalid_request'},400);}}
 if(!body||typeof body!=='object'||Array.isArray(body))return json({error:'invalid_request'},400);
