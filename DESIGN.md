@@ -252,6 +252,8 @@ A pill with a 1 px current-colour border and an uppercase label (COMPETITIVE · 
 ### Tiles and keyboard
 Tiles follow the tile language above. Keys are 54 px tall (46 px on short screens, never under 44 px), with the same clue shapes. Key labels are capped at 24 px (Enter at 13 px) so they never overflow at large text sizes. Enter shows a ready state when the draft is complete.
 
+**Board layouts (November 2026).** Games with six tries (the daily word, Co-op with 6) show all six rows from the start and the word is typed into the next empty row, Wordle-style, with no separate typing row; tiles grow to fill the space, up to 64 px (about 64 px on a 390 px phone, 56 px on a 1280 × 720 laptop). Open-ended games (Duel, Race, Word Swap, Co-op with 10 or unlimited tries) keep the board plus a typing row above the keyboard; revealed words are the same size as the typing row while four rows fit, then the board scrolls, so a word never shrinks when it is submitted. The daily word hides the players row and the status line (the header already says "GUESS 3 OF 6").
+
 ### Navigation
 Bottom tab bar with icon and label; the current tab gets a pill behind its icon and `aria-current`. Labels shrink with the screen width (11–12 px) and keep accessible names. Inbox shows a count badge.
 

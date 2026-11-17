@@ -306,7 +306,9 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 #board-scroll:focus-visible{outline-offset:-3px}
 #board-scroll{flex:1 1 auto;min-height:72px;container-type:size;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border-radius:var(--r-control)}
 .board{display:flex;flex-direction:column;align-items:center;gap:var(--gap)}
-#board{--gap:5px;--t:clamp(30px,min(12.5cqw,calc((100cqh - 5 * var(--gap) - 4px) / 6)),56px);padding:2px 0}
+/* Open-ended games (Duel, Race, Word Swap): revealed words match the typing row (58 px) while four rows fit, then
+   the board scrolls, instead of shrinking every word to fit six rows that are not there yet. */
+#board{--gap:5px;--t:clamp(30px,min(15cqw,13vw,calc((100cqh - 3 * var(--gap) - 4px) / 4)),58px);padding:2px 0}
 #draft-row{--t:clamp(42px,13vw,58px);--gap:6px;flex:none}
 .guess-row{display:flex;align-items:center;gap:var(--gap)}
 .row-owner{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--font-ui);color:var(--muted);border:1.5px solid var(--line-strong);flex:none;margin-right:2px}
@@ -344,7 +346,7 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 body.playing #leave{display:none}
 .bottom-actions{min-height:20px}
 /* short phones: protect board and keyboard */
-@media(max-height:700px){#board{--t:clamp(26px,min(11cqw,calc((100cqh - 5 * var(--gap) - 4px) / 6)),46px)}#draft-row{--t:clamp(40px,11.5vw,50px)}.key{--kh:46px}.players .avatar{width:30px;height:30px;min-width:30px}.player small{font-size:.75rem}.arena{gap:4px}}
+@media(max-height:700px){#board{--t:clamp(26px,min(13.5cqw,calc((100cqh - 3 * var(--gap) - 4px) / 4)),50px)}#draft-row{--t:clamp(40px,11.5vw,50px)}.key{--kh:46px}.players .avatar{width:30px;height:30px;min-width:30px}.player small{font-size:.75rem}.arena{gap:4px}}
 @media(max-height:600px){.key{--kh:44px}.keyboard{gap:5px}#draft-row{--t:40px}.players{display:none}}
 body.playing .topbar{--top-h:52px}
 body.playing #game-layout{height:calc(100dvh - 52px - var(--safe-t))}
@@ -382,7 +384,7 @@ dialog.result button{margin-top:8px}
 @media(max-width:360px){#notice-host.in-match #invitation-banner-dismiss{display:none}#notice-host.in-match .invite-text{flex-direction:row;gap:8px;align-items:baseline}#notice-host.in-match #invitation-banner-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}#notice-host.in-match #invitation-banner-time{white-space:nowrap}}
 
 /* ---------- Motion ---------- */
-#draft-row.shake{animation:draft-shake .24s ease-in-out}
+#draft-row.shake,.guess-row.current.shake{animation:draft-shake .24s ease-in-out}
 @keyframes draft-shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .reveal .tile{animation:tile-flip .42s var(--ease-out) both;animation-delay:calc(var(--i,0) * 90ms)}
 @keyframes tile-flip{from{transform:rotateX(90deg);filter:brightness(1.3)}to{transform:rotateX(0);filter:none}}
@@ -425,7 +427,9 @@ body.match-introducing .matchup-player{animation:match-arrive .32s var(--ease-ou
 .way-card[data-kind=bot]{--accent:var(--bot);--accent-soft:var(--bot-soft)}
 .way-card[data-kind=daily]{--accent:var(--warning);--accent-soft:var(--warning-soft)}
 /* Phase 4: daily word, coaching, reactions, stats */
-body.daily-mode #other-player,body.daily-mode .versus,body.daily-mode #emote-button{display:none}
+/* The daily word is played alone: no players row, and the header already says which guess this is. */
+body.daily-mode .players,body.daily-mode .turn-line{display:none}
+body.daily-mode .left-panel .match-details,body.daily-mode #game-note,body.daily-mode .right-panel .session{display:none}
 .coach{display:flex;align-items:center;gap:12px;margin:0 0 8px;padding:10px 12px;border:1.5px solid var(--link);border-radius:var(--r-control);background:var(--normal-soft)}
 .coach p{margin:0;flex:1;font-size:.9375rem;line-height:1.4}
 .coach button{flex:none}
@@ -575,3 +579,9 @@ a.button{text-decoration:none}
 #open-site{margin-top:12px}
 /* Playing Milo while a Normal search continues: one quiet line, so the board keeps its space. */
 .filler-note{margin:0;font-size:.8125rem;line-height:1.35;color:var(--muted);text-align:center;font-weight:600}
+/* Six-try games (daily word; Co-op with 6): every row from the start, the word typed into the next empty row,
+   tiles as large as the space allows (up to 64 px). Co-op rows keep a column for the guesser's initials. */
+#play-area.grid #board-scroll{display:grid;align-content:center}
+#play-area.grid #board{--gap:6px;--owner-w:0px;--t:clamp(26px,min(calc((100cqw - 4 * var(--gap) - var(--owner-w)) / 5),calc((100cqh - (var(--rows) - 1) * var(--gap) - 4px) / var(--rows))),64px)}
+#play-area.grid.owners #board{--owner-w:34px}
+.row-owner-blank{visibility:hidden}

@@ -115,3 +115,12 @@ test('Competitive never fills the wait with a bot',async()=>{
  assert.equal(h.run('filler'),null);assert.ok(h.run('search'),'the rated search keeps going');assert.equal(h.run('state'),null);
  assert.equal(h.get('search-bot').textContent,'Practice with a bot instead');
 });
+test('games with a fixed number of tries show every row and are typed into in place; open-ended games keep a typing row',async()=>{
+ const h=await harness();h.get('attempts').value='6';h.run("mode='coop';setup()");await h.run('create()');
+ assert.equal(h.run('gridRows()'),6);assert.equal(h.get('board').children.length,6,'all six rows from the start');assert.equal(h.get('draft-row').hidden,true,'no separate typing row');
+ h.run("key('c');key('r')");const first=h.get('board').children[0];
+ assert.match(first.className,/current/);const letters=first.children.filter(t=>/\btile\b/.test(t.className)).map(t=>t.textContent).join('');assert.equal(letters,'CR');
+ h.run("key('a');key('n');key('e')");await h.run('submit()');
+ assert.equal(h.get('board').children.length,6,'still six rows after a guess');assert.ok(h.get('board').children[0].children.some(t=>/\b(exact|present|absent)\b/.test(t.className)),'the first row is revealed in place');
+ const h2=await harness();await h2.run('create()');assert.equal(h2.run('gridRows()'),0,'Duel has no fixed number of rounds');assert.equal(h2.get('draft-row').hidden,false);
+});
