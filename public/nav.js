@@ -6,7 +6,10 @@ const tabs = ['tab-play', 'home-friends-open', 'tab-inbox', 'leaderboard-button'
 
 function setCurrent(id) {
   const title = $('friends-title');
-  if (title) title.textContent = $('friends-dialog')?.dataset.view === 'inbox' ? 'Inbox' : 'Friends';
+  const inbox = $('friends-dialog')?.dataset.view === 'inbox';
+  if (title) title.textContent = inbox ? 'Inbox' : 'Friends';
+  const guestLine = $('friends-guest')?.querySelector?.('p');
+  if (guestLine) guestLine.textContent = inbox ? 'Sign in to get invitations.' : 'Sign in to add friends.';
   for (const tab of tabs) {
     const el = $(tab);
     if (!el) continue;

@@ -65,15 +65,16 @@ test('a bot game in progress survives a reload',async()=>{
  const saved=h.run("stored('lexivanto-practice')");assert.ok(saved,'practice is saved while playing');
  const again=await harness({'lexivanto-practice':saved});assert.equal(again.run('state?.status'),'playing');assert.equal(again.run('local.answer'),JSON.parse(saved).local.answer);
 });
-test('App & notifications: invitations need an account; the support link points to the Ko-fi page',async()=>{
+test('App & notifications: invitations need an account; Support in Me points to the Ko-fi page',async()=>{
  const h=await harness();h.run("signedAccount=null;renderAppSection()");
- assert.equal(h.get('notify-invites').disabled,true);assert.match(h.get('notify-invites-note').textContent,/need an account/);
- assert.equal(h.get('support-link').hidden,false);assert.equal(h.get('support-link').href,'https://ko-fi.com/elbully');assert.equal(h.get('install-app').hidden,true,'no install button unless the browser offers one');
+ assert.equal(h.get('notify-invites').disabled,true,'guests cannot turn on friend invitations (the row is hidden for them)');
+ assert.equal(h.get('me-support').hidden,false);assert.equal(h.get('me-support').href,'https://ko-fi.com/elbully');assert.equal(h.get('support-link').hidden,true,'one Support link in Me, not two');
+ assert.equal(h.get('install-app').hidden,true,'no install button unless the browser offers one');assert.equal(h.get('install-note').textContent,'','no install explanation outside iPhone');
 });
 test('home heading says what the game is for guests and greets a signed-in player; the streak chip follows the daily streak',async()=>{
  const h=await harness();
- h.run('signedAccount=null;renderHomeHeading()');assert.equal(h.get('modes-heading').textContent,'Word games for two');assert.equal(h.get('menu-explainer').hidden,false);
- h.run("signedAccount={name:'maya'};renderHomeHeading()");assert.equal(h.get('modes-heading').textContent,'Hi, maya');assert.equal(h.get('menu-explainer').hidden,true,'signed-in players go straight to the games');
+ h.run('signedAccount=null;renderHomeHeading()');assert.equal(h.get('modes-heading').textContent,'Word games for two');
+ h.run("signedAccount={name:'maya'};renderHomeHeading()");assert.equal(h.get('modes-heading').textContent,'Hi, maya');
  h.run('renderStreakChip(4,false)');assert.equal(h.get('streak-chip').hidden,false);assert.equal(h.get('streak-count').textContent,'4');assert.match(h.get('streak-chip')['aria-label'],/^4-day streak\. Play today’s word\.$/);
  h.run('renderStreakChip(4,true)');assert.match(h.get('streak-chip')['aria-label'],/Today’s word is done/);
  h.run('renderStreakChip(0,false)');assert.equal(h.get('streak-chip').hidden,true,'no streak, no chip');

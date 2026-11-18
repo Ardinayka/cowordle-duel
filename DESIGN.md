@@ -190,13 +190,15 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 ### Named Rules
 **The No-Glyph Rule.** No Unicode glyphs for icons or clues. Icons are drawn SVG (24 px, 2 px stroke, round caps).
 
+**The Few Words Rule.** A screen says each thing once, in the fewest words that still read as a sentence. Way cards carry a Rated / Not rated chip and one fact (streak, who you meet, the bot's name), never a tagline. The game picker lists names only; the one-line explanation of a mode sits on the next screen, where the player chooses rules. Rules a player needs once (Competitive's How it works) sit in a disclosure that opens on the first visit only. Settings that show their effect when switched on (sounds, vibration) get no Test button or description. Hints that matter only while editing (username rules) appear only while editing. The home footer keeps four links: Guides, About, Privacy, Help. In the app, the support link lives in Me and at the bottom of the result sheet only; the guide pages keep it in their full footer.
+
 **The Spelling Rule.** Player-facing text uses American English: practice (never "practise"), color, license, canceled. One standard, so no word reads as a typo. Code names (avatarColour, data-avatar-colour) and status codes are not player-facing and stay as they are. The guess list still accepts both UK and US spellings; answers are chosen from the curated list.
 
 ## Layout
 
 - Phone: compact top bar (logo with the Lexivanto wordmark, Back, in-match exit, 56 px) and a bottom tab bar: Play, Friends, Inbox, Ranks, Me (64 px plus the safe area). From 768 px the tab bar becomes a left rail. The tab bar is hidden during a match.
 - Top bar right side: the daily streak chip (flame and day count, 48 px, opens today's word) on top-level screens when the player has a streak. Inside a flow, Back takes its place. With very large text on a narrow phone, the wordmark gives way to Back; the logo stays.
-- Play heading: guests see "Word games for two" and one line on what the game is; signed-in players see "Hi, <name>" with no explainer.
+- Play heading: guests see "Word games for two"; signed-in players see "Hi, <name>". No explainer line under either.
 - Column: Play and the tab screens (Friends, Inbox, Ranks, Me) share one centred column (568 px of content) beside the rail, so content does not shift between tabs.
 - Large text: in the game area, lobby and play area only the board and the lobby list shrink (both scroll); text lines and buttons keep their full height. At 200% text on a 320 × 568 phone the page may scroll a little rather than overlap.
 - Friends, Inbox, Ranks and Me are screens beside the tab bar (non-modal dialogs managed by `public/nav.js`); confirmations and results stay modal, as bottom sheets on phones.
@@ -209,7 +211,7 @@ A deep navy night with one cyan, one amber and four quiet way-to-play accents; t
 - Tap targets: 48 px for new controls; keyboard keys at least 44 px tall.
 - Launch animation, like the start of a game: on opening the app, the middle of five empty tiles flips through 3, 2, 1 (220 ms each, on the amber present disc), then the five tiles flip one after another (60 ms apart, 360 ms) into a solved word with exact ticks and the layer fades into Play (240 ms). The word changes each launch from a friendly list (HELLO, CHARM, MERRY, …); TODAY when a daily streak is waiting. About 1.3 s, never more than 2.5 s; links from notifications skip it; reduced motion shows the final word, still. App opening only, not at the start of each game.
 - Turn-based games: a Your games list at the top of Play (rows: vs name, game type, a state chip; Your turn chips in the friend green), and an Or take turns section under Create invitation link for signed-in players. The game screen shows FRIEND GAME · TAKE TURNS and the move time left instead of a clock.
-- Me has an App & notifications panel (install, two notification switches, support link when set). The app icon is the LEX tile logo on Night Navy (#07101f), with a maskable version for Android. The offline page is self-contained and follows the system theme.
+- Me order: avatar and name (with tier and rating once rated), username, player tag, Stats, Notifications (two switches), Sound & theme, then one row of small links: How to play, Help, Privacy, Support. The app icon is the LEX tile logo on Night Navy (#07101f), with a maskable version for Android. The offline page is self-contained and follows the system theme.
 
 ## Elevation & Depth
 

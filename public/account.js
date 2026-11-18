@@ -8,6 +8,8 @@ export function setupAccount({language,onName,onChange=()=>{},embedded=false}){
     onChange(account.user);
     $('account-label').textContent=account.user?tr('Signed in as ','Sessão iniciada como ')+account.user.name:tr('Playing as a guest','A jogar como convidado');
     $('account-detail').textContent=account.user?tr('Google account connected. Your friends, rating and streak follow you to any device.','Conta Google ligada. Os teus amigos, classificação e sequência acompanham-te em qualquer dispositivo.'):!loaded?tr('No account needed to play.','Não precisas de conta para jogar.'):account.googleEnabled?tr('No account needed. Google sign-in is optional.','Não precisas de conta. Iniciar sessão com Google é opcional.'):tr('No account needed. Google sign-in is awaiting setup.','Não precisas de conta. O início de sessão com Google aguarda configuração.');
+    // The name and "Guest" sit under the avatar, so the panel only explains what is not obvious.
+    $('account-label').hidden=true;if(!account.user&&loaded&&account.googleEnabled)$('account-detail').textContent='';
     if(embedded&&!account.user)$('account-detail').textContent=tr('Inside itch.io you play as a guest. Your account, friends and rating live on lexivanto.com.','No itch.io jogas como convidado. A tua conta, amigos e classificação estão em lexivanto.com.');
     $('open-site').hidden=!embedded||!!account.user;
     $('google-start').hidden=embedded||!!account.user||!googleFailed||(loaded&&!account.googleEnabled);$('google-start').disabled=working;

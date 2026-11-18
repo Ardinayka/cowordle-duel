@@ -49,7 +49,7 @@ English has 6,508 allowed guesses, 500 curated secret answers for friend and bot
 - Installable web app: manifest, icons, a service worker that serves an offline page and never caches game pages (players cannot get stuck on an old version). Me shows Install where the browser offers it, and Add to Home Screen instructions on iPhone.
 - Notifications, opt-in in Me, with no message text sent through the push services: friend invitations while the game is closed (signed-in players), and a streak reminder at 19:00 local time, only for players with a daily streak who have not played that day (at most one a day). On iPhone they need the Home Screen app. A notification opens the inbox or the daily word.
 - Google Play listing as a Trusted Web Activity is prepared (ANDROID.md); the owner creates the developer account and runs the 12-tester closed test.
-- Support link to https://ko-fi.com/elbully: in Me, in the footer of the home and guide pages, and as one quiet line at the bottom of the result sheet. A plain link; no pop-ups or reminders. Change it in `SUPPORT_URL` (`public/app.js`) and the page footers.
+- Support link to https://ko-fi.com/elbully: in the row of small links at the bottom of Me, in the footer of the guide pages (which keep their full link list), and as one quiet line at the bottom of the result sheet. Not in the home footer. A plain link; no pop-ups or reminders. Change it in `SUPPORT_URL` (`public/app.js`), `#me-support` (`public/index.html`) and the guide page footers.
 
 ## Launch animation
 
