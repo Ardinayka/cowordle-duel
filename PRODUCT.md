@@ -14,7 +14,7 @@ Adults who already play daily word puzzles. They play on a phone, in a few spare
 
 ## Positioning
 
-Lexivanto turns the daily five-letter word puzzle into a live, fair two-player match. Duel (simultaneous hidden guesses, revealed together), Race and Co-op can be played against friends, in rated Competitive or unrated Normal queues, or against a bot. There are no ads and no paid advantages.
+Lexivanto turns the daily five-letter word puzzle into a live, fair two-player match. Duel (simultaneous hidden guesses, revealed together), Race and Co-op can be played against friends; Duel also in rated Competitive or unrated Normal queues; Duel and Race against a bot. There are no ads and no paid advantages.
 
 ## Operating Context
 
@@ -26,7 +26,7 @@ Home (the Play tab) offers four ways to play: Competitive (rated best-of-3 onlin
 
 - Duel: both players lock a guess; neither can see the other's pending word. Both guesses reveal together. Normal uses a 30-second reply clock starting only after the first valid lock. Private Duel defaults untimed, with an optional response timer.
 - Race: separate boards, unlimited guesses, no timer. The first correct server-accepted guess wins. Attempt count does not rank players.
-- Co-op: alternate guesses on one board, with a friend or a bot partner. Friend games default untimed, with optional timer and six, ten or unlimited attempts.
+- Co-op: alternate guesses on one board with a friend. Not offered against the bot: taking turns with Milo added little. Friend games default untimed, with optional timer and six, ten or unlimited attempts.
 - Bots: Easy / Medium / Hard. Always untimed. Bots reply within a few seconds (Easy 5–9 s, Medium 3.5–6.5 s, Hard 2–4 s). Bots use public clues and their own guess vocabulary, not the secret answer pool. No promised win rate.
 
 English has 6,508 allowed guesses, 500 curated secret answers for friend and bot games, 2,015 secret answers for online games (kept on the server, never sent to browsers) and 2,254 bot words. Existing licence notices remain published. Portuguese source data and legacy room support are archived; the public client does not offer Portuguese or join Portuguese rooms.

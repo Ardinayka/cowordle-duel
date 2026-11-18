@@ -307,12 +307,16 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 #board-scroll:focus-visible{outline-offset:-3px}
 #board-scroll{flex:1 1 auto;min-height:72px;container-type:size;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border-radius:var(--r-control)}
 .board{display:flex;flex-direction:column;align-items:center;gap:var(--gap)}
-/* Open-ended games (Duel, Race, Word Swap): revealed words match the typing row (58 px) while four rows fit, then
-   the board scrolls, instead of shrinking every word to fit six rows that are not there yet. */
-#board{--gap:5px;--t:clamp(30px,min(15cqw,13vw,calc((100cqh - 3 * var(--gap) - 4px) / 4)),58px);padding:2px 0}
-#draft-row{--t:clamp(42px,13vw,58px);--gap:6px;flex:none}
-.guess-row{display:flex;align-items:center;gap:var(--gap)}
-.row-owner{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--font-ui);color:var(--muted);border:1.5px solid var(--line-strong);flex:none;margin-right:2px}
+/* Open-ended games (Duel, Race, Word Swap): revealed words and the typing row share one tile size (--tile) and one
+   centre line. Older rounds scroll; the latest rows sit right above the typing row, like one board. Initials badges
+   sit in the left margin, so they never push the tiles off centre. */
+#play-area{--tile:clamp(40px,13vw,58px)}
+#board{--gap:6px;--t:min(var(--tile),calc((100cqw - 4 * var(--gap) - 68px) / 5));padding:2px 0}
+#draft-row{--t:var(--tile);--gap:6px;flex:none}
+#play-area:not(.grid) #board-scroll{display:flex;flex-direction:column}
+#play-area:not(.grid) #board{margin-top:auto}
+.guess-row{position:relative;display:flex;align-items:center;gap:var(--gap)}
+.row-owner{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font:700 11px var(--font-ui);color:var(--muted);border:1.5px solid var(--line-strong);flex:none;position:absolute;right:calc(100% + 8px);top:calc(50% - 12px)}
 .row-owner.owner-you{color:var(--link);border-color:var(--link)}
 .tile{position:relative;width:var(--t);height:var(--t);display:grid;place-items:center;border-radius:var(--r-tile);border:2px solid var(--tile-border);background:var(--tile-empty);color:var(--ink);font:800 calc(var(--t) * .46)/1 var(--font-display);text-transform:uppercase;user-select:none}
 .tile.filled{border-color:var(--draft-border);border-width:2.5px}
@@ -347,8 +351,8 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 body.playing #leave{display:none}
 .bottom-actions{min-height:20px}
 /* short phones: protect board and keyboard */
-@media(max-height:700px){#board{--t:clamp(26px,min(13.5cqw,calc((100cqh - 3 * var(--gap) - 4px) / 4)),50px)}#draft-row{--t:clamp(40px,11.5vw,50px)}.key{--kh:46px}.players .avatar{width:30px;height:30px;min-width:30px}.player small{font-size:.75rem}.arena{gap:4px}}
-@media(max-height:600px){.key{--kh:44px}.keyboard{gap:5px}#draft-row{--t:40px}.players{display:none}}
+@media(max-height:700px){#play-area{--tile:clamp(38px,11.5vw,50px)}.key{--kh:46px}.players .avatar{width:30px;height:30px;min-width:30px}.player small{font-size:.75rem}.arena{gap:4px}}
+@media(max-height:600px){.key{--kh:44px}.keyboard{gap:5px}#play-area{--tile:40px}.players{display:none}}
 body.playing .topbar{--top-h:52px}
 body.playing #game-layout{height:calc(100dvh - 52px - var(--safe-t))}
 
@@ -537,7 +541,7 @@ dialog.result[data-outcome=win][open]::before,dialog.result[data-outcome=win][op
 .timer.urgent{animation:urgent 1s ease-in-out infinite}
 @keyframes urgent{50%{transform:scale(1.08)}}
 body:not(:has(.tabbar)){padding-bottom:0}
-@media(max-height:450px){#game-layout{min-height:0}.players,#history-hint,.bottom-actions{display:none}#board-scroll{min-height:52px}.turn-line{min-height:20px}.arena{gap:4px;padding-top:4px}#draft-row{--t:38px}.keyboard{gap:4px}.key{--kh:44px}}
+@media(max-height:450px){#game-layout{min-height:0}.players,#history-hint,.bottom-actions{display:none}#board-scroll{min-height:52px}.turn-line{min-height:20px}.arena{gap:4px;padding-top:4px}#play-area{--tile:38px}.keyboard{gap:4px}.key{--kh:44px}}
 
 /* Phase 2 review fixes */
 .tab:focus-visible{outline-offset:-3px}
@@ -584,9 +588,9 @@ a.button{text-decoration:none}
 /* Playing Milo while a Normal search continues: one quiet line, so the board keeps its space. */
 .filler-note{margin:0;font-size:.8125rem;line-height:1.35;color:var(--muted);text-align:center;font-weight:600}
 /* Six-try games (daily word; Co-op with 6): every row from the start, the word typed into the next empty row,
-   tiles as large as the space allows (up to 64 px). Co-op rows keep a column for the guesser's initials. */
+   tiles as large as the space allows (up to 64 px). Co-op rows keep a margin on both sides for the guesser's initials. */
 #play-area.grid #board-scroll{display:grid;align-content:center}
-#play-area.grid #board{--gap:6px;--owner-w:0px;--t:clamp(26px,min(calc((100cqw - 4 * var(--gap) - var(--owner-w)) / 5),calc((100cqh - (var(--rows) - 1) * var(--gap) - 4px) / var(--rows))),64px)}
+#play-area.grid #board{--gap:6px;--owner-w:0px;--t:clamp(26px,min(calc((100cqw - 4 * var(--gap) - 2 * var(--owner-w)) / 5),calc((100cqh - (var(--rows) - 1) * var(--gap) - 4px) / var(--rows))),64px)}
 #play-area.grid.owners #board{--owner-w:34px}
 .row-owner-blank{visibility:hidden}
 
@@ -597,7 +601,7 @@ a.button{text-decoration:none}
 footer .guide-links{justify-content:center;width:100%;gap:0 8px}
 footer .guide-links a{min-width:48px;min-height:48px;padding:0 8px}
 /* Game picker: names and icons only; the next screen explains the chosen game in one line. */
-.mode-line{margin:-4px 0 16px}
+
 #step-games .mode-launch{min-height:64px}
 #step-bot .big-list>button{min-height:56px}
 /* Competitive: the rules fold away after the first visit. */

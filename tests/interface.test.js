@@ -125,3 +125,4 @@ test('games with a fixed number of tries show every row and are typed into in pl
  assert.equal(h.get('board').children.length,6,'still six rows after a guess');assert.ok(h.get('board').children[0].children.some(t=>/\b(exact|present|absent)\b/.test(t.className)),'the first row is revealed in place');
  const h2=await harness();await h2.run('create()');assert.equal(h2.run('gridRows()'),0,'Duel has no fixed number of rounds');assert.equal(h2.get('draft-row').hidden,false);
 });
+test('Practice vs bot offers Duel and Race only; Play a friend offers every mode',async()=>{const h=await harness();h.run("openGames('bot')");assert.equal(h.get('games-coop').hidden,true,'no Co-op with the bot');assert.equal(h.get('games-swap').hidden,true,'no Word Swap with the bot');h.run("openGames('friend')");assert.equal(h.get('games-coop').hidden,false);assert.equal(h.get('games-swap').hidden,false);});
