@@ -44,12 +44,14 @@ test('reconnection keeps typing available and distinguishes an offline opponent'
 });
 
 
-test('revealing a word keeps its feedback visible instead of scrolling to next-round placeholders',async()=>{
+test('the board follows the game: a revealed round scrolls up while its first row stays in view; a locked word scrolls to the bottom',async()=>{
  const h=await harness();
- // The first two result rows fit; additional placeholders overflow below them.
- assert.equal(h.run("(()=>{const s={scrollTop:0,scrollHeight:500,getBoundingClientRect:()=>({top:100,bottom:300})};const b={children:[{getBoundingClientRect:()=>({top:108,bottom:178})},{getBoundingClientRect:()=>({top:186,bottom:256})}]};keepLatestResultVisible(s,b,2,'duel');return s.scrollTop;})()"),0);
- // A later pair needs scrolling, but its first row must not be cut off.
- assert.equal(h.run("(()=>{const s={scrollTop:0,getBoundingClientRect:()=>({top:100,bottom:300})};const b={children:[{},{},{getBoundingClientRect:()=>({top:400,bottom:470})},{getBoundingClientRect:()=>({top:478,bottom:548})}]};keepLatestResultVisible(s,b,4,'duel');return s.scrollTop;})()"),256);
+ const run=(count,pending,scrollTop=0)=>h.run(`(()=>{const s={scrollTop:${scrollTop},scrollHeight:700,clientHeight:200,getBoundingClientRect:()=>({top:100,bottom:300})};const row=t=>({getBoundingClientRect:()=>({top:t-${scrollTop},bottom:t+70-${scrollTop}})});const b={children:[row(108),row(186),row(400),row(478),row(556),row(634)]};keepLatestResultVisible(s,b,${count},'duel',${pending});return s.scrollTop;})()`);
+ assert.equal(run(2,false),0,'the first round already fits');
+ assert.equal(run(4,false),292,'round 2 (rows at 400 and 478) moves to the top of the view, not past it');
+ assert.equal(run(4,false,250),292,'also when the player had scrolled elsewhere');
+ assert.equal(run(4,true),500,'a newly locked word scrolls to the bottom');
+ assert.equal(run(6,false),448,'round 3 moves to the top of the view');assert.equal(h.run("(()=>{const s={scrollTop:0,scrollHeight:300,clientHeight:200,getBoundingClientRect:()=>({top:100,bottom:300})};const b={children:[{},{},{getBoundingClientRect:()=>({top:330,bottom:400})},{}]};keepLatestResultVisible(s,b,4,'duel');return s.scrollTop;})()"),100,'never past the end');
 });
 test('home offers four ways to play: friend and bot pick a game first, Back retraces, guests see Competitive locked',async()=>{const h=await harness();assert.equal(h.run('step'),'modes');h.run("openGames('friend')");assert.equal(h.run('step'),'games');h.run("chooseMode('race')");assert.equal(h.run('step'),'friend');assert.equal(h.run('mode'),'race');h.run('back()');assert.equal(h.run('step'),'games');h.run('back()');assert.equal(h.run('step'),'modes');assert.equal(h.run('intent'),null);h.run("openGames('bot')");h.run("chooseMode('duel')");assert.equal(h.run('step'),'bot');h.run('back()');h.run('back()');h.run("signedAccount=null");await h.run('renderCompetitive()');assert.equal(h.get('competitive-find').textContent,'Sign in with Google');});
 test('result shows the rating change as before → after with a signed delta, or Not rated',async()=>{const h=await harness();h.run("renderRating(true,{rating_before:1240,rating_after:1258,delta:18,xp:20})");const box=h.get('result-rating');assert.equal(box.hidden,false);const text=JSON.stringify(box.children.map(c=>c.textContent));assert(text.includes('+18'),text);assert(text.includes('+20 XP'),text);h.run("renderRating(false,null)");assert(JSON.stringify(h.get('result-rating').children.map(c=>c.textContent)).includes('Not rated'));});
