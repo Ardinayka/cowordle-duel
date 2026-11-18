@@ -134,3 +134,27 @@ SELECT day, COUNT(*) AS eligible_finished, SUM(solved) AS solved FROM daily_resu
 -- One player's week by username (pilot corrections)
 SELECT r.day, r.solved, r.tries, r.eligible, datetime(r.first_guess_at/1000,'unixepoch') AS first_guess_utc FROM daily_results r JOIN friend_profiles f ON f.user_id=r.player WHERE f.username=? AND r.day BETWEEN ? AND ? ORDER BY r.day;
 ```
+
+## Email sign-in and player tags (November 2026)
+
+Migration `drizzle/0019_email_signin_and_badges.sql` is additive: the `email_codes` table (one row per email hash with the hashed pending code, plus one `day:YYYY-MM-DD` row counting codes sent that day) and `friend_profiles.badge`. Email accounts are rows in `auth_profiles` whose `google_sub` is `email:<hash>`; the address itself is never stored.
+
+**Turning email sign-in on (owner):**
+1. Create a free account at resend.com (free plan: 3,000 emails a month, 100 a day). Add the domain `lexivanto.com` and add the DNS records Resend shows (in Cloudflare → lexivanto.com → DNS). Wait until Resend shows the domain as verified.
+2. Create an API key with "Sending access" for lexivanto.com.
+3. In Cloudflare → Workers → each Lexivanto Worker (preview and production) → Settings → Variables and Secrets, add a **secret** `RESEND_API_KEY` with that key. Optional plain variables: `EMAIL_FROM` (default `Lexivanto <login@lexivanto.com>`) and `EMAIL_DAILY_LIMIT` (default 90, below Resend's 100 a day).
+Until the secret exists, the sheet shows only Google and `/api/auth/email/*` answers `email_not_configured`.
+
+**Limits:** codes last 10 minutes and allow 5 tries; one code a minute per address; 5 code requests an hour per network address; at most `EMAIL_DAILY_LIMIT` codes a day in total.
+
+**Player tags:** set or clear a tag by player tag or username (the list of tags the app shows is `BADGES` in `public/friends.js`):
+```sql
+UPDATE friend_profiles SET badge='developer' WHERE username='your_username';
+UPDATE friend_profiles SET badge=NULL WHERE tag='LEX-…';
+```
+
+```sql
+-- Email sign-ins per day (codes sent; accounts are not linked to addresses)
+SELECT email_hash AS day, attempts AS codes_sent FROM email_codes WHERE email_hash LIKE 'day:%' ORDER BY email_hash DESC LIMIT 14;
+SELECT COUNT(*) AS email_accounts FROM auth_profiles WHERE google_sub LIKE 'email:%';
+```

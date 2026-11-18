@@ -657,3 +657,26 @@ body.guest .profile-tag-section,body.guest #notify-invites-row{display:none}
 .friends-week h3{margin:0}
 .friends-week .eyebrow,.friends-week .muted{margin:0}
 #share-friend-link{min-height:48px;margin-top:8px}
+
+/* Sign-in sheet (November 2026): Google, or a 6-digit code sent by email */
+.signin-dialog{display:grid;gap:12px}
+.signin-dialog:not([open]){display:none}
+.signin-sub{margin:0;color:var(--muted)}
+.signin-note{margin:0;padding:10px 12px;border:1px solid var(--line-strong);border-radius:var(--r-control);background:var(--raised);font-weight:600}
+.signin-google{display:grid;gap:8px;justify-items:center;min-height:48px}
+#google-button{width:100%;display:flex;justify-content:center;min-height:44px}
+.signin-or{display:flex;align-items:center;gap:12px;margin:0;color:var(--muted);font-size:.875rem}
+.signin-or::before,.signin-or::after{content:"";flex:1;border-top:1px solid var(--line)}
+.email-form{display:grid;gap:10px}
+.email-form input{min-height:48px;width:100%;min-width:0;box-sizing:border-box}
+.email-form button,#signin-open{min-height:48px}
+.code-actions{display:flex;flex-wrap:wrap;gap:8px}
+.code-actions button{flex:1 1 8em;min-width:0;min-height:48px;white-space:normal}
+#email-code{font:700 1.5rem/1 var(--font-display);letter-spacing:.25em;text-align:center}
+.signin-dialog>*{min-width:0}
+#signin-error:empty{display:none}
+/* Player tag under a name (Developer now; later supporter, season or team tags). Gold, not red: red means danger. */
+.badge-tag{display:inline-flex;align-items:center;padding:1px 8px;border-radius:999px;border:1px solid var(--warning);background:var(--warning-soft);color:var(--warning);font:700 .6875rem/1.4 var(--font-ui);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;vertical-align:middle}
+#profile-badge{display:flex;margin-top:6px;width:max-content}
+#profile-badge[hidden]{display:none}
+#code-sent{overflow-wrap:anywhere}

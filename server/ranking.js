@@ -83,7 +83,7 @@ export async function matchProgress(storage,g,code,seat){
 }
 export async function leaderboardRoute(request,storage,account){
  if(request.method!=='GET')return json({error:'method'},405);
- const rows=await storage.prepare("SELECT f.username,f.avatar,f.colour,r.rating,r.rated_games,r.wins,r.draws,r.losses,r.xp,r.tier FROM player_ratings r JOIN friend_profiles f ON f.user_id=r.user_id WHERE r.rated_games>=? AND f.username IS NOT NULL ORDER BY r.rating DESC,r.wins DESC,r.updated ASC LIMIT 100").bind(PLACEMENTS).all();
+ const rows=await storage.prepare("SELECT f.username,f.avatar,f.colour,f.badge,r.rating,r.rated_games,r.wins,r.draws,r.losses,r.xp,r.tier FROM player_ratings r JOIN friend_profiles f ON f.user_id=r.user_id WHERE r.rated_games>=? AND f.username IS NOT NULL ORDER BY r.rating DESC,r.wins DESC,r.updated ASC LIMIT 100").bind(PLACEMENTS).all();
  let mine=null;
  if(account){const p=await storage.prepare('SELECT f.username,f.avatar,f.colour,r.rating,r.rated_games,r.wins,r.draws,r.losses,r.xp,r.tier,r.peak_rating,r.season_tier,(SELECT COUNT(*)+1 FROM player_ratings x WHERE x.rated_games>=? AND x.rating>r.rating) AS rank FROM friend_profiles f LEFT JOIN player_ratings r ON r.user_id=f.user_id WHERE f.user_id=?').bind(PLACEMENTS,account.user_id).first();
   if(p){const status=await competitiveStatus(storage,account.user_id),games=p.rated_games||0;mine={...p,rated_games:games,rank:games>=PLACEMENTS?p.rank:null,tier:games>=PLACEMENTS?(p.tier||tierFor(p.rating)):null,placement:{played:Math.min(games,PLACEMENTS),of:PLACEMENTS},unlocked:status.unlocked,normalGames:status.normalGames,normalNeeded:status.normalNeeded,cooldownUntil:status.cooldownUntil};}}

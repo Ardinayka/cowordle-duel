@@ -1,3 +1,4 @@
+import {takeBudget,takeCooldown} from './protection.js';
 const encoder=new TextEncoder();
 const SESSION='__Host-lexivanto_session', CHALLENGE='__Host-lexivanto_challenge';
 export const randomToken=()=>Array.from(crypto.getRandomValues(new Uint8Array(32))).map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -28,12 +29,31 @@ export async function verifyGoogleToken(token,clientId,nonce,{now=Date.now(),res
   if(!['accounts.google.com','https://accounts.google.com'].includes(claims.iss)||claims.aud!==clientId||claims.azp&&claims.azp!==clientId||!Number.isFinite(claims.exp)||claims.exp<=seconds||!Number.isFinite(claims.iat)||claims.iat>seconds+60||claims.exp<=claims.iat||typeof claims.sub!=='string'||!claims.sub||claims.sub.length>255||claims.nonce!==nonce)throw Error('invalid_token');
   return {sub:claims.sub,name:typeof claims.name==='string'?claims.name.trim().slice(0,24)||'Player':'Player'};
 }
+// Email sign-in (passwordless): the player enters an address, gets a 6-digit code (10 minutes, 5 tries) and is
+// signed in. Only a one-way hash of the address is stored (as the account's identity key 'email:<hash>' and on the
+// pending code); the address itself goes only to the email service to deliver the code.
+export const EMAIL_CODE_MS=600000,EMAIL_MAX_TRIES=5;
+export const normalEmail=value=>{const e=String(value||'').trim().toLowerCase();return e.length<=254&&/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/.test(e)?e:'';};
+const emailKey=email=>hash('email:'+email);
+export function emailEnabled(env){return !!env.RESEND_API_KEY||Array.isArray(env.EMAIL_OUTBOX);}
+async function sendLoginEmail(env,to,code){
+  const text=`Your Lexivanto sign-in code is ${code}.\n\nIt works for 10 minutes. If you didn't ask for it, you can ignore this email.\n\nlexivanto.com`;
+  // Local tests and the development harness collect messages instead of sending them.
+  if(Array.isArray(env.EMAIL_OUTBOX)){env.EMAIL_OUTBOX.push({to,code,text});return;}
+  const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{authorization:'Bearer '+env.RESEND_API_KEY,'content-type':'application/json'},body:JSON.stringify({from:env.EMAIL_FROM||'Lexivanto <login@lexivanto.com>',to:[to],subject:`${code} is your Lexivanto code`,text}),signal:AbortSignal.timeout(8000)});
+  if(!r.ok)throw Error('email_send_failed');
+}
+async function startSession(storage,userId,oldToken){
+  if(oldToken)await storage.prepare('DELETE FROM auth_sessions WHERE hash=?').bind(await hash(oldToken)).run();
+  const fresh=randomToken(),csrf=randomToken();await storage.prepare('INSERT INTO auth_sessions (hash,user_id,csrf,expires) VALUES (?,?,?,?)').bind(await hash(fresh),userId,csrf,Date.now()+604800000).run();
+  return {fresh,csrf};
+}
 export async function getSession(request,storage){const token=readCookie(request,SESSION);if(!token)return null;return storage.prepare('SELECT s.hash,s.csrf,s.user_id,COALESCE(f.username,p.display_name) AS display_name FROM auth_sessions s JOIN auth_profiles p ON p.id=s.user_id LEFT JOIN friend_profiles f ON f.user_id=p.id WHERE s.hash=? AND s.expires>?').bind(await hash(token),Date.now()).first();}
 export async function authRoute(request,env,storage){
   const path=new URL(request.url).pathname.slice('/api/auth/'.length),clientId=env.GOOGLE_CLIENT_ID||'';
   let session=null;const sessionToken=readCookie(request,SESSION);
   if(sessionToken)session=await storage.prepare('SELECT s.hash,s.csrf,s.user_id,COALESCE(f.username,p.display_name) AS display_name FROM auth_sessions s JOIN auth_profiles p ON p.id=s.user_id LEFT JOIN friend_profiles f ON f.user_id=p.id WHERE s.hash=? AND s.expires>?').bind(await hash(sessionToken),Date.now()).first();
-  const identity=()=>({googleEnabled:!!clientId,clientId,user:session?{name:session.display_name}:null,csrf:session?.csrf||null});
+  const identity=()=>({googleEnabled:!!clientId,emailEnabled:emailEnabled(env),clientId,user:session?{name:session.display_name}:null,csrf:session?.csrf||null});
   if(path==='me'&&request.method==='GET')return json(identity());
   if(request.method!=='POST')return json({error:'method'},405);
   if(request.headers.get('origin')!==new URL(request.url).origin||!request.headers.get('content-type')?.startsWith('application/json'))return json({error:'origin'},403);
@@ -43,6 +63,35 @@ export async function authRoute(request,env,storage){
     if(path==='delete'){await storage.batch([storage.prepare('DELETE FROM friend_challenges WHERE sender=? OR recipient=?').bind(session.user_id,session.user_id),storage.prepare('DELETE FROM daily_results WHERE player=?').bind(session.user_id),storage.prepare('DELETE FROM daily_devices WHERE player=?').bind(session.user_id),storage.prepare('DELETE FROM push_subscriptions WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM room_members WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM player_progress WHERE player=?').bind(session.user_id),storage.prepare('DELETE FROM queue_penalties WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM friendships WHERE a=? OR b=?').bind(session.user_id,session.user_id),storage.prepare('DELETE FROM player_blocks WHERE owner=? OR blocked=?').bind(session.user_id,session.user_id),storage.prepare('UPDATE support_reports SET reporter=NULL WHERE reporter=?').bind(session.user_id),storage.prepare('DELETE FROM rating_events WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM player_ratings WHERE user_id=?').bind(session.user_id),storage.prepare('UPDATE match_results SET player_a=NULL WHERE player_a=?').bind(session.user_id),storage.prepare('UPDATE match_results SET player_b=NULL WHERE player_b=?').bind(session.user_id),storage.prepare('UPDATE match_results SET winner=NULL WHERE winner=?').bind(session.user_id),storage.prepare('DELETE FROM friend_profiles WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM auth_sessions WHERE user_id=?').bind(session.user_id),storage.prepare('DELETE FROM auth_profiles WHERE id=?').bind(session.user_id)]);}
     else await storage.prepare('DELETE FROM auth_sessions WHERE hash=?').bind(session.hash).run();
     return json({ok:true},200,[cookie(SESSION,'',0)]);
+  }
+  if(path==='email/start'||path==='email/verify'){
+    if(!emailEnabled(env))return json({error:'email_not_configured'},503);
+    const email=normalEmail(body.email);if(!email)return json({error:'email_invalid'},400);
+    const key=await emailKey(email),now=Date.now();
+    if(path==='email/start'){
+      const ip=request.headers.get('cf-connecting-ip')||'';
+      if(!await takeCooldown(storage,'email-cooldown:'+key,now,60000))return json({error:'email_wait'},429);
+      if(ip&&!await takeBudget(storage,'email-ip:'+await hash(ip),5,now,3600000))return json({error:'email_wait'},429);
+      const day='day:'+new Date(now).toISOString().slice(0,10),limit=Number(env.EMAIL_DAILY_LIMIT)||90;
+      const sent=await storage.prepare("INSERT INTO email_codes (email_hash,code_hash,expires,attempts,created) VALUES (?,'',?,1,?) ON CONFLICT(email_hash) DO UPDATE SET attempts=attempts+1 RETURNING attempts").bind(day,now+172800000,now).first();
+      if((sent?.attempts||0)>limit)return json({error:'email_busy'},429);
+      await storage.prepare('DELETE FROM email_codes WHERE email_hash IN (SELECT email_hash FROM email_codes WHERE expires<? LIMIT 50)').bind(now).run();
+      const code=String(crypto.getRandomValues(new Uint32Array(1))[0]%1000000).padStart(6,'0');
+      await storage.prepare('INSERT INTO email_codes (email_hash,code_hash,expires,attempts,created) VALUES (?,?,?,0,?) ON CONFLICT(email_hash) DO UPDATE SET code_hash=excluded.code_hash,expires=excluded.expires,attempts=0,created=excluded.created').bind(key,await hash(key+':'+code),now+EMAIL_CODE_MS,now).run();
+      try{await sendLoginEmail(env,email,code);}catch{await storage.prepare('DELETE FROM email_codes WHERE email_hash=?').bind(key).run();return json({error:'email_send_failed'},502);}
+      return json({ok:true});
+    }
+    const code=String(body.code||'').replace(/\D/g,'');if(code.length!==6)return json({error:'code_invalid'},400);
+    const row=await storage.prepare('SELECT code_hash,expires,attempts FROM email_codes WHERE email_hash=?').bind(key).first();
+    if(!row||row.expires<=now)return json({error:'code_expired'},401);
+    if(row.attempts>=EMAIL_MAX_TRIES)return json({error:'code_expired'},401);
+    if(row.code_hash!==await hash(key+':'+code)){await storage.prepare('UPDATE email_codes SET attempts=attempts+1 WHERE email_hash=?').bind(key).run();return json({error:row.attempts+1>=EMAIL_MAX_TRIES?'code_expired':'code_wrong'},401);}
+    const used=await storage.prepare('DELETE FROM email_codes WHERE email_hash=? AND code_hash=?').bind(key,row.code_hash).run();if(used.meta.changes!==1)return json({error:'code_expired'},401);
+    // The identity key column was named for Google; email accounts use 'email:<hash>' (Google ids are digits only).
+    await storage.prepare("INSERT INTO auth_profiles (id,google_sub,display_name,created) VALUES (?,?,'Player',?) ON CONFLICT(google_sub) DO NOTHING").bind(randomToken(),'email:'+key,now).run();
+    const profile=await storage.prepare('SELECT p.id,COALESCE(f.username,p.display_name) AS name FROM auth_profiles p LEFT JOIN friend_profiles f ON f.user_id=p.id WHERE google_sub=?').bind('email:'+key).first();
+    const {fresh,csrf}=await startSession(storage,profile.id,sessionToken);
+    return json({googleEnabled:!!clientId,emailEnabled:true,clientId,user:{name:profile.name},csrf},200,[cookie(SESSION,fresh,604800)]);
   }
   if(!clientId)return json({error:'google_not_configured'},503);
   if(path==='challenge'){
@@ -61,9 +110,8 @@ export async function authRoute(request,env,storage){
     const used=await storage.prepare('DELETE FROM auth_challenges WHERE hash=? AND expires>?').bind(challengeHash,Date.now()).run();if(used.meta.changes!==1)return json({error:'sign_in_expired'},401);
     await storage.prepare('INSERT INTO auth_profiles (id,google_sub,display_name,created) VALUES (?,?,?,?) ON CONFLICT(google_sub) DO UPDATE SET display_name=excluded.display_name').bind(randomToken(),claims.sub,claims.name,Date.now()).run();
     const profile=await storage.prepare('SELECT p.id,COALESCE(f.username,p.display_name) AS name FROM auth_profiles p LEFT JOIN friend_profiles f ON f.user_id=p.id WHERE google_sub=?').bind(claims.sub).first();
-    if(sessionToken)await storage.prepare('DELETE FROM auth_sessions WHERE hash=?').bind(await hash(sessionToken)).run();
-    const fresh=randomToken(),csrf=randomToken();await storage.prepare('INSERT INTO auth_sessions (hash,user_id,csrf,expires) VALUES (?,?,?,?)').bind(await hash(fresh),profile.id,csrf,Date.now()+604800000).run();
-    return json({googleEnabled:true,clientId,user:{name:profile.name},csrf},200,[cookie(SESSION,fresh,604800),cookie(CHALLENGE,'',0)]);
+    const {fresh,csrf}=await startSession(storage,profile.id,sessionToken);
+    return json({googleEnabled:true,emailEnabled:emailEnabled(env),clientId,user:{name:profile.name},csrf},200,[cookie(SESSION,fresh,604800),cookie(CHALLENGE,'',0)]);
   }
   return json({error:'not_found'},404);
 }

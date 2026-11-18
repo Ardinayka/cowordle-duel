@@ -134,6 +134,13 @@
       "when": 1795021992223,
       "tag": "0018_daily_league",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "6",
+      "when": 1795028060589,
+      "tag": "0019_email_signin_and_badges",
+      "breakpoints": true
     }
   ]
 }
