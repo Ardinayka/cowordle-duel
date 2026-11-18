@@ -119,3 +119,18 @@ Migration `drizzle/0017_turn_based_games.sql` adds `room_members` (one row per s
 -- Active turn-based games and how many are waiting on a move
 SELECT COUNT(DISTINCT code) AS games, SUM(my_turn) AS waiting_moves FROM room_members WHERE status='playing';
 ```
+
+## Friend loop: measurement, Daily league and friend links (November 2026)
+
+Migration `drizzle/0018_daily_league.sql` is additive: `daily_results.first_guess_at` (time of the first guess), `daily_results.eligible` (1 when the first guess arrived signed in on the Europe/Brussels day of that puzzle) and the `daily_devices` table (day, hashed device code, account) that stops a signed-out device replaying a word it played signed in. Rows older than three days are removed during play. Results stored before the migration have `eligible = 0` and never count for standings.
+
+- **Stats switch:** open `https://lexivanto.com/?stats=off` once on every device you or your testers use (phones, laptops, automated checks). It sets the cookie `lexivanto_stats=off` for a year and the server skips every counter for requests carrying it. `/?stats=on` removes it. It does not affect gameplay or Daily results.
+- **Visits** are now hashed from the device code (`x-lexivanto-device`), not the tab token, so return-rate queries work from the release date. Earlier `player_days` rows are per tab and are not comparable.
+- **Two-player finishes** (`online_finished`, `friend_room_finished`) are posted only by the host's browser from this release.
+
+```sql
+-- Friends' week: eligible Daily results per day (for checking standings by hand)
+SELECT day, COUNT(*) AS eligible_finished, SUM(solved) AS solved FROM daily_results WHERE eligible=1 AND finished=1 GROUP BY day ORDER BY day DESC LIMIT 14;
+-- One player's week by username (pilot corrections)
+SELECT r.day, r.solved, r.tries, r.eligible, datetime(r.first_guess_at/1000,'unixepoch') AS first_guess_utc FROM daily_results r JOIN friend_profiles f ON f.user_id=r.player WHERE f.username=? AND r.day BETWEEN ? AND ? ORDER BY r.day;
+```

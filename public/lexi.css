@@ -553,7 +553,7 @@ dialog.result[data-outcome=win][open]::before,dialog.result[data-outcome=win][op
 .rating-delta.even,.rating-delta.unrated{color:var(--muted);background:var(--sunken);font:700 .875rem var(--font-ui)}
 .rating-xp{font-weight:700;color:var(--link)}
 .rating-note{width:100%;font-size:.875rem;color:var(--muted)}
-.result-support{display:flex;justify-content:center;margin-top:4px;font-size:.875rem;color:var(--muted)}
+.result-support{display:flex;justify-content:center;margin-top:12px;font-size:.875rem;color:var(--muted)}
 .rating-promo{width:100%;font:800 1.125rem var(--font-display);color:var(--competitive)}
 .result-rating:has(.unrated):not(:has(.rating-xp)){border:0;padding:0;background:transparent}
 .timer.urgent{animation:urgent 1s ease-in-out infinite}
@@ -646,3 +646,14 @@ body.guest .profile-tag-section,body.guest #notify-invites-row{display:none}
 .me-links{display:flex;flex-wrap:wrap;gap:0 4px;margin:0 0 12px}
 .me-links a,.me-links button{display:inline-flex;align-items:center;min-height:48px;min-width:48px;padding:0 10px;border:0;background:transparent;color:var(--link);font:600 .9375rem var(--font-ui)}
 .me-links button:hover:not(:disabled){background:transparent;text-decoration:underline}
+
+/* Friends' Daily week (November 2026) */
+.daily-week-line{margin:0 0 8px;font-weight:700;color:var(--ink)}
+.week-list li.you{border-color:var(--link)}
+.week-pos{display:inline-block;min-width:2.2em;color:var(--muted);font-variant-numeric:tabular-nums}
+.daily-actions{display:grid;gap:8px;margin-top:12px}
+.daily-actions button{min-height:48px}
+.friends-week{margin:0 0 20px;display:grid;gap:8px}
+.friends-week h3{margin:0}
+.friends-week .eyebrow,.friends-week .muted{margin:0}
+#share-friend-link{min-height:48px;margin-top:8px}

@@ -48,3 +48,17 @@ test('the game may be shown inside the itch.io page but not inside other sites, 
  const ev=await worker.fetch(new Request('https://game.test/api/event',{method:'POST',headers:{origin:'https://game.test','content-type':'application/json',authorization:'Bearer '+'c'.repeat(64)},body:JSON.stringify({event:'visit_itch'})}),env);
  assert.equal(ev.status,200);assert.equal(env.sql.prepare("SELECT value FROM daily_stats WHERE metric='visit_itch'").get()?.value,1);
 });
+test('visits are counted once per device across tabs, and a stats-off device is never counted',async()=>{const env=testEnv();const visit=(token,device,cookie='')=>worker.fetch(new Request('https://game.test/api/event',{method:'POST',headers:{authorization:'Bearer '+token,'x-lexivanto-device':device,'content-type':'application/json',...(cookie?{cookie}:{})},body:JSON.stringify({event:'visit'})}),env);
+ const dev='d'.repeat(64);await visit('a'.repeat(64),dev);await visit('b'.repeat(64),dev);
+ const value=()=>env.sql.prepare("SELECT COALESCE(SUM(value),0) AS v FROM daily_stats WHERE metric='active_devices'").get().v;
+ assert.equal(value(),1,'two tabs on one device count once');
+ await visit('c'.repeat(64),'e'.repeat(64),'lexivanto_stats=off');assert.equal(value(),1,'stats-off device not counted');
+ const ev=await worker.fetch(new Request('https://game.test/api/event',{method:'POST',headers:{authorization:'Bearer '+'c'.repeat(64),cookie:'other=1; lexivanto_stats=off','content-type':'application/json'},body:JSON.stringify({event:'practice_started'})}),env);assert.equal(ev.status,200);
+ assert.equal(env.sql.prepare("SELECT COUNT(*) AS n FROM daily_stats WHERE metric='practice_started'").get().n,0,'no counter for a stats-off device');
+ await worker.fetch(new Request('https://game.test/api/event',{method:'POST',headers:{authorization:'Bearer '+'c'.repeat(64),'content-type':'application/json'},body:JSON.stringify({event:'practice_started'})}),env);
+ assert.equal(env.sql.prepare("SELECT value FROM daily_stats WHERE metric='practice_started'").get().value,1,'counted normally without the cookie');});
+test('room words never repeat a Daily word from yesterday, today or tomorrow',async()=>{const {recentDaily,pickWord}=await import('../server/room-words.js');const online=(await import('../server/answers-en.js')).default,friend=JSON.parse((await import('node:fs')).readFileSync('public/words-en.json','utf8')).answers;const env=testEnv();
+ const t=Date.now(),days=[-1,0,1,5].map(o=>new Date(t+o*864e5).toISOString().slice(0,10));for(const [i,d] of days.entries())env.sql.prepare('INSERT INTO daily_puzzles (day,word,created) VALUES (?,?,?)').run(d,['crane','slate','pious','dough'][i],t);
+ const recent=await recentDaily(env.DB);assert.deepEqual(recent.sort(),['crane','pious','slate'],'only the three days around now');
+ assert.ok(friend.length>100&&online.length>1000);for(let i=0;i<300;i++){assert.ok(!recent.includes(pickWord(friend,recent)));assert.ok(!recent.includes(pickWord(online,recent)));}assert.equal(pickWord(['a','b'],['a']),'b');
+});
