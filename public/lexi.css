@@ -251,16 +251,33 @@ dialog.screen button.close{display:none}
    buttons have a minimum height, so without this a flex column squeezes them below their text. */
 .arena>:not(#play-area):not(#lobby),#play-area>:not(#board-scroll),.lobby>*{flex-shrink:0}
 .arena-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:28px}
-#board-title{display:inline-flex;align-items:center;min-height:26px;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font:700 .75rem/1.2 var(--font-ui);letter-spacing:.04em;color:var(--muted)}
-#board-title[data-kind=rated]{color:var(--competitive);background:var(--competitive-soft)}
-#board-title[data-kind=friend]{color:var(--friend);background:var(--friend-soft)}
-#board-title[data-kind=online]{color:var(--normal);background:var(--normal-soft)}
-#round{font:600 .8125rem var(--font-ui);color:var(--muted);font-variant-numeric:tabular-nums}
-.players{display:flex;align-items:center;gap:8px}
+#board-title,#match-chip{display:inline-flex;align-items:center;min-height:26px;padding:2px 10px;border-radius:999px;border:1px solid currentColor;font:700 .75rem/1.2 var(--font-ui);letter-spacing:.04em;color:var(--muted)}
+#board-title[data-kind=rated],#match-chip[data-kind=rated]{color:var(--competitive);background:var(--competitive-soft)}
+#board-title[data-kind=friend],#match-chip[data-kind=friend]{color:var(--friend);background:var(--friend-soft)}
+#board-title[data-kind=online],#match-chip[data-kind=online]{color:var(--normal);background:var(--normal-soft)}
+#round{font:700 .75rem/1.2 var(--font-ui);letter-spacing:.04em;color:var(--muted);font-variant-numeric:tabular-nums;text-transform:uppercase}
+/* One-line match header: avatars with a status badge, names, and the round or clock in the middle. The game type is a
+   short chip in the top bar; the status sentence sits just above the typing row. */
+#match-chip{display:none;white-space:nowrap;flex:none}
+body.playing #match-chip{display:inline-flex}
+body.playing .wordmark,body.playing .arena-heading{display:none}
+.hud-mid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;min-width:0}
+.hud-mid .timer{margin:0;font-size:1rem}
+.timer:empty{display:none}
+.players{display:grid;grid-template-columns:minmax(min-content,1fr) minmax(0,auto) auto minmax(min-content,1fr);align-items:center;gap:8px;min-height:48px;container-type:inline-size}
+.players>.player.you{grid-area:1/1}.players>.hud-mid{grid-area:1/2}.players>#emote-button{grid-area:1/3}.players>.player.bot{grid-area:1/4}
+/* Narrow or very large text: avatars, badges and the round only (the opponent avatar names the player). */
+@container (max-width:16rem){.player strong{display:none}}
+@container (max-width:20rem){.players:has(#emote-button:not([hidden])) .player strong{display:none}}
 .player{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
 .player.bot{justify-content:flex-end;text-align:right}
-.player strong{display:block;font-size:.9375rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.player small{display:block;color:var(--muted);font-size:.8125rem;font-weight:600}
+.player strong{display:block;font-size:.875rem;line-height:1.2;overflow-wrap:break-word}
+.player .avatar{position:relative}
+.player[data-state] .avatar::after{content:"";position:absolute;right:-3px;bottom:-3px;width:16px;height:16px;box-sizing:border-box;border-radius:50%;border:2px solid var(--bg)}
+.player[data-state=done] .avatar::after{background:var(--exact) center/10px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2307101f' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5 9.5 18 20 6'/%3E%3C/svg%3E")}
+.player[data-state=busy] .avatar::after{background:radial-gradient(circle,var(--link) 0 32%,var(--bg) 38%);box-shadow:inset 0 0 0 2px var(--link)}
+.player[data-state=idle] .avatar::after{background:var(--bg);box-shadow:inset 0 0 0 2px var(--faint)}
+.player[data-state=""] .avatar::after{display:none}
 .player.active small{color:var(--link)}
 .player .avatar{width:36px;height:36px;min-width:36px;min-height:36px;padding:0;border-radius:50%;display:grid;place-items:center;background-color:var(--avatar-colour,var(--normal));color:var(--on-exact);font:800 .9375rem var(--font-display);border:0;background-size:cover;background-position:center}
 .player .avatar.character-picture{color:transparent}
@@ -294,7 +311,7 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 /* min-height:auto: the play area never gets shorter than its content. Size containment on the board keeps its share
    of that at 72px, so at very large text the page scrolls a little instead of text running under the board. */
 #play-area{display:flex;flex-direction:column;min-height:auto;flex:1;gap:6px}
-.turn-line{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;min-height:24px;font-size:.875rem;color:var(--muted);font-weight:600}
+.turn-line{display:flex;justify-content:center;text-align:center;min-height:20px;font-size:.8125rem;line-height:1.35;color:var(--muted);font-weight:600}
 #turn-label{flex:1 1 0}
 #turn-label.needs-reply{color:var(--danger)}
 .timer{margin-left:auto;font:800 1.125rem/1 var(--font-display);font-variant-numeric:tabular-nums;color:var(--ink)}
@@ -303,7 +320,7 @@ button.avatar{min-height:44px;min-width:44px;width:44px;height:44px}
 #play-area.untimed .time-track{display:none}
 #time-fill{height:100%;width:0;border-radius:inherit;transition:width .25s linear}
 #race-progress{font-size:.875rem;color:var(--muted)}
-#history-hint{font-size:.75rem;color:var(--faint);text-align:center}
+#history-hint{display:none}
 #board-scroll:focus-visible{outline-offset:-3px}
 #board-scroll{flex:1 1 auto;min-height:72px;container-type:size;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;border-radius:var(--r-control)}
 .board{display:flex;flex-direction:column;align-items:center;gap:var(--gap)}
@@ -352,7 +369,7 @@ body.playing #leave{display:none}
 .bottom-actions{min-height:20px}
 /* short phones: protect board and keyboard */
 @media(max-height:700px){#play-area{--tile:clamp(38px,11.5vw,50px)}.key{--kh:46px}.players .avatar{width:30px;height:30px;min-width:30px}.player small{font-size:.75rem}.arena{gap:4px}}
-@media(max-height:600px){.key{--kh:44px}.keyboard{gap:5px}#play-area{--tile:40px}.players{display:none}}
+@media(max-height:600px){.key{--kh:44px}.keyboard{gap:5px}#play-area{--tile:40px}}
 body.playing .topbar{--top-h:52px}
 body.playing #game-layout{height:calc(100dvh - 52px - var(--safe-t))}
 
@@ -433,7 +450,8 @@ body.match-introducing .matchup-player{animation:match-arrive .32s var(--ease-ou
 .way-card[data-kind=daily]{--accent:var(--warning);--accent-soft:var(--warning-soft)}
 /* Phase 4: daily word, coaching, reactions, stats */
 /* The daily word is played alone: no players row, and the header already says which guess this is. */
-body.daily-mode .players,body.daily-mode .turn-line{display:none}
+body.daily-mode .player,body.daily-mode #emote-button,body.daily-mode .turn-line{display:none}
+body.daily-mode .players{display:flex;justify-content:center;min-height:0}
 body.daily-mode .left-panel .match-details,body.daily-mode #game-note,body.daily-mode .right-panel .session{display:none}
 .coach{display:flex;align-items:center;gap:12px;margin:0 0 8px;padding:10px 12px;border:1.5px solid var(--link);border-radius:var(--r-control);background:var(--normal-soft)}
 .coach p{margin:0;flex:1;font-size:.9375rem;line-height:1.4}
@@ -478,7 +496,7 @@ body.guest #saved-friends-open,body.guest #step-friend .inline-friends{display:n
 /* A reaction briefly replaces the sender's status line, so it never covers the board, timer or controls. */
 .emote-bubble{display:inline-block;max-width:100%;padding:1px 8px;border-radius:999px;background:var(--ink);color:var(--bg);font:700 .75rem/1.4 var(--font-ui);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;animation:pop-in 220ms var(--ease-out)}
 .player:has(.emote-bubble:not([hidden])) small{display:none}
-.players:has(#emote-button:not([hidden])) .versus{display:none}
+
 @keyframes pop-in{from{opacity:0;transform:translateY(-4px) scale(.9)}}
 .rewards-line{margin:-4px 0 16px;color:var(--muted);font-size:.9375rem}
 .stats-section{padding:16px;border:1.5px solid var(--line);border-radius:var(--r-panel);background:var(--surface);margin:0 0 12px}
@@ -573,6 +591,8 @@ h1[tabindex="-1"]:focus,h2[tabindex="-1"]:focus,h1[tabindex="-1"]:focus-visible,
 /* With very large text on a narrow phone, Back keeps one line and the wordmark gives way (the logo stays). */
 .topbar{container-type:inline-size}
 @container (max-width:12em){.topbar:has(#back-button:not([hidden])) .wordmark{display:none}}
+/* rem follows the reader's text size here (em in a container query does not). */
+@container (max-width:12rem){body.playing #back-button .back-word{display:none}}
 /* Very large text on a narrow phone (about 200% at 390 px or less): a one-word title such as "Competitive"
    cannot fit beside the icon and arrow, so the card drops those decorations and the title gets the full width.
    em here is the list's own font size, so this follows the reader's text size, not the screen alone. */
