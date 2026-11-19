@@ -18,8 +18,8 @@ export function setupAccount({language,onName,onChange=()=>{},embedded=false}){
     $('open-site').hidden=!embedded||!!account.user;
     const googleShown=!embedded&&!inAppBrowser&&(!loaded||account.googleEnabled),emailShown=!embedded&&!!account.emailEnabled;
     $('signin-open').hidden=embedded||!!account.user;$('signin-open').disabled=working;
-    $('signin-google').hidden=!googleShown;$('signin-webview').hidden=!(inAppBrowser&&!embedded&&account.googleEnabled);
-    $('email-form').hidden=!emailShown||!!emailAddress;$('code-form').hidden=!emailShown||!emailAddress;$('signin-or').hidden=!(googleShown&&emailShown);
+    $('signin-google').hidden=!googleShown;$('signin-webview').hidden=!(inAppBrowser&&!embedded&&account.googleEnabled&&emailShown);
+    $('email-form').hidden=!emailShown||!!emailAddress;$('code-form').hidden=!emailShown||!emailAddress;$('signin-or').hidden=!(googleShown&&emailShown);$('signin-sub').textContent=loaded&&!emailShown&&!(googleShown&&account.googleEnabled)&&!inAppBrowser?'Sign-in isn’t available here right now. You can keep playing as a guest.':inAppBrowser&&!emailShown?'Sign-in isn’t available inside this app yet. Open lexivanto.com in your browser to sign in.':'Keep your friends, streak and rating on any device.';
     $('email-send').disabled=working;$('code-verify').disabled=working;$('code-resend').disabled=working;
     $('google-start').hidden=embedded||!!account.user||!googleFailed||(loaded&&!account.googleEnabled);$('google-start').disabled=working;
     $('google-start').textContent=working?tr('Loading Google…','A carregar Google…'):tr('Retry Google sign-in','Tentar Google novamente');
